@@ -3,7 +3,7 @@
 <!-- [START badges] -->
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/woodger/pwd-fs.svg?branch=master)](https://travis-ci.com/woodger/pwd-fs)
-[![Coverage Status](https://coveralls.io/repos/github/woodger/pwd-fs/badge.svg?branch=master)](https://coveralls.io/github/woodger/pwd-fs?branch=master)
+[![codecov](https://codecov.io/gh/woodger/pwd-fs/branch/master/graph/badge.svg)](https://codecov.io/gh/woodger/pwd-fs)
 <!-- [END badges] -->
 
 <!-- [START usecases] -->
