@@ -3,6 +3,7 @@
 <!-- [START badges] -->
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/woodger/pwd-fs.svg?branch=master)](https://travis-ci.com/woodger/pwd-fs)
+[![Coverage Status](https://coveralls.io/repos/github/woodger/pwd-fs/badge.svg?branch=master)](https://coveralls.io/github/woodger/pwd-fs?branch=master)
 <!-- [END badges] -->
 
 <!-- [START usecases] -->
@@ -33,7 +34,7 @@ npm i pwd-fs
   * [pfs.symlink(src, use[, options])](#pfssymlinksrc-use-options)
   * [pfs.copy(src, dir[, options])](#pfscopysrc-dir-options)
   * [pfs.rename(src, use[, options])](#pfsrenamesrc-use-options)
-  * [pfs.remove(src[, options])](#pfs-removesrc-options)
+  * [pfs.remove(src[, options])](#pfsremovesrc-options)
   * [pfs.read(src[, options])](#pfsreadsrc-options)
   * [pfs.write(src, data[, options])](#pfswritesrc-data-options)
   * [pfs.append(src, data[, options])](#pfsappendsrc-data-options)
@@ -55,7 +56,7 @@ const FileSystem = require('pwd-fs');
 
 - `mode` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 `fs.stat(path[, options], callback)` function provides information about the file system resource. A `stat.mode` is a bit-field that describes the type and mode of the file. Extends an instance of the standard module `fs.Stats` by adding a `bitmask` field.
-- returns: <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> bit-mask.
+- returns: <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>.
 
 ```js
 const FileSystem = require('pwd-fs');
