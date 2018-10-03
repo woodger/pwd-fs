@@ -1,0 +1,43 @@
+{
+  "name": "pwd-fs",
+  "version": "1.0.0",
+  "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test/index.test.js",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha test/index.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/woodger/pwd-fs"
+  },
+  "keywords": [
+    "recursive",
+    "umask",
+    "test",
+    "stat",
+    "chmod",
+    "chown",
+    "symlink",
+    "copy",
+    "rename",
+    "remove",
+    "read",
+    "write",
+    "append",
+    "readdir",
+    "mkdir"
+  ],
+  "author": {
+    "name": "Stanislav Woodger",
+    "email": "woodger@ya.ru"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "mock-fs": "^4.7.0"
+  },
+  "dependencies": {
+    "type-enforcement": "^1.0.0"
+  }
+}
