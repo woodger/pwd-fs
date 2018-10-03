@@ -10,7 +10,14 @@ describe(`pfs.stat(src[, options])`, function() {
 
   before(function() {
     mock({
-      'dir/file.txt': 'some text ...'
+      dir: mock.directory({
+        items: {
+          symlink: mock.symlink({
+            path: 'file.txt'
+          }),
+          'file.txt': 'some text ...'
+        }
+      }),
     });
   });
 
@@ -20,12 +27,12 @@ describe(`pfs.stat(src[, options])`, function() {
 
   it(`Provides information about a is file`, async function() {
     let stat = await pfs.stat('./dir/file.txt');
-    assert(stat.isFile());
+    assert(stat.isFile() && stat.size === 13);
   });
 
-  it(`Provides information about the owner of the file`, async function() {
-    let stat = await pfs.stat('./dir/file.txt');
-    assert(stat.uid === process.getuid());
+  it(`Provides information about the symlink`, async function() {
+    let stat = await pfs.stat('./dir/symlink');
+    assert(stat.isSymbolicLink());
   });
 
   it(`Provides file bitmask information`, async function() {
