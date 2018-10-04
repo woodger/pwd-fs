@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/woodger/pwd-fs.svg?branch=master)](https://travis-ci.com/woodger/pwd-fs)
 [![Coverage Status](https://coveralls.io/repos/github/woodger/pwd-fs/badge.svg)](https://coveralls.io/github/woodger/pwd-fs)
+[![Known Vulnerabilities](https://snyk.io/test/github/woodger/type-enforcement/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/type-enforcement?targetFile=package.json)
 <!-- [END badges] -->
 
 <!-- [START usecases] -->
