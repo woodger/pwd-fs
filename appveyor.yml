@@ -1,13 +1,21 @@
 # Test against the latest version of this Node.js version
 environment:
-  nodejs_version: "8"
+  matrix:
+    # node.js
+    - nodejs_version: "8"
+    - nodejs_version: "10"
+
+platform:
+  - x86
+  - x64
 
 # Install scripts. (runs after repo cloning)
 install:
-  # Get the latest stable version of Node.js or io.js
-  - ps: Install-Product node $env:nodejs_version
+  # Get the latest stable version of Node.js
+  - ps: Install-Product node $env:nodejs_version $env:platform
   # install modules
-  - npm install
+  - npm config set loglevel warn
+  - npm install --silent
 
 # Post-install test scripts.
 test_script:
@@ -19,3 +27,6 @@ test_script:
 
 # Don't actually build.
 build: off
+
+cache:
+  - node_modules
