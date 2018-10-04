@@ -149,6 +149,8 @@ async () => {
 };
 ```
 
+> **Caveats:** on Windows only the write permission can be changed, and the distinction among the permissions of group, owner or others is not implemented.
+
 See manuals [chmod(2)](http://man7.org/linux/man-pages/man2/chmod.2.html)
 
 #### pfs.chown(src, uid, gid[, options])

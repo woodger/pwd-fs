@@ -2,8 +2,7 @@ language: node_js
 node_js:
  - "8"
 install:
-  - npm i
-  - npm install -g istanbul codecov
+  - npm install
+  - npm install --save-dev coveralls
 script:
-  - istanbul cover ./node_modules/mocha/bin/_mocha ./test/index.test.js --report lcovonly -- -R spec
-  - codecov
+  - istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
