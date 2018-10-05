@@ -22,7 +22,7 @@ To use pwd-fs in your project, run:
 npm i pwd-fs
 ```
 
-### API v1.0.0
+### API docs
 
 #### Table of Contents
 

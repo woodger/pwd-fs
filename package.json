@@ -1,12 +1,11 @@
 {
   "name": "pwd-fs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha",
-    "jest": "jest"
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha"
   },
   "repository": {
     "type": "git",
