@@ -1,5 +1,4 @@
 const assert = require('assert');
-const {describe, it} = require('mocha');
 const mock = require('mock-fs');
 const FileSystem = require('..');
 

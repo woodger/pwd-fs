@@ -1,4 +1,4 @@
-# pwd-fs
+# File System
 
 <!-- [START badges] -->
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
@@ -16,7 +16,7 @@ This module expands the [Node.js®](https://nodejs.org) module with the capabili
 
 ### Installation
 
-To use pwd-fs in your project, run:
+To use `File System` in your project, run:
 
 ```bash
 npm i pwd-fs

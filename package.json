@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "main": "index.js",
   "scripts": {
@@ -41,6 +41,6 @@
     "mock-fs": "^4.7.0"
   },
   "dependencies": {
-    "type-enforcement": "^1.0.5"
+    "type-enforcement": "^1.0.10"
   }
 }
