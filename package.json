@@ -41,6 +41,6 @@
     "mock-fs": "^4.7.0"
   },
   "dependencies": {
-    "type-enforcement": "^1.0.10"
+    "type-enforcement": "^1.0.11"
   }
 }

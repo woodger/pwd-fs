@@ -20,11 +20,30 @@ describe(`pfs.mkdir(src[, options])`, function() {
   });
 
   it(`Create directories in the working directory`, async function() {
-    await pfs.mkdir('./dir/041ab08b');
-    let list = await pfs.readdir('./dir');
+    await pfs.mkdir('./dir/041ab08b/test');
+    let exists = await pfs.test('./dir/041ab08b/test');
 
-    assert(list.includes('041ab08b'));
+    assert(exists);
   });
+
+  it(`Should work fine with the existing directory`, async function() {
+    await pfs.mkdir('./dir/041ab08b');
+  });
+
+  /*
+  it(`Creating more than 1000 directories`, async function() {
+    let dir = './dir';
+
+    for (let i = 0; i < 1001; i++) {
+      dir += `/${i}`;
+    }
+
+    await pfs.mkdir(dir);
+    let exists = await pfs.test(dir);
+
+    assert(exists);
+  });
+  */
 
   it(`Create directories in the tmp directory`, async function() {
     await pfs.mkdir(`${tmpdir}/041ab08b`);
