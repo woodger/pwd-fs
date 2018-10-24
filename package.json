@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "main": "index.js",
   "scripts": {
