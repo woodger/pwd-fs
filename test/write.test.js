@@ -1,73 +1,89 @@
 const assert = require('assert');
-const mock = require('mock-fs');
+const mockFs = require('mock-fs');
 const FileSystem = require('..');
 
-
-
-describe(`pfs.write(src, data[, options])`, function() {
+describe(`pfs.write(src, data[, options])`, () => {
   const pfs = new FileSystem();
   const data = 'some text ...';
 
-  before(function() {
-    mock({
-      dir: mock.directory({})
+  before(() => {
+    mockFs({
+      dir: mockFs.directory({})
     });
   });
 
-  after(function() {
-    mock.restore();
+  after(() => {
+    mockFs.restore();
   });
 
-  it(`Write data to a file`, async function() {
+  it(`Write data to a file`, async () => {
     await pfs.write('./dir/file.txt', data);
-    let stat = await pfs.stat('./dir/file.txt');
+    const stat = await pfs.stat('./dir/file.txt');
 
-    assert.strictEqual(stat.size, 13);
+    assert(stat.size === 13);
   });
 
-  it(`Throw an exception if the option argument is not a object`, function() {
-    assert.throws(() => {
-      pfs.write('./dir/file.txt', data, null);
-    });
+  it(`Throw an exception if the option argument is not a object`, async () => {
+    try {
+      await pfs.write('./dir/file.txt', data, null);
+    }
+    catch (err) {
+      assert(err.message === "Cannot destructure property `encoding` of 'undefined' or 'null'.");
+    }
   });
 
-  it(`Option 'umask' must be a 'number' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.write('./dir/file.txt', data, {
+  it(`Option 'umask' must be a 'number' type, else throw`, async () => {
+    try {
+      await pfs.write('./dir/file.txt', data, {
         umask: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'umask' in order '#write()'. Expected Number");
+    }
   });
 
-  it(`Option 'encoding' must be a 'string' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.write('./dir/file.txt', data, {
+  it(`Option 'encoding' must be a 'string' type, else throw`, async () => {
+    try {
+      await pfs.write('./dir/file.txt', data, {
         encoding: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'encoding' in order '#write()'. Expected String");
+    }
   });
 
-  it(`Option 'flag' must be a 'string' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.write('./dir/file.txt', data, {
+  it(`Option 'flag' must be a 'string' type, else throw`, async () => {
+    try {
+      await pfs.write('./dir/file.txt', data, {
         flag: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'flag' in order '#write()'. Expected String");
+    }
   });
 
-  it(`Unexpected option 'flag' returns Error`, function(done) {
-    pfs.write('./dir/flagr.txt', data, {
-      flag: 'r'
-    }).catch(() => {
-      done();
-    });
+  it(`Unexpected option 'flag' returns Error`, async () => {
+    try {
+      await pfs.write('./dir/flagr.txt', data, {
+        flag: 'r'
+      });
+    }
+    catch (err) {
+      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
+    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.write('./dir/file.txt', data, {
+  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
+    try {
+      await pfs.write('./dir/file.txt', data, {
         resolve: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'resolve' in order '#write()'. Expected Boolean");
+    }
   });
 });

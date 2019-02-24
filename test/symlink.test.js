@@ -1,46 +1,54 @@
 const assert = require('assert');
-const mock = require('mock-fs');
+const mockFs = require('mock-fs');
 const FileSystem = require('..');
 
-
-
-describe(`pfs.symlink(src, use[, options])`, function() {
+describe(`pfs.symlink(src, use [, options])`, () => {
   const pfs = new FileSystem();
 
-  before(function() {
-    mock({
+  before(() => {
+    mockFs({
       'dir/file.txt': 'some text ...'
     });
   });
 
-  after(function() {
-    mock.restore();
+  after(() => {
+    mockFs.restore();
   });
 
-  it(`Create symlink`, async function() {
+  it(`Create symlink`, async () => {
     await pfs.symlink('./dir/file.txt', './dir/link.txt');
-    let info = await pfs.stat('./dir/link.txt');
+    const info = await pfs.stat('./dir/link.txt');
+    const isSymbolicLink = info.isSymbolicLink();
 
-    assert(info.isSymbolicLink());
+    assert(isSymbolicLink === true);
   });
 
-  it(`To a non-existent resource to return an Error`, function(done) {
-    pfs.symlink('./non-existent.txt', './dir/link.txt').catch(() => {
-      done();
-    });
+  it(`To a non-existent resource to return an Error`, async () => {
+    try {
+      await pfs.symlink('./non-existent.txt', './dir/link.txt');
+    }
+    catch (err) {
+      assert(err.message.indexOf('EEXIST, file already exists') > -1);
+    }
   });
 
-  it(`Throw an exception if the option argument is not a object`, function() {
-    assert.throws(() => {
-      pfs.symlink('./dir/file.txt', './dir/link.txt', null);
-    });
+  it(`Throw an exception if the option argument is not a object`, async () => {
+    try {
+      await pfs.symlink('./dir/file.txt', './dir/link.txt', null);
+    }
+    catch (err) {
+      assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
+    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.symlink('./dir/file.txt', './dir/link.txt', {
+  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
+    try {
+      await pfs.symlink('./dir/file.txt', './dir/link.txt', {
         resolve: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'resolve' in order '#symlink()'. Expected Boolean");
+    }
   });
 });

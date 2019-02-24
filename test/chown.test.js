@@ -1,21 +1,19 @@
 const assert = require('assert');
-const mock = require('mock-fs');
+const mockFs = require('mock-fs');
 const FileSystem = require('..');
 
-
-
-describe(`pfs.chown(src, uid, gid[, options])`, function() {
+describe(`pfs.chown(src, uid, gid [, options])`, () => {
   const pfs = new FileSystem();
 
-  before(function() {
-    mock({
-      dir: mock.directory({
+  before(() => {
+    mockFs({
+      dir: mockFs.directory({
         items: {
-          dir: mock.directory(),
+          dir: mockFs.directory(),
           'file.txt': ''
         }
       }),
-      dev: mock.directory({
+      dev: mockFs.directory({
         mode: 0400,
         items: {
           'file.txt': ''
@@ -24,49 +22,61 @@ describe(`pfs.chown(src, uid, gid[, options])`, function() {
     });
   });
 
-  after(function() {
-    mock.restore();
+  after(() => {
+    mockFs.restore();
   });
 
-  it(`Changes the permissions of a file`, async function() {
+  it(`Changes the permissions of a file`, async () => {
     await pfs.chown('./dir/file.txt', 0, 0);
-    let stat = await pfs.stat('./dir/file.txt');
+    const stat = await pfs.stat('./dir/file.txt');
 
     assert(stat.uid === 0);
     assert(stat.gid === 0);
   });
 
-  it(`Changes the permissions of a directory`, async function() {
+  it(`Changes the permissions of a directory`, async () => {
     await pfs.chown('./dir', 0, 0);
-    let stat = await pfs.stat('./dir');
+    const stat = await pfs.stat('./dir');
 
     assert(stat.uid === 0);
     assert(stat.gid === 0);
   });
 
-  it(`Search permission is denied on a component of the path prefix`, function(done) {
-    pfs.chown('./dev', 0, 0).catch(() => {
-      done();
-    });
+  it(`Search permission is denied on a component of the path prefix`, async () => {
+    try {
+      await pfs.chown('./dev', 0, 0);
+    }
+    catch (err) {
+      assert(err.message.indexOf('EACCES, permission denied') > -1);
+    }
   });
 
-  it(`To a non-existent resource to return an Error`, function(done) {
-    pfs.chown('./non-existent.txt', 0, 0).catch(() => {
-      done();
-    });
+  it(`To a non-existent resource to return an Error`, async () => {
+    try {
+      await pfs.chown('./non-existent.txt', 0, 0);
+    }
+    catch (err) {
+      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
+    }
   });
 
-  it(`Throw an exception if the option argument is not a object`, function() {
-    assert.throws(() => {
-      pfs.chown('./dir/file.txt', 0, 0, null);
-    });
+  it(`Throw an exception if the option argument is not a object`, async () => {
+    try {
+      await pfs.chown('./dir/file.txt', 0, 0, null);
+    }
+    catch (err) {
+      assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
+    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.chown('./dir/file.txt', 0, 0, {
+  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
+    try {
+      await pfs.chown('./dir/file.txt', 0, 0, {
         resolve: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'resolve' in order '#chown()'. Expected Boolean");
+    }
   });
 });

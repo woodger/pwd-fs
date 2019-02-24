@@ -1,21 +1,19 @@
 const assert = require('assert');
-const mock = require('mock-fs');
+const mockFs = require('mock-fs');
 const FileSystem = require('..');
 
-
-
-describe(`pfs.remove(src[, options])`, function() {
+describe(`pfs.remove(src [, options])`, () => {
   const pfs = new FileSystem();
 
-  before(function() {
-    mock({
-      dir: mock.directory({
+  before(() => {
+    mockFs({
+      dir: mockFs.directory({
         items: {
-          dir: mock.directory(),
+          dir: mockFs.directory(),
           'file.txt': ''
         }
       }),
-      dev: mock.directory({
+      dev: mockFs.directory({
         mode: 0004,
         items: {
           'mock.txt': '',
@@ -25,40 +23,52 @@ describe(`pfs.remove(src[, options])`, function() {
     });
   });
 
-  after(function() {
-    mock.restore();
+  after(() => {
+    mockFs.restore();
   });
 
-  it(`Removal a directory with a file`, async function() {
+  it(`Removal a directory with a file`, async () => {
     await pfs.remove('./dir');
-    let exist = await pfs.test('./dir');
+    const exist = await pfs.test('./dir');
 
-    assert.strictEqual(exist, false);
+    assert(exist === false);
   });
 
-  it(`Search permission is denied on a component of the path prefix`, function(done) {
-    pfs.remove('./dev').catch(() => {
-      done();
-    });
+  it(`Search permission is denied on a component of the path prefix`, async () => {
+    try {
+      await pfs.remove('./dev');
+    }
+    catch (err) {
+      assert(err.message.indexOf('EACCES, permission denied') > -1);
+    }
   });
 
-  it(`To a non-existent resource to return an Error`, function(done) {
-    pfs.remove('./non-existent.txt').catch(() => {
-      done();
-    });
+  it(`To a non-existent resource to return an Error`, async () => {
+    try {
+      await pfs.remove('./non-existent.txt');
+    }
+    catch (err) {
+      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
+    }
   });
 
-  it(`Throw an exception if the option argument is not a object`, function() {
-    assert.throws(() => {
-      pfs.remove('./dir/file.txt', null);
-    });
+  it(`Throw an exception if the option argument is not a object`, async () => {
+    try {
+      await pfs.remove('./dir/file.txt', null);
+    }
+    catch (err) {
+      assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
+    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.remove('./dir/file.txt', {
+  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
+    try {
+      await pfs.remove('./dir/file.txt', {
         resolve: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'resolve' in order '#remove()'. Expected Boolean");
+    }
   });
 });

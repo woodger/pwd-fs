@@ -1,20 +1,21 @@
 const assert = require('assert');
 const FileSystem = require('..');
 
-
-
-describe(`FileSystem.bitmask(mode)`, function() {
-  const bitmask = (a) => {
-    return FileSystem.bitmask(a);
+describe(`FileSystem.bitmask(mode)`, () => {
+  const bitmask = (value) => {
+    return FileSystem.bitmask(value);
   };
 
-  it(`Throw an exception if the argument is not a 'number' type`, function() {
-    assert.throws(() => {
+  it(`Throw an exception if the argument is not a 'number' type`, () => {
+    try {
       bitmask(null);
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'mode' in order '#bitmask()'. Expected Number");
+    }
   });
 
-  it(`Calculate mask from mode`, async function() {
+  it(`Calculate mask from mode`, () => {
     assert(bitmask(33024) === 0o400); // (r--------)
     assert(bitmask(33152) === 0o600); // (rw-------)
     assert(bitmask(33216) === 0o700); // (rwx------)

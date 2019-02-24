@@ -1,82 +1,94 @@
 const os = require('os');
 const assert = require('assert');
-const mock = require('mock-fs');
+const mockFs = require('mock-fs');
 const FileSystem = require('..');
 
-
-
-describe(`pfs.mkdir(src[, options])`, function() {
+describe(`pfs.mkdir(src [, options])`, () => {
   const pfs = new FileSystem();
   const tmpdir = os.tmpdir();
 
-  before(function() {
-    mock({
+  before(() => {
+    mockFs({
       'dir/file.txt': 'some text ...'
     });
   });
 
-  after(function() {
-    mock.restore();
+  after(() => {
+    mockFs.restore();
   });
 
-  it(`Create directories in the working directory`, async function() {
+  it(`Create directories in the working directory`, async () => {
     await pfs.mkdir('./dir/041ab08b/test');
-    let exists = await pfs.test('./dir/041ab08b/test');
+    const exists = await pfs.test('./dir/041ab08b/test');
 
     assert(exists);
   });
 
-  it(`Should work fine with the existing directory`, async function() {
+  it(`Should work fine with the existing directory`, async () => {
     await pfs.mkdir('./dir/041ab08b');
   });
 
   /*
-  it(`Creating more than 1000 directories`, async function() {
+  it(`Stress test. Creating more than 1000 directories`, async function() {
     let dir = './dir';
 
-    for (let i = 0; i < 1001; i++) {
+    for (const i = 0; i < 1001; i++) {
       dir += `/${i}`;
     }
 
     await pfs.mkdir(dir);
-    let exists = await pfs.test(dir);
+    const exists = await pfs.test(dir);
 
     assert(exists);
   });
   */
 
-  it(`Create directories in the tmp directory`, async function() {
-    await pfs.mkdir(`${tmpdir}/041ab08b`);
-    let list = await pfs.readdir(tmpdir);
+  it(`Create directories in the tmp directory`, async () => {
+    const src = `${tmpdir}/041ab08b`;
 
-    assert(list.includes('041ab08b'));
+    await pfs.mkdir(src);
+    const exists = await pfs.test(src);
+
+    assert(exists === true);
   });
 
-  it(`Throw an exception if the option argument is not a object`, function() {
-    assert.throws(() => {
-      pfs.mkdir('./dir', null);
-    });
+  it(`Throw an exception if the option argument is not a object`, async () => {
+    try {
+      await pfs.mkdir('./dir', null);
+    }
+    catch (err) {
+      assert(err.message === "Cannot destructure property `umask` of 'undefined' or 'null'.");
+    }
   });
 
-  it(`Trying to create a directory in the file will return an Error`, function(done) {
-    pfs.mkdir('./dir/file.txt/non-existent').catch(() => {
-      done();
-    });
+  it(`Trying to create a directory in the file will return an Error`, async () => {
+    try {
+      await pfs.mkdir('./dir/file.txt/non-existent');
+    }
+    catch (err) {
+      assert(err.message === 'item.getItem is not a function');
+    }
   });
 
-  it(`Option 'umask' must be a 'number' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.mkdir('./dir', {
+  it(`Option 'umask' must be a 'number' type, else throw`, async () => {
+    try {
+      await pfs.mkdir('./dir', {
         umask: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'umask' in order '#mkdir()'. Expected Number");
+    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.mkdir('./dir', {
+  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
+    try {
+      await pfs.mkdir('./dir', {
         resolve: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'resolve' in order '#mkdir()'. Expected Boolean");
+    }
   });
 });

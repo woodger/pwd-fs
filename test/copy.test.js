@@ -1,23 +1,21 @@
 const assert = require('assert');
-const mock = require('mock-fs');
+const mockFs = require('mock-fs');
 const FileSystem = require('..');
 
-
-
-describe(`pfs.copy(src, dir[, options])`, function() {
+describe(`pfs.copy(src, dir [, options])`, () => {
   const pfs = new FileSystem();
 
-  before(function() {
-    mock({
-      dir: mock.directory({
+  before(() => {
+    mockFs({
+      dir: mockFs.directory({
         items: {
-          dir: mock.directory(),
+          dir: mockFs.directory(),
           'file.txt': ''
         }
       }),
-      dev: mock.directory({
+      dev: mockFs.directory({
         items: {
-          'mock.txt': mock.file({
+          'mock.txt': mockFs.file({
             mode: 0004
           }),
           'file.txt': ''
@@ -26,57 +24,75 @@ describe(`pfs.copy(src, dir[, options])`, function() {
     });
   });
 
-  after(function() {
-    mock.restore();
+  after(() => {
+    mockFs.restore();
   });
 
-  it(`Copying a directory with a file`, async function() {
+  it(`Copying a directory with a file`, async () => {
     await pfs.copy('./dir', './dev');
 
-    let dstat = await pfs.stat('./dev/dir');
-    let fstat = await pfs.stat('./dev/dir/file.txt');
+    const dstat = await pfs.stat('./dev/dir');
+    const fstat = await pfs.stat('./dev/dir/file.txt');
 
     assert(dstat.bitmask === 0o777);
     assert(fstat.bitmask === 0o666);
   });
 
-  it(`Search permission is denied on a component of the path prefix`, function(done) {
-    pfs.copy('./dev', './dir').catch(() => {
-      done();
-    });
+  it(`Search permission is denied on a component of the path prefix`, async () => {
+    try {
+      await pfs.copy('./dev', './dir');
+    }
+    catch (err) {
+      assert(err.message.indexOf('EACCES, permission denied') > -1);
+    }
   });
 
-  it(`To a non-existent resource to return an Error`, function(done) {
-    pfs.copy('./non-existent.txt', '.').catch(() => {
-      done();
-    });
+  it(`To a non-existent resource to return an Error`, async () => {
+    try {
+      await pfs.copy('./non-existent.txt', '.');
+    }
+    catch (err) {
+      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
+    }
   });
 
-  it(`An attempt to copy to an existing resource should return an Error`, function(done) {
-    pfs.copy('./dir', '.').catch(() => {
-      done();
-    });
+  it(`An attempt to copy to an existing resource should return an Error`, async () => {
+    try {
+      await pfs.copy('./dir', '.');
+    }
+    catch (err) {
+      assert(err.message.indexOf('EEXIST, file already exists') > -1);
+    }
   });
 
-  it(`Throw an exception if the option argument is not a object`, function() {
-    assert.throws(() => {
-      pfs.copy('./dir/file.txt', '.', null);
-    });
+  it(`Throw an exception if the option argument is not a object`, async () => {
+    try {
+      await pfs.copy('./dir/file.txt', '.', null);
+    }
+    catch (err) {
+      assert(err.message === "Cannot destructure property `umask` of 'undefined' or 'null'.");
+    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.copy('./dir/file.txt', '.', {
+  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
+    try {
+      await pfs.copy('./dir/file.txt', '.', {
         resolve: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'resolve' in order '#copy()'. Expected Boolean");
+    }
   });
 
-  it(`Option 'umask' must be a 'number' type, else throw`, async function() {
-    assert.throws(() => {
-      pfs.copy('./dir/file.txt', '.', {
+  it(`Option 'umask' must be a 'number' type, else throw`, async () => {
+    try {
+      await pfs.copy('./dir/file.txt', '.', {
         umask: null
       });
-    });
+    }
+    catch (err) {
+      assert(err.message === "Invalid value 'umask' in order '#copy()'. Expected Number");
+    }
   });
 });

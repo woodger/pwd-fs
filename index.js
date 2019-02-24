@@ -1,11 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const te = require('./lib/te');
 const recurse = require('./lib/recurse-io');
+const te = require('./lib/type-enforcement');
 
-
-
-const {sep} = path;
 const cwd = process.cwd();
 const flags = {
   test: {
@@ -23,18 +20,13 @@ const flags = {
   }
 };
 
-
-
-
 class FileSystem {
   constructor(pwd = cwd) {
     this.pwd = path.resolve(cwd, pwd);
   }
 
-
-
   static bitmask(mode) {
-    let err = te.validate('bitmask', {
+    const err = te.validate('#bitmask()', {
       mode
     });
 
@@ -47,35 +39,27 @@ class FileSystem {
     if (mode & 256) {
       mask += 0o400;
     }
-
     if (mode & 128) {
       mask += 0o200;
     }
-
     if (mode & 64) {
       mask += 0o100;
     }
-
     if (mode & 32) {
       mask += 0o040;
     }
-
     if (mode & 16) {
       mask += 0o020;
     }
-
     if (mode & 8) {
       mask += 0o010;
     }
-
     if (mode & 4) {
       mask += 0o004;
     }
-
     if (mode & 2) {
       mask += 0o002;
     }
-
     if (mode & 1) {
       mask += 0o001;
     }
@@ -83,10 +67,8 @@ class FileSystem {
     return mask;
   }
 
-
-
   test(src, {flag = 'e', resolve = true} = {}) {
-    let err = te.validate('test', {
+    const err = te.validate('#test()', {
       src,
       flag,
       resolve
@@ -109,7 +91,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       fs.access(src, flag, (err) => {
         if (err) {
-          return resolve(false);
+          resolve(false);
+          return;
         }
 
         resolve(true);
@@ -117,10 +100,8 @@ class FileSystem {
     });
   }
 
-
-
   stat(src, {resolve = true} = {}) {
-    let err = te.validate('stat', {
+    const err = te.validate('#stat()', {
       src,
       resolve
     });
@@ -136,7 +117,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       fs.lstat(src, (err, info) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         info.bitmask = this.constructor.bitmask(info.mode);
@@ -146,10 +128,8 @@ class FileSystem {
     });
   }
 
-
-
   chmod(src, mode, {resolve = true} = {}) {
-    let err = te.validate('chmod', {
+    const err = te.validate('#chmod()', {
       src,
       mode,
       resolve
@@ -166,7 +146,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       recurse.chmod(src, mode, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -174,10 +155,8 @@ class FileSystem {
     });
   }
 
-
-
   chown(src, uid, gid, {resolve = true} = {}) {
-    let err = te.validate('chown', {
+    const err = te.validate('#chown()', {
       src,
       uid,
       gid,
@@ -195,7 +174,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       recurse.chown(src, uid, gid, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -203,10 +183,8 @@ class FileSystem {
     });
   }
 
-
-
   symlink(src, use, {resolve = true} = {}) {
-    let err = te.validate('symlink', {
+    const err = te.validate('#symlink()', {
       src,
       use,
       resolve
@@ -224,7 +202,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       fs.symlink(src, use, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -232,10 +211,8 @@ class FileSystem {
     });
   }
 
-
-
   copy(src, dir, {umask = 0o000, resolve = true} = {}) {
-    let err = te.validate('copy', {
+    const err = te.validate('#copy()', {
       src,
       dir,
       umask,
@@ -251,11 +228,11 @@ class FileSystem {
       dir = path.resolve(this.pwd, dir);
     }
 
-
     return new Promise((resolve, reject) => {
       recurse.copy(src, dir, umask, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -263,10 +240,8 @@ class FileSystem {
     });
   }
 
-
-
   rename(src, use, {resolve = true} = {}) {
-    let err = te.validate('rename', {
+    const err = te.validate('#rename()', {
       src,
       use,
       resolve
@@ -284,7 +259,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       fs.rename(src, use, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -292,10 +268,8 @@ class FileSystem {
     });
   }
 
-
-
   remove(src, {resolve = true} = {}) {
-    let err = te.validate('remove', {
+    const err = te.validate('#remove()', {
       src,
       resolve
     });
@@ -311,7 +285,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       recurse.remove(src, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -319,10 +294,8 @@ class FileSystem {
     });
   }
 
-
-
   read(src, {encoding = 'utf8', flag = 'r', resolve = true} = {}) {
-    let err = te.validate('read', {
+    const err = te.validate('#read()', {
       src,
       encoding,
       flag,
@@ -341,9 +314,11 @@ class FileSystem {
       fs.readFile(src, {
         encoding,
         flag
-      }, (err, content) => {
+      },
+      (err, content) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve(content);
@@ -351,10 +326,8 @@ class FileSystem {
     });
   }
 
-
-
   write(src, data, {encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true} = {}) {
-    let err = te.validate('write', {
+    const err = te.validate('#write()', {
       src,
       encoding,
       umask,
@@ -370,16 +343,18 @@ class FileSystem {
       src = path.resolve(this.pwd, src);
     }
 
-    let mode = 0o666 - umask;
+    const mode = 0o666 - umask;
 
     return new Promise((resolve, reject) => {
       fs.writeFile(src, data, {
         encoding,
         mode,
         flag
-      }, (err) => {
+      },
+      (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -387,10 +362,8 @@ class FileSystem {
     });
   }
 
-
-
   append(src, data, {encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true} = {}) {
-    let err = te.validate('append', {
+    const err = te.validate('#append()', {
       src,
       encoding,
       umask,
@@ -406,16 +379,18 @@ class FileSystem {
       src = path.resolve(this.pwd, src);
     }
 
-    let mode = 0o666 - umask;
+    const mode = 0o666 - umask;
 
     return new Promise((resolve, reject) => {
       fs.appendFile(src, data, {
         encoding,
         mode,
         flag
-      }, (err) => {
+      },
+      (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -423,10 +398,8 @@ class FileSystem {
     });
   }
 
-
-
   readdir(dir, {encoding = 'utf8', resolve = true} = {}) {
-    let err = te.validate('readdir', {
+    const err = te.validate('#readdir()', {
       dir,
       encoding,
       resolve
@@ -445,7 +418,8 @@ class FileSystem {
         encoding
       }, (err, list) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve(list);
@@ -453,10 +427,8 @@ class FileSystem {
     });
   }
 
-
-
   mkdir(dir, {umask = 0o000, resolve = true} = {}) {
-    let err = te.validate('mkdir', {
+    const err = te.validate('#mkdir()', {
       dir,
       umask,
       resolve
@@ -473,7 +445,8 @@ class FileSystem {
     return new Promise((resolve, reject) => {
       recurse.mkdir(dir, umask, (err) => {
         if (err) {
-          return reject(err);
+          reject(err);
+          return;
         }
 
         resolve();
@@ -481,8 +454,5 @@ class FileSystem {
     });
   }
 }
-
-
-
 
 module.exports = FileSystem;

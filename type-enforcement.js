@@ -1,77 +1,75 @@
 const TypeEnforcement = require('type-enforcement');
 
-
-
 module.exports = new TypeEnforcement({
-  bitmask: {
+  '#bitmask()': {
     mode: Number
   },
-  test: {
+  '#test()': {
     src: String,
     flag: String,
     resolve: Boolean
   },
-  stat: {
+  '#stat()': {
     src: String,
     resolve: Boolean
   },
-  chmod: {
+  '#chmod()': {
     src: String,
     mode: Number,
     resolve: Boolean
   },
-  chown: {
+  '#chown()': {
     src: String,
     uid: Number,
     gid: Number,
     resolve: Boolean
   },
-  symlink: {
+  '#symlink()': {
     src: String,
     use: String,
     resolve: Boolean
   },
-  copy: {
+  '#copy()': {
     src: String,
     dir: String,
     umask: Number,
     resolve: Boolean
   },
-  rename: {
+  '#rename()': {
     src: String,
     use: String,
     resolve: Boolean
   },
-  remove: {
+  '#remove()': {
     src: String,
     resolve: Boolean
   },
-  read: {
+  '#read()': {
     src: String,
     encoding: String,
     flag: String,
     resolve: Boolean
   },
-  write: {
-    src: String,
-    encoding: String,
-    umask: Number,
-    flag: String,
-    resolve: Boolean
-  },
-  append: {
+  '#write()': {
     src: String,
     encoding: String,
     umask: Number,
     flag: String,
     resolve: Boolean
   },
-  readdir: {
+  '#append()': {
+    src: String,
+    encoding: String,
+    umask: Number,
+    flag: String,
+    resolve: Boolean
+  },
+  '#readdir()': {
     dir: String,
     encoding: String,
     resolve: Boolean
   },
-  mkdir: {
+  '#mkdir()': {
     dir: String,
     umask: Number,
     resolve: Boolean
