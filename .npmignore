@@ -1,0 +1,8 @@
+coverage
+test
+node_modules
+package-lock.json
+appveyor.yml
+.travis.yml
+.gitignore
+.git
