@@ -28,21 +28,6 @@ describe(`pfs.mkdir(src [, options])`, () => {
     await pfs.mkdir('./dir/041ab08b');
   });
 
-  /*
-  it(`Stress test. Creating more than 1000 directories`, async function() {
-    let dir = './dir';
-
-    for (const i = 0; i < 1001; i++) {
-      dir += `/${i}`;
-    }
-
-    await pfs.mkdir(dir);
-    const exists = await pfs.test(dir);
-
-    assert(exists);
-  });
-  */
-
   it(`Create directories in the tmp directory`, async () => {
     const src = `${tmpdir}/041ab08b`;
 
@@ -91,4 +76,21 @@ describe(`pfs.mkdir(src [, options])`, () => {
       assert(err.message === "Invalid value 'resolve' in order '#mkdir()'. Expected Boolean");
     }
   });
+
+  /*
+  it(`Stress test. Creating more than 1000 directories`, async function () {
+    this.timeout(60 * 1000);
+
+    let dir = './dir';
+
+    for (let i = 0; i < 1001; i++) {
+      dir += `/${i}`;
+    }
+
+    await pfs.mkdir(dir);
+    const exists = await pfs.test(dir);
+
+    assert(exists);
+  });
+  */
 });

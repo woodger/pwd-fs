@@ -39,27 +39,35 @@ class FileSystem {
     if (mode & 256) {
       mask += 0o400;
     }
+
     if (mode & 128) {
       mask += 0o200;
     }
+
     if (mode & 64) {
       mask += 0o100;
     }
+
     if (mode & 32) {
       mask += 0o040;
     }
+
     if (mode & 16) {
       mask += 0o020;
     }
+
     if (mode & 8) {
       mask += 0o010;
     }
+
     if (mode & 4) {
       mask += 0o004;
     }
+
     if (mode & 2) {
       mask += 0o002;
     }
+
     if (mode & 1) {
       mask += 0o001;
     }
