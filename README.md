@@ -2,7 +2,7 @@
 
 <!-- [START badges] -->
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
-[![Build Status](https://travis-ci.com/woodger/pwd-fs.svg?branch=master)](https://travis-ci.com/woodger/pwd-fs)
+[![Build Status](https://travis-ci.org/woodger/pwd-fs.svg?branch=master)](https://travis-ci.org/woodger/pwd-fs)
 [![Build status](https://ci.appveyor.com/api/projects/status/dn30qhwxe845kpxe?svg=true)](https://ci.appveyor.com/project/woodger/pwd-fs)
 [![Coverage Status](https://coveralls.io/repos/github/woodger/pwd-fs/badge.svg)](https://coveralls.io/github/woodger/pwd-fs)
 [![Known Vulnerabilities](https://snyk.io/test/github/woodger/type-enforcement/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/type-enforcement?targetFile=package.json)
