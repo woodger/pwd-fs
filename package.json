@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "keywords": [
     "recursive",
@@ -36,10 +36,10 @@
     "test": "mocha"
   },
   "devDependencies": {
-    "mocha": "^6.0.0",
+    "mocha": "^6.1.4",
     "mock-fs": "^4.8.0"
   },
   "dependencies": {
-    "type-enforcement": "^1.0.15"
+    "type-enforcement": "^1.0.16"
   }
 }

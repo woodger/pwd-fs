@@ -3,6 +3,7 @@ test
 node_modules
 package-lock.json
 appveyor.yml
+.nyc_output
 .travis.yml
 .gitignore
 .git
