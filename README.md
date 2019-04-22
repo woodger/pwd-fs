@@ -44,6 +44,14 @@ npm i pwd-fs
   * [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
   * [pfs.pwd](#pfspwd)
 
+The scope `URI` of the methods `File System` are divided into groups:
+
+| URI                         | Methods                                                          |
+|-----------------------------|------------------------------------------------------------------|
+| Common (file and directory) | `chmod` `chown` `copy` `remove` `rename` `symlink` `stat` `test` |
+| File only                   | `append` `read` `write`                                          |
+| Directory only              | `mkdir` `readdir`                                                |
+
 
 #### class FileSystem
 
@@ -102,7 +110,7 @@ const FileSystem = require('pwd-fs');
 const pfs = new FileSystem();
 
 async () => {
-  let access = await pfs.test('./path');
+  const access = await pfs.test('./path');
 
   console.log(access);
 };
@@ -145,7 +153,7 @@ const pfs = new FileSystem();
 
 async () => {
   await pfs.chmod('./path', 0o750);
-  let stat = await pfs.stat('./path');
+  const stat = await pfs.stat('./path');
 
   console.log(stat.bitmask === 0o750); // true
 };
@@ -183,7 +191,7 @@ const pfs = new FileSystem();
 
 async () => {
   await pfs.symlink('./path', './link');
-  let stat = await pfs.stat('./link');
+  const stat = await pfs.stat('./link');
 
   console.log(stat.isSymbolicLink()); // true
 };
@@ -208,7 +216,7 @@ const pfs = new FileSystem();
 
 async () => {
   await pfs.copy('./path/file.txt', './dest');
-  let stat = await pfs.stat('./dest/path/file.txt');
+  const stat = await pfs.stat('./dest/path/file.txt');
 
   console.log(stat.bitmask); // 0o666
 };
@@ -222,7 +230,16 @@ async () => {
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful renamed, the `Promise` is resolved with an value with a `undefined`.
 
-See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
+Rename file or directory. See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
+
+```js
+const FileSystem = require('pwd-fs');
+const pfs = new FileSystem();
+
+async () => {
+  await pfs.rename('./path/old_name.txt', './path/new_name.txt');
+};
+```
 
 #### pfs.remove(src[, options])
 
@@ -231,7 +248,7 @@ See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful removed, the `Promise` is resolved with an value with a `undefined`.
 
-Asynchronously recursively remove a file or directory.
+Asynchronously recursively remove a file or directory. Will be `resolve` if the directory already not exists.
 
 #### pfs.read(src[, options])]
 
@@ -249,7 +266,7 @@ const FileSystem = require('pwd-fs');
 const pfs = new FileSystem();
 
 async () => {
-  let data = await pfs.read('./file.txt');
+  const content = await pfs.read('./file.txt'); // 'Lorem Ipsum'
 };
 ```
 
@@ -296,9 +313,18 @@ Asynchronously append data to a file, creating the file if it does not yet exist
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> of the names of the files in the directory excluding `'.'` and `'..'`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `Array` of the names of the files in the directory excluding `'.'` and `'..'`.
 
-Asynchronous reads the contents of a directory. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
+Asynchronous reads the contents of a directory. The Gets an <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> of the names of the files in the directory excluding `'.'` and `'..'`. Returns an empty `Array` if the directory is empty. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
+
+```js
+const FileSystem = require('pwd-fs');
+const pfs = new FileSystem();
+
+async () => {
+  const list = await pfs.readdir('./files'); // ['icons', 'logo.svg']
+};
+```
 
 #### pfs.mkdir(dir[, options])
 
@@ -308,6 +334,17 @@ Asynchronous reads the contents of a directory. See manuals [readdir(3)](http://
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful execution, the `Promise` is resolved with an value with a `undefined`.
+
+Recursive directory creation. Will be `resolve` if the directory already exists.
+
+```js
+const FileSystem = require('pwd-fs');
+const pfs = new FileSystem();
+
+async () => {
+  await pfs.mkdir('./static/images');
+};
+```
 
 #### pfs.pwd
 

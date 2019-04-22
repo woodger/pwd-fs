@@ -77,20 +77,7 @@ describe(`pfs.mkdir(src [, options])`, () => {
     }
   });
 
-  /*
-  it(`Stress test. Creating more than 1000 directories`, async function () {
-    this.timeout(60 * 1000);
-
-    let dir = './dir';
-
-    for (let i = 0; i < 1001; i++) {
-      dir += `/${i}`;
-    }
-
-    await pfs.mkdir(dir);
-    const exists = await pfs.test(dir);
-
-    assert(exists);
+  it(`Test optimization of the current working directory`, async () => {
+    await pfs.mkdir('.');
   });
-  */
 });
