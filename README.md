@@ -22,7 +22,7 @@ npm i pwd-fs
 
 [class PoweredFileSystem](#class-poweredfilesystem)
 
-* [constructor: new PoweredFileSystem([path])](#constructor-new-filesystempath)
+* [constructor: new PoweredFileSystem([path])](#constructor-new-poweredfilesystempath)
 * [pfs.test(src[, options])](#pfstestsrc-options)
 * [pfs.stat(src[, options])](#pfsstatsrc-options)
 * [pfs.chmod(src, mode[, options])](#pfschmodsrc-mode-options)
@@ -62,11 +62,11 @@ String form paths are interpreted as UTF-8 character sequences identifying the a
 ```js
 const PoweredFileSystem = require('pwd-fs');
 
-const pfs = new PoweredFileSystem();
+/**
+ * pfs.pwd === process.cwd()
+ */
 
-if (pfs.pwd === process.cwd()) {
-  console.log(true);
-}
+const pfs = new PoweredFileSystem();
 ```
 
 Relative paths will be resolved relative to the current working directory as specified by `process.cwd()`:
@@ -74,11 +74,11 @@ Relative paths will be resolved relative to the current working directory as spe
 ```js
 const PoweredFileSystem = require('pwd-fs');
 
-const pfs = new PoweredFileSystem('./foo/bar');
+/**
+ * pfs.pwd === `${process.cwd()}/foo/bar`
+ */
 
-if (pfs.pwd === `${process.cwd()}/foo/bar`) {
-  console.log(true);
-}
+const pfs = new PoweredFileSystem('./foo/bar');
 ```
 
 Absolute paths:
@@ -86,11 +86,11 @@ Absolute paths:
 ```js
 const PoweredFileSystem = require('pwd-fs');
 
-const pfs = new PoweredFileSystem(__dirname);
+/**
+ * pfs.pwd === __dirname
+ */
 
-if (pfs.pwd === __dirname) {
-  console.log(true);
-}
+const pfs = new PoweredFileSystem(__dirname);
 ```
 
 #### pfs.test(src[, options])
