@@ -1,26 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const recurse = require('./lib/recurse-io');
-const te = require('./lib/type-enforcement');
+const recurse = require('./src/recurse-io');
+const te = require('./src/type-enforcement');
 
 const cwd = process.cwd();
 const flags = {
   test: {
-    // Flag indicating that the file is visible
     e: fs.constants.F_OK,
-
-    // Flag indicating that the file can be read
     r: fs.constants.R_OK,
-
-    // Flag indicating that the file can be written
     w: fs.constants.W_OK,
-
-    // Flag indicating that the file can be executed
     x: fs.constants.X_OK
   }
 };
 
-class FileSystem {
+class PoweredFileSystem {
   constructor(pwd = cwd) {
     this.pwd = path.resolve(cwd, pwd);
   }
@@ -463,4 +456,4 @@ class FileSystem {
   }
 }
 
-module.exports = FileSystem;
+module.exports = PoweredFileSystem;

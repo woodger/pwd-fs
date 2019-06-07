@@ -1,50 +1,45 @@
-# File System
+# Powered file system
 
-<!-- [START badges] -->
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/woodger/pwd-fs.svg?branch=master)](https://travis-ci.org/woodger/pwd-fs)
 [![Build status](https://ci.appveyor.com/api/projects/status/dn30qhwxe845kpxe?svg=true)](https://ci.appveyor.com/project/woodger/pwd-fs)
 [![Coverage Status](https://coveralls.io/repos/github/woodger/pwd-fs/badge.svg)](https://coveralls.io/github/woodger/pwd-fs)
 [![Known Vulnerabilities](https://snyk.io/test/github/woodger/type-enforcement/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/type-enforcement?targetFile=package.json)
-<!-- [END badges] -->
 
-<!-- [START usecases] -->
 This module expands the [Node.js®](https://nodejs.org) module with the capabilities of declaring the `pwd` (present working directory) and `recursive` execution. All file system operations have only asynchronous forms. API provides an alternative set of asynchronous file system methods that return `Promise` objects.
-<!-- [END usecases] -->
 
 ## Getting Started
 
 ### Installation
 
-To use `File System` in your project, run:
+To use `Powered file system` in your project, run:
 
 ```bash
 npm i pwd-fs
 ```
 
-### API docs
-
 #### Table of Contents
 
-[class FileSystem](#class-filesystem)
-  * [static: bitmask(mode)](#static-bitmaskmode)
-  * [constructor: new FileSystem([path])](#constructor-new-filesystempath)
-  * [pfs.test(src[, options])](#pfstestsrc-options)
-  * [pfs.stat(src[, options])](#pfsstatsrc-options)
-  * [pfs.chmod(src, mode[, options])](#pfschmodsrc-mode-options)
-  * [pfs.chown(src, uid, gid[, options])](#pfschownsrc-uid-gid-options)
-  * [pfs.symlink(src, use[, options])](#pfssymlinksrc-use-options)
-  * [pfs.copy(src, dir[, options])](#pfscopysrc-dir-options)
-  * [pfs.rename(src, use[, options])](#pfsrenamesrc-use-options)
-  * [pfs.remove(src[, options])](#pfsremovesrc-options)
-  * [pfs.read(src[, options])](#pfsreadsrc-options)
-  * [pfs.write(src, data[, options])](#pfswritesrc-data-options)
-  * [pfs.append(src, data[, options])](#pfsappendsrc-data-options)
-  * [pfs.readdir(dir[, options])](#pfsreaddirdir-options)
-  * [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
-  * [pfs.pwd](#pfspwd)
+[class PoweredFileSystem](#class-poweredfilesystem)
 
-The scope `URI` of the methods `File System` are divided into groups:
+* [constructor: new PoweredFileSystem([path])](#constructor-new-filesystempath)
+* [pfs.test(src[, options])](#pfstestsrc-options)
+* [pfs.stat(src[, options])](#pfsstatsrc-options)
+* [pfs.chmod(src, mode[, options])](#pfschmodsrc-mode-options)
+* [pfs.chown(src, uid, gid[, options])](#pfschownsrc-uid-gid-options)
+* [pfs.symlink(src, use[, options])](#pfssymlinksrc-use-options)
+* [pfs.copy(src, dir[, options])](#pfscopysrc-dir-options)
+* [pfs.rename(src, use[, options])](#pfsrenamesrc-use-options)
+* [pfs.remove(src[, options])](#pfsremovesrc-options)
+* [pfs.read(src[, options])](#pfsreadsrc-options)
+* [pfs.write(src, data[, options])](#pfswritesrc-data-options)
+* [pfs.append(src, data[, options])](#pfsappendsrc-data-options)
+* [pfs.readdir(dir[, options])](#pfsreaddirdir-options)
+* [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
+* [static: bitmask(mode)](#static-bitmaskmode)
+* [pfs.pwd](#pfspwd)
+
+The scope `URI` of the class methods are divided into groups.
 
 | URI                         | Methods                                                          |
 |-----------------------------|------------------------------------------------------------------|
@@ -53,46 +48,49 @@ The scope `URI` of the methods `File System` are divided into groups:
 | Directory only              | `mkdir` `readdir`                                                |
 
 
-#### class FileSystem
+#### class PoweredFileSystem
 
 This class implemented by following the [ECMAScript® 2018 Language Specification
-](https://www.ecma-international.org/ecma-262/9.0/index.html) Standard. To use this module:
+](https://www.ecma-international.org/ecma-262/9.0/index.html) Standard.
+
+#### constructor: new PoweredFileSystem([path])
+
+- `path` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> absolute or relative dirname. `path` sets `pfs.pwd` value, by default [process.cwd()](https://nodejs.org/api/process.html#process_process_cwd).
+
+String form paths are interpreted as UTF-8 character sequences identifying the absolute or relative filename.
 
 ```js
-const FileSystem = require('pwd-fs');
+const PoweredFileSystem = require('pwd-fs');
+
+const pfs = new PoweredFileSystem();
+
+if (pfs.pwd === process.cwd()) {
+  console.log(true);
+}
 ```
 
-#### static: bitmask(mode)
-
-- `mode` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
-`fs.stat(path[, options], callback)` function provides information about the file system resource. A `stat.mode` is a bit-field that describes the type and mode of the file. Extends an instance of the standard module `fs.Stats` by adding a `bitmask` field.
-- returns: <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>.
+Relative paths will be resolved relative to the current working directory as specified by `process.cwd()`:
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
+const PoweredFileSystem = require('pwd-fs');
 
-pfs.stat('./path').then(i => {
-  console.log(i.bitmask); // 0o755
-});
-```
+const pfs = new PoweredFileSystem('./foo/bar');
 
-#### constructor: new FileSystem([path])
-
-- `path` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> absolute or relative dirname. `path` sets `pfs.pwd` value, by default `process.cwd()`.
-
-String form paths are interpreted as UTF-8 character sequences identifying the absolute or relative filename. Relative paths will be resolved relative to the current working directory as specified by process.cwd().
-
-```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem('./foo/bar'); // <process.cwd()>/foo/bar
+if (pfs.pwd === `${process.cwd()}/foo/bar`) {
+  console.log(true);
+}
 ```
 
 Absolute paths:
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem(__dirname); // <__dirname>
+const PoweredFileSystem = require('pwd-fs');
+
+const pfs = new PoweredFileSystem(__dirname);
+
+if (pfs.pwd === __dirname) {
+  console.log(true);
+}
 ```
 
 #### pfs.test(src[, options])
@@ -106,14 +104,8 @@ const pfs = new FileSystem(__dirname); // <__dirname>
 Tests a user's permissions for the file or directory specified by path.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
-
-async () => {
-  const access = await pfs.test('./path');
-
-  console.log(access);
-};
+const access = await pfs.test('./path');
+console.log(test); // true
 ```
 > Function `pfs.test()` return only `Promise.resolve()`
 
@@ -148,15 +140,10 @@ These functions return information about a resource in the file system.
 Asynchronously changes the permissions of a file.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
+await pfs.chmod('./path', 0o750);
+const info = await pfs.stat('./path');
 
-async () => {
-  await pfs.chmod('./path', 0o750);
-  const stat = await pfs.stat('./path');
-
-  console.log(stat.bitmask === 0o750); // true
-};
+console.log(info.bitmask === 0o750); // true
 ```
 
 > **Caveats:** on Windows only the write permission can be changed, and the distinction among the permissions of group, owner or others is not implemented.
@@ -186,15 +173,10 @@ See manuals [chown(2)](http://man7.org/linux/man-pages/man2/chown.2.html).
 Asynchronously creates a new symbolic link (also known as a soft link) may point to an existing file or to a nonexistent one.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
+await pfs.symlink('./path', './link');
+const info = await pfs.stat('./link');
 
-async () => {
-  await pfs.symlink('./path', './link');
-  const stat = await pfs.stat('./link');
-
-  console.log(stat.isSymbolicLink()); // true
-};
+console.log(info.isSymbolicLink()); // true
 ```
 
 See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
@@ -211,15 +193,10 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 Asynchronously recursively copy a file or directory.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
+await pfs.copy('./path/file.txt', './dest');
+const info = await pfs.stat('./dest/path/file.txt');
 
-async () => {
-  await pfs.copy('./path/file.txt', './dest');
-  const stat = await pfs.stat('./dest/path/file.txt');
-
-  console.log(stat.bitmask); // 0o666
-};
+console.log(info.bitmask); // 0o666
 ```
 
 #### pfs.rename(src, use[, options])
@@ -233,12 +210,7 @@ async () => {
 Rename file or directory. See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
-
-async () => {
-  await pfs.rename('./path/old_name.txt', './path/new_name.txt');
-};
+await pfs.rename('./path/old_name.txt', './path/new_name.txt');
 ```
 
 #### pfs.remove(src[, options])
@@ -262,12 +234,8 @@ Asynchronously recursively remove a file or directory. Will be `resolve` if the 
 Asynchronously reads the entire contents of a file.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
-
-async () => {
-  const content = await pfs.read('./file.txt'); // 'Lorem Ipsum'
-};
+const content = await pfs.read('./file.txt');
+console.log(content); // 'Lorem Ipsum...'
 ```
 
 #### pfs.write(src, data[, options])
@@ -284,12 +252,7 @@ async () => {
 Asynchronously writes `data` to a file, replacing the file if it already exists. if the file does not exist, it will create a new one.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
-
-async () => {
-  await pfs.write('./file.txt', '... some text');
-};
+await pfs.write('./file.txt', '... some text');
 ```
 
 > This function is limited to writing only `string`. For `stream`, `fs.createWriteStream()` is recommended.
@@ -318,12 +281,8 @@ Asynchronously append data to a file, creating the file if it does not yet exist
 Asynchronous reads the contents of a directory. The Gets an <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> of the names of the files in the directory excluding `'.'` and `'..'`. Returns an empty `Array` if the directory is empty. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
-
-async () => {
-  const list = await pfs.readdir('./files'); // ['icons', 'logo.svg']
-};
+const list = await pfs.readdir('./files');
+console.log(list); // ["icons", "logo.svg"]
 ```
 
 #### pfs.mkdir(dir[, options])
@@ -338,12 +297,22 @@ async () => {
 Recursive directory creation. Will be `resolve` if the directory already exists.
 
 ```js
-const FileSystem = require('pwd-fs');
-const pfs = new FileSystem();
+await pfs.mkdir('./static/images');
+```
 
-async () => {
-  await pfs.mkdir('./static/images');
-};
+#### static: bitmask(mode)
+
+- `mode` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+`fs.stat(path[, options], callback)` function provides information about the file system resource. A `stat.mode` is a bit-field that describes the type and mode of the file. Extends an instance of the standard module `fs.Stats` by adding a `bitmask` field.
+- returns: <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>.
+
+```js
+const fs = require('fs');
+const {bitmask} = require('pwd-fs');
+
+fs.stat('./path', (err, stat) => {
+  console.log(bitmask(stat.mode)); // 0o755
+});
 ```
 
 #### pfs.pwd

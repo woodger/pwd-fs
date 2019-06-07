@@ -4,6 +4,10 @@ module.exports = new TypeEnforcement({
   '#bitmask()': {
     mode: Number
   },
+  '#cd()': {
+    src: String,
+    resolve: Boolean
+  },
   '#test()': {
     src: String,
     flag: String,
