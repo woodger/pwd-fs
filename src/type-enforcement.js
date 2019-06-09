@@ -1,12 +1,11 @@
 const TypeEnforcement = require('type-enforcement');
 
 module.exports = new TypeEnforcement({
+  '#constructor()': {
+    src: String
+  },
   '#bitmask()': {
     mode: Number
-  },
-  '#cd()': {
-    src: String,
-    resolve: Boolean
   },
   '#test()': {
     src: String,

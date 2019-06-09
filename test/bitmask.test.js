@@ -1,9 +1,9 @@
 const assert = require('assert');
-const FileSystem = require('..');
+const PoweredFileSystem = require('..');
 
-describe(`FileSystem.bitmask(mode)`, () => {
+describe(`PoweredFileSystem.bitmask(mode)`, () => {
   const bitmask = (value) => {
-    return FileSystem.bitmask(value);
+    return PoweredFileSystem.bitmask(value);
   };
 
   it(`Throw an exception if the argument is not a 'number' type`, () => {

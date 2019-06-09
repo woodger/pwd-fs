@@ -1,9 +1,9 @@
 const assert = require('assert');
 const mockFs = require('mock-fs');
-const FileSystem = require('..');
+const PoweredFileSystem = require('..');
 
 describe(`pfs.remove(src [, options])`, () => {
-  const pfs = new FileSystem();
+  const pfs = new PoweredFileSystem();
 
   before(() => {
     mockFs({

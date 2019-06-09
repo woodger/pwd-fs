@@ -14,8 +14,20 @@ const flags = {
 };
 
 class PoweredFileSystem {
-  constructor(pwd = cwd) {
-    this.pwd = path.resolve(cwd, pwd);
+  constructor(src = '') {
+    if (src === '') {
+      src = cwd;
+    }
+
+    const err = te.validate('#constructor()', {
+      src
+    });
+
+    if (err) {
+      throw err;
+    }
+
+    this.pwd = path.resolve(cwd, src);
   }
 
   static bitmask(mode) {

@@ -1,9 +1,9 @@
 const assert = require('assert');
 const mockFs = require('mock-fs');
-const FileSystem = require('..');
+const PoweredFileSystem = require('..');
 
 describe(`pfs.append(src, data [, options])`, () => {
-  const pfs = new FileSystem();
+  const pfs = new PoweredFileSystem();
   const content = 'more text ...';
 
   before(() => {
