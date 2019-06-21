@@ -2,78 +2,111 @@ const assert = require('assert');
 const mockFs = require('mock-fs');
 const PoweredFileSystem = require('..');
 
-describe(`pfs.test(src[, options])`, () => {
+describe('pfs.test(src[, options])', () => {
   const pfs = new PoweredFileSystem();
 
-  before(() => {
-    mockFs({
-      'dir/file.txt': ''
+  describe('Interface', () => {
+    it('Throw an exception if the option argument is not a object', async () => {
+      try {
+        await pfs.test('./dir/file.txt', null);
+      }
+      catch (err) {
+        assert(
+          err.message ===
+          "Cannot destructure property `flag` of 'undefined' or 'null'."
+        );
+      }
     });
-  });
 
-  after(() => {
-    mockFs.restore();
-  });
+    it('An unknown flag should throw an exception', async () => {
+      try {
+        await pfs.test('./dir/file.txt', {
+          flag: 'u'
+        });
+      }
+      catch (err) {
+        assert(err.message === "Unknown file test flag: u");
+      }
+    });
 
-  it(`Present working directory exists`, async () => {
-    const exists = await pfs.test('.');
-    assert(exists === true);
-  });
+    const options = {
+      flag: String,
+      resolve: Boolean,
+      sync: Boolean
+    };
 
-  it(`Directory exists`, async () =>  {
-    const exists = await pfs.test('./dir');
-    assert(exists === true);
-  });
+    for (let i of Object.keys(options)) {
+      const {name} = options[i];
 
-  it(`Whether the file exists on the relative path`, async () => {
-    const exists = await pfs.test('./dir/file.txt');
-    assert(exists === true);
-  });
-
-  it(`Throw an exception if the option argument is not a object`, async () => {
-    try {
-      await pfs.test('./dir/file.txt', null);
-    }
-    catch (err) {
-      assert(err.message === "Cannot destructure property `flag` of 'undefined' or 'null'.");
-    }
-  });
-
-  it(`Option 'flag' must be a 'string' type, else throw`, async () => {
-    try {
-      await pfs.test('./dir/file.txt', {
-        flag: null
+      it(`Throw an exception if '${i}' value is not a ${name}`, async () => {
+        try {
+          await pfs.test('./non-existent-file.txt', {
+            [i]: null
+          });
+        }
+        catch (err) {
+          assert(
+            err.message ===
+            `Invalid value '${i}' in order '#test()'. Expected ${name}`
+          );
+        }
       });
     }
-    catch (err) {
-      assert(err.message === "Invalid value 'flag' in order '#test()'. Expected String");
-    }
   });
 
-  it(`An unknown flag should throw an exception`, async () => {
-    try {
-      await pfs.test('./dir/file.txt', {
-        flag: 'u'
+  describe('File system access', () => {
+    before(() => {
+      mockFs({
+        'dir/file.txt': ''
       });
-    }
-    catch (err) {
-      assert(err.message === "Unknown file test flag: u");
-    }
-  });
+    });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
-    try {
-      await pfs.test('./dir/file.txt', {
-        resolve: null
+    after(() => {
+      mockFs.restore();
+    });
+
+    it(`Should return 'true' for current working directory`, async () => {
+      const exist = await pfs.test('.');
+      assert(exist);
+    });
+
+    it(`For existing directory should return 'true'`, async () =>  {
+      const exist = await pfs.test('./dir');
+      assert(exist);
+    });
+
+    it(`For existing directory should return 'true' in 'sync' mode`, () =>  {
+      const exist = pfs.test('./dir', {
+        sync: true
       });
-    }
-    catch (err) {
-      assert(err.message === "Invalid value 'resolve' in order '#test()'. Expected Boolean");
-    }
-  });
 
-  it(`A non-existent file must return false`, async () => {
-    const exists = await pfs.test('./non-existent-file.txt');
-    assert(exists === false);
+      assert(exist);
+    });
+
+    it(`For existing file should return 'true'`, async () => {
+      const exist = await pfs.test('./dir/file.txt');
+      assert(exist);
+    });
+
+    it(`For existing file should return 'true' in 'sync' mode`, () =>  {
+      const exist = pfs.test('./dir/file.txt', {
+        sync: true
+      });
+
+      assert(exist);
+    });
+
+    it(`A non-existent file must return 'false'`, async () => {
+      const exists = await pfs.test('./non-existent-file.txt');
+      assert(exists === false);
+    });
+
+    it(`A non-existent file must return 'false' in 'sync' mode`, () => {
+      const exists = pfs.test('./non-existent-file.txt', {
+        sync: true
+      });
+
+      assert(exists === false);
+    });
   });
 });

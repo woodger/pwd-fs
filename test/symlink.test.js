@@ -2,53 +2,82 @@ const assert = require('assert');
 const mockFs = require('mock-fs');
 const PoweredFileSystem = require('..');
 
-describe(`pfs.symlink(src, use [, options])`, () => {
+describe('pfs.symlink(src, use [, options])', () => {
   const pfs = new PoweredFileSystem();
 
-  before(() => {
-    mockFs({
-      'dir/file.txt': 'some text ...'
+  describe('Interface', () => {
+    it('Throw an exception if the option argument is not a object', async () => {
+      try {
+        await pfs.symlink('./dir/file.txt', './dir/link.txt', null);
+      }
+      catch (err) {
+        assert(
+          err.message ===
+          "Cannot destructure property `resolve` of 'undefined' or 'null'."
+        );
+      }
     });
-  });
 
-  after(() => {
-    mockFs.restore();
-  });
+    const options = {
+      resolve: Boolean,
+      sync: Boolean
+    };
 
-  it(`Create symlink`, async () => {
-    await pfs.symlink('./dir/file.txt', './dir/link.txt');
-    const info = await pfs.stat('./dir/link.txt');
-    const isSymbolicLink = info.isSymbolicLink();
+    for (let i of Object.keys(options)) {
+      const {name} = options[i];
 
-    assert(isSymbolicLink === true);
-  });
-
-  it(`To a non-existent resource to return an Error`, async () => {
-    try {
-      await pfs.symlink('./non-existent.txt', './dir/link.txt');
-    }
-    catch (err) {
-      assert(err.message.indexOf('EEXIST, file already exists') > -1);
-    }
-  });
-
-  it(`Throw an exception if the option argument is not a object`, async () => {
-    try {
-      await pfs.symlink('./dir/file.txt', './dir/link.txt', null);
-    }
-    catch (err) {
-      assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
-    }
-  });
-
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
-    try {
-      await pfs.symlink('./dir/file.txt', './dir/link.txt', {
-        resolve: null
+      it(`Throw an exception if '${i}' value is not a ${name}`, async () => {
+        try {
+          await pfs.symlink('./dir/file.txt', './dir/link.txt', {
+            [i]: null
+          });
+        }
+        catch (err) {
+          assert(
+            err.message ===
+            `Invalid value '${i}' in order '#symlink()'. Expected ${name}`
+          );
+        }
       });
     }
-    catch (err) {
-      assert(err.message === "Invalid value 'resolve' in order '#symlink()'. Expected Boolean");
-    }
+  });
+
+  describe('File system access', () => {
+    beforeEach(() => {
+      mockFs({
+        'dir/file.txt': 'some text ...',
+        'dev/file.txt': ''
+      });
+    });
+
+    afterEach(() => {
+      mockFs.restore();
+    });
+
+    it('Must create a symbolic link', async () => {
+      await pfs.symlink('./dir/file.txt', './dir/link.txt');
+      const stat = await pfs.stat('./dir/link.txt');
+
+      assert(stat.isSymbolicLink());
+    });
+
+    it(`Must create a symbolic link in 'sync' mode`, async () => {
+      pfs.symlink('./dir/file.txt', './dir/link.txt', {
+        sync: true
+      });
+
+      const stat = await pfs.stat('./dir/link.txt');
+      assert(stat.isSymbolicLink());
+    });
+
+    it('To a non-existent resource to return an Error', async () => {
+      try {
+        await pfs.symlink('./dev/file.txt', './dir/file.txt');
+      }
+      catch (err) {
+        const index = err.message.indexOf('EEXIST, file already exists');
+        assert(index > -1);
+      }
+    });
   });
 });

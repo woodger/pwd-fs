@@ -3,81 +3,128 @@ const assert = require('assert');
 const mockFs = require('mock-fs');
 const PoweredFileSystem = require('..');
 
-describe(`pfs.mkdir(src [, options])`, () => {
+describe('pfs.mkdir(src [, options])', () => {
   const pfs = new PoweredFileSystem();
-  const tmpdir = os.tmpdir();
 
-  before(() => {
-    mockFs({
-      'dir/file.txt': 'some text ...'
+  describe('Interface', () => {
+    it('Throw an exception if the option argument is not a object', async () => {
+      try {
+        await pfs.mkdir('./dir', null);
+      }
+      catch (err) {
+        assert(
+          err.message ===
+          "Cannot destructure property `umask` of 'undefined' or 'null'."
+        );
+      }
     });
-  });
 
-  after(() => {
-    mockFs.restore();
-  });
+    const options = {
+      umask: Number,
+      resolve: Boolean,
+      sync: Boolean
+    };
 
-  it(`Create directories in the working directory`, async () => {
-    await pfs.mkdir('./dir/041ab08b/test');
-    const exists = await pfs.test('./dir/041ab08b/test');
+    for (let i of Object.keys(options)) {
+      const {name} = options[i];
 
-    assert(exists);
-  });
-
-  it(`Should work fine with the existing directory`, async () => {
-    await pfs.mkdir('./dir/041ab08b');
-  });
-
-  it(`Create directories in the tmp directory`, async () => {
-    const src = `${tmpdir}/041ab08b`;
-
-    await pfs.mkdir(src);
-    const exists = await pfs.test(src);
-
-    assert(exists === true);
-  });
-
-  it(`Throw an exception if the option argument is not a object`, async () => {
-    try {
-      await pfs.mkdir('./dir', null);
-    }
-    catch (err) {
-      assert(err.message === "Cannot destructure property `umask` of 'undefined' or 'null'.");
-    }
-  });
-
-  it(`Trying to create a directory in the file will return an Error`, async () => {
-    try {
-      await pfs.mkdir('./dir/file.txt/non-existent');
-    }
-    catch (err) {
-      assert(err.message === 'item.getItem is not a function');
-    }
-  });
-
-  it(`Option 'umask' must be a 'number' type, else throw`, async () => {
-    try {
-      await pfs.mkdir('./dir', {
-        umask: null
+      it(`Throw an exception if '${i}' value is not a ${name}`, async () => {
+        try {
+          await pfs.mkdir('./dir', {
+            [i]: null
+          });
+        }
+        catch (err) {
+          assert(
+            err.message ===
+            `Invalid value '${i}' in order '#mkdir()'. Expected ${name}`
+          );
+        }
       });
     }
-    catch (err) {
-      assert(err.message === "Invalid value 'umask' in order '#mkdir()'. Expected Number");
-    }
   });
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
-    try {
-      await pfs.mkdir('./dir', {
-        resolve: null
+  describe('File system access', () => {
+    beforeEach(() => {
+      mockFs({
+        'dir/file.txt': 'some text ...'
       });
-    }
-    catch (err) {
-      assert(err.message === "Invalid value 'resolve' in order '#mkdir()'. Expected Boolean");
-    }
-  });
+    });
 
-  it(`Test optimization of the current working directory`, async () => {
-    await pfs.mkdir('.');
+    afterEach(() => {
+      mockFs.restore();
+    });
+
+    it('Create directories in the working directory', async () => {
+      await pfs.mkdir('./dir/041ab08b');
+      const exist = await pfs.test('./dir/041ab08b');
+
+      assert(exist);
+    });
+
+    it(`Create directories in the working directory in 'sync' mode`, async () => {
+      pfs.mkdir('./dir/041ab08b', {
+        sync: true
+      });
+
+      const exist = await pfs.test('./dir/041ab08b');
+      assert(exist);
+    });
+
+    it('Should work fine with the existing directory', async () => {
+      await pfs.mkdir('./dir/041ab08b');
+      await pfs.mkdir('./dir/041ab08b');
+
+      const exist = await pfs.test('./dir/041ab08b');
+      assert(exist);
+    });
+
+    it(`Should work fine with the existing directory in 'sync' mode`, async () => {
+      pfs.mkdir('./dir/041ab08b', {
+        sync: true
+      });
+
+      pfs.mkdir('./dir/041ab08b', {
+        sync: true
+      });
+
+      const exist = await pfs.test('./dir/041ab08b');
+      assert(exist);
+    });
+
+    it('Test optimization of the current working directory', async () => {
+      await pfs.mkdir('.');
+    });
+
+    it(`Create directories in the 'root' directory`, async () => {
+      const root = os.tmpdir();
+      const now = Date.now();
+      const src = `${root}/tmp.${now}`;
+
+      await pfs.mkdir(src);
+      const exists = await pfs.test(src);
+
+      assert(exists === true);
+    });
+
+    it('Throw an exception if trying to create a directory in file', async () => {
+      try {
+        await pfs.mkdir('./dir/file.txt/non-existent');
+      }
+      catch (err) {
+        assert(err.message);
+      }
+    });
+
+    it(`Throw an exception if trying to create a directory in file in 'sync' mode`, () => {
+      try {
+        pfs.mkdir('./dir/file.txt/non-existent', {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.message);
+      }
+    });
   });
 });

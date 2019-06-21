@@ -92,8 +92,6 @@ module.exports = {
   },
 
   copy(src, dir, umask, callback) {
-    const fmask = 0o666 - umask;
-    const dmask = 0o777 - umask;
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
@@ -113,10 +111,11 @@ module.exports = {
 
           const paths = src.split(sep);
           const loc = paths[paths.length - 1];
+          const mode = 0o777 - umask;
 
           dir = `${dir}${sep}${loc}`;
 
-          fs.mkdir(dir, dmask, (err) => {
+          fs.mkdir(dir, { mode }, (err) => {
             if (err) {
               callback(err);
               return;
@@ -143,18 +142,22 @@ module.exports = {
         });
       }
       else {
-        use = `${dir}${sep}${path.basename(src)}`;
+        const mode = 0o666 - umask;
+        const loc = path.basename(src);
 
-        const read = fs.createReadStream(src);
-        const write = fs.createWriteStream(use, {
-          mode: fmask
+        const readStream = fs.createReadStream(src);
+        const writeStream = fs.createWriteStream(`${dir}${sep}${loc}`, {
+          mode
         });
 
-        read.on('error', callback);
-        write.on('error', callback);
-        write.on('close', callback);
+        readStream.on('error', callback);
+        writeStream.on('error', callback);
 
-        read.pipe(write);
+        writeStream.on('close', () => {
+          callback(null);
+        });
+
+        readStream.pipe(writeStream);
       }
     });
   },
@@ -214,7 +217,7 @@ module.exports = {
       for (let i = 1; i < ways.length; i++) {
         dir += `${sep}${ways[i]}`;
 
-        fs.mkdir(dir, mode, (err) => {
+        fs.mkdir(dir, { mode }, (err) => {
           if (err && err.errno !== -17) {
             callback(err);
             return;

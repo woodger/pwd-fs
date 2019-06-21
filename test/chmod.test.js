@@ -2,72 +2,101 @@ const assert = require('assert');
 const mockFs = require('mock-fs');
 const PoweredFileSystem = require('..');
 
-describe(`pfs.chmod(src, mode [, options])`, () => {
+describe('pfs.chmod(src, mode [, options])', () => {
   const pfs = new PoweredFileSystem();
 
-  before(() => {
-    mockFs({
-      dir: mockFs.directory({
-        items: {
-          dir: mockFs.directory(),
-          'file.txt': ''
-        }
-      }),
-      dev: mockFs.directory({
-        mode: 0400,
-        items: {
-          'file.txt': ''
-        }
-      })
+  describe('Interface', () => {
+    it('Throw an exception if the option argument is not a object', async () => {
+      try {
+        await pfs.chmod('./dir/file.txt', 0o744, null);
+      }
+      catch (err) {
+        assert(
+          err.message ===
+          "Cannot destructure property `resolve` of 'undefined' or 'null'."
+        );
+      }
     });
-  });
 
-  after(() => {
-    mockFs.restore();
-  });
+    const options = {
+      resolve: Boolean,
+      sync: Boolean
+    };
 
-  it(`Changes directory and file permissions`, async () => {
-    await pfs.chmod('./dir', 0o744);
-    const stat = await pfs.stat('./dir/file.txt');
+    for (let i of Object.keys(options)) {
+      const {name} = options[i];
 
-    assert(stat.bitmask === 0o744);
-  });
-
-  it(`Search permission is denied on a component of the path prefix`, async () => {
-    try {
-      await pfs.chmod('./dev', 0, 0);
-    }
-    catch (err) {
-      assert(err.message.indexOf('EACCES, permission denied') > -1);
-    }
-  });
-
-  it(`To a non-existent resource to return an Error`, async () => {
-    try {
-      await pfs.chmod('./non-existent.txt', 0o744);
-    }
-    catch (err) {
-      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
-    }
-  });
-
-  it(`Throw an exception if the option argument is not a object`, async () => {
-    try {
-      await pfs.chmod('./dir/file.txt', 0o744, null);
-    }
-    catch (err) {
-      assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
-    }
-  });
-
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
-    try {
-      await pfs.chmod('./dir/file.txt', 0o744, {
-        resolve: null
+      it(`Throw an exception if '${i}' value is not a ${name}`, async () => {
+        try {
+          await pfs.chmod('./dir/file.txt', 0o744, {
+            [i]: null
+          });
+        }
+        catch (err) {
+          assert(
+            err.message ===
+            `Invalid value '${i}' in order '#chmod()'. Expected ${name}`
+          );
+        }
       });
     }
-    catch (err) {
-      assert(err.message === "Invalid value 'resolve' in order '#chmod()'. Expected Boolean");
-    }
+  });
+
+  describe('File system access', () => {
+    beforeEach(() => {
+      mockFs({
+        dir: {
+          dir: mockFs.directory(),
+          'file.txt': ''
+        },
+        dev: mockFs.directory({
+          mode: 0400,
+          items: {
+            'file.txt': ''
+          }
+        })
+      });
+    });
+
+    afterEach(() => {
+      mockFs.restore();
+    });
+
+    it('Changes directory and file permissions', async () => {
+      await pfs.chmod('./dir', 0o744);
+      const stat = await pfs.stat('./dir/file.txt');
+
+      assert(stat.bitmask === 0o744);
+    });
+
+    it(`Changes directory and file permissions in 'sync' mode`, async () => {
+      pfs.chmod('./dir', 0o744, {
+        sync: true
+      });
+
+      const stat = await pfs.stat('./dir/file.txt');
+      assert(stat.bitmask === 0o744);
+    });
+
+    it('Search permission is denied on a component of the path prefix', async () => {
+      try {
+        await pfs.chmod('./dev', 0, 0);
+      }
+      catch (err) {
+        const index = err.message.indexOf('EACCES, permission denied');
+        assert(index > -1);
+      }
+    });
+
+    it('To a non-existent resource to return an Error', async () => {
+      try {
+        await pfs.chmod('./non-existent.txt', 0o744);
+      }
+      catch (err) {
+        const index = err.message.indexOf('ENOENT, no such file or directory');
+
+        assert(index > -1);
+      }
+    });
   });
 });

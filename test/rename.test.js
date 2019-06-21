@@ -2,52 +2,81 @@ const assert = require('assert');
 const mockFs = require('mock-fs');
 const PoweredFileSystem = require('..');
 
-describe(`pfs.rename(src, use [, options])`, () => {
+describe('pfs.rename(src, use [, options])', () => {
   const pfs = new PoweredFileSystem();
 
-  before(() => {
-    mockFs({
-      'dir/file.txt': 'some text ...'
+  describe('Interface', () => {
+    it('Throw an exception if the option argument is not a object', async () => {
+      try {
+        await pfs.rename('./dir/file.txt', './dir/dist.txt', null);
+      }
+      catch (err) {
+        assert(
+          err.message ===
+          "Cannot destructure property `resolve` of 'undefined' or 'null'."
+        );
+      }
     });
-  });
 
-  after(() => {
-    mockFs.restore();
-  });
+    const options = {
+      resolve: Boolean,
+      sync: Boolean
+    };
 
-  it(`Rename file`, async () => {
-    await pfs.rename('./dir/file.txt', './dir/newname.txt');
-    const exist = await pfs.test('./dir/newname.txt');
+    for (let i of Object.keys(options)) {
+      const {name} = options[i];
 
-    assert(exist === true);
-  });
-
-  it(`To a non-existent resource to return an Error`, async () => {
-    try {
-      await pfs.rename('./non-existent.txt', './newname.txt');
-    }
-    catch (err) {
-      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
-    }
-  });
-
-  it(`Throw an exception if the option argument is not a object`, async () => {
-    try {
-      await pfs.rename('./dir/file.txt', './dir/newname.txt', null);
-    }
-    catch (err) {
-      assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
-    }
-  });
-
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
-    try {
-      await pfs.rename('./dir/file.txt', './dir/newname.txt', {
-        resolve: null
+      it(`Throw an exception if '${i}' value is not a ${name}`, async () => {
+        try {
+          await pfs.rename('./dir/file.txt', './dir/dist.txt', {
+            [i]: null
+          });
+        }
+        catch (err) {
+          assert(
+            err.message ===
+            `Invalid value '${i}' in order '#rename()'. Expected ${name}`
+          );
+        }
       });
     }
-    catch (err) {
-      assert(err.message === "Invalid value 'resolve' in order '#rename()'. Expected Boolean");
-    }
+  });
+
+  describe('File system access', () => {
+    beforeEach(() => {
+      mockFs({
+        'dir/file.txt': 'some text ...'
+      });
+    });
+
+    afterEach(() => {
+      mockFs.restore();
+    });
+
+    it('Must rename resource', async () => {
+      await pfs.rename('./dir/file.txt', './dir/dist.txt');
+      const exist = await pfs.test('./dir/dist.txt');
+
+      assert(exist === true);
+    });
+
+    it(`Must rename resource in 'sync' mode`, async () => {
+      pfs.rename('./dir/file.txt', './dir/dist.txt', {
+        sync: true
+      });
+
+      const exist = await pfs.test('./dir/dist.txt');
+      assert(exist === true);
+    });
+
+    it('To a non-existent resource to return an Error', async () => {
+      try {
+        await pfs.rename('./non-existent.txt', './dist.txt');
+      }
+      catch (err) {
+        const index = err.message.indexOf('ENOENT, no such file or directory');
+        assert(index > -1);
+      }
+    });
   });
 });
