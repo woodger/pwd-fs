@@ -2,88 +2,98 @@ const assert = require('assert');
 const mockFs = require('mock-fs');
 const PoweredFileSystem = require('..');
 
-describe(`pfs.write(src, data[, options])`, () => {
+describe('pfs.write(src, data[, options])', () => {
   const pfs = new PoweredFileSystem();
-  const data = 'some text ...';
+  const content = 'more text ...';
 
-  before(() => {
-    mockFs({
-      dir: mockFs.directory({})
+  describe('Interface', () => {
+    it('Throw an exception if the option argument is not a object', async () => {
+      try {
+        await pfs.write('./dir/file.txt', content, null);
+      }
+      catch (err) {
+        assert(
+          err.message ===
+          "Cannot destructure property `encoding` of 'undefined' or 'null'."
+        );
+      }
     });
-  });
 
-  after(() => {
-    mockFs.restore();
-  });
+    it('An unknown flag should throw an exception', async () => {
+      try {
+        await pfs.test('./dir/file.txt', {
+          flag: 'u'
+        });
+      }
+      catch (err) {
+        assert(err.message === "Unknown file test flag: u");
+      }
+    });
 
-  it(`Write data to a file`, async () => {
-    await pfs.write('./dir/file.txt', data);
-    const stat = await pfs.stat('./dir/file.txt');
+    const options = {
+      encoding: String,
+      umask: Number,
+      flag: String,
+      resolve: Boolean,
+      sync: Boolean
+    };
 
-    assert(stat.size === 13);
-  });
+    for (let i of Object.keys(options)) {
+      const {name} = options[i];
 
-  it(`Throw an exception if the option argument is not a object`, async () => {
-    try {
-      await pfs.write('./dir/file.txt', data, null);
-    }
-    catch (err) {
-      assert(err.message === "Cannot destructure property `encoding` of 'undefined' or 'null'.");
-    }
-  });
-
-  it(`Option 'umask' must be a 'number' type, else throw`, async () => {
-    try {
-      await pfs.write('./dir/file.txt', data, {
-        umask: null
+      it(`Throw an exception if '${i}' value is not a ${name}`, async () => {
+        try {
+          await pfs.write('./file.txt', content, {
+            [i]: null
+          });
+        }
+        catch (err) {
+          assert(
+            err.message ===
+            `Invalid value '${i}' in order '#write()'. Expected ${name}`
+          );
+        }
       });
     }
-    catch (err) {
-      assert(err.message === "Invalid value 'umask' in order '#write()'. Expected Number");
-    }
   });
 
-  it(`Option 'encoding' must be a 'string' type, else throw`, async () => {
-    try {
-      await pfs.write('./dir/file.txt', data, {
-        encoding: null
+  describe('File system access', () => {
+    beforeEach(() => {
+      mockFs({
+        dir: mockFs.directory({})
       });
-    }
-    catch (err) {
-      assert(err.message === "Invalid value 'encoding' in order '#write()'. Expected String");
-    }
-  });
+    });
 
-  it(`Option 'flag' must be a 'string' type, else throw`, async () => {
-    try {
-      await pfs.write('./dir/file.txt', data, {
-        flag: null
-      });
-    }
-    catch (err) {
-      assert(err.message === "Invalid value 'flag' in order '#write()'. Expected String");
-    }
-  });
+    afterEach(() => {
+      mockFs.restore();
+    });
 
-  it(`Unexpected option 'flag' returns Error`, async () => {
-    try {
-      await pfs.write('./dir/flagr.txt', data, {
-        flag: 'r'
-      });
-    }
-    catch (err) {
-      assert(err.message.indexOf('ENOENT, no such file or directory') > -1);
-    }
-  });
+    it('Must write content to file', async () => {
+      await pfs.write('./dir/file.txt', content);
+      const stat = await pfs.stat('./dir/file.txt');
 
-  it(`Option 'resolve' must be a 'boolean' type, else throw`, async () => {
-    try {
-      await pfs.write('./dir/file.txt', data, {
-        resolve: null
+      assert(stat.size === 13);
+    });
+
+    it(`Must write content to file in 'sync' mode`, async () => {
+      pfs.write('./dir/file.txt', content, {
+        sync: true
       });
-    }
-    catch (err) {
-      assert(err.message === "Invalid value 'resolve' in order '#write()'. Expected Boolean");
-    }
+
+      const stat = await pfs.stat('./dir/file.txt');
+      assert(stat.size === 13);
+    });
+
+    it(`Unexpected option 'flag' returns Error`, async () => {
+      try {
+        await pfs.write('./dir/flagr.txt', content, {
+          flag: 'r'
+        });
+      }
+      catch (err) {
+        const index = err.message.indexOf('ENOENT, no such file or directory');
+        assert(index > -1);
+      }
+    });
   });
 });

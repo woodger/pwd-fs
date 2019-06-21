@@ -1,7 +1,7 @@
 const assert = require('assert');
 const PoweredFileSystem = require('..');
 
-describe(`PoweredFileSystem.bitmask(mode)`, () => {
+describe('PoweredFileSystem.bitmask(mode)', () => {
   const bitmask = (value) => {
     return PoweredFileSystem.bitmask(value);
   };
@@ -11,11 +11,14 @@ describe(`PoweredFileSystem.bitmask(mode)`, () => {
       bitmask(null);
     }
     catch (err) {
-      assert(err.message === "Invalid value 'mode' in order '#bitmask()'. Expected Number");
+      assert(
+        err.message ===
+        "Invalid value 'mode' in order '#bitmask()'. Expected Number"
+      );
     }
   });
 
-  it(`Calculate mask from mode`, () => {
+  it('Calculate mask from mode', () => {
     assert(bitmask(33024) === 0o400); // (r--------)
     assert(bitmask(33152) === 0o600); // (rw-------)
     assert(bitmask(33216) === 0o700); // (rwx------)
