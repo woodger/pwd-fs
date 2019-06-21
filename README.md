@@ -99,7 +99,7 @@ const pfs = new PoweredFileSystem(__dirname);
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is an optional string that specifies the accessibility checks to be performed. **Default:** `'e'`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `boolean`.
 
 Tests a user's permissions for the file or directory specified by path.
@@ -124,7 +124,7 @@ Flag | Description
 - `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `fs.Stats`.
 
 > `fs.Stats` extended `bitmask` field.
@@ -137,7 +137,7 @@ These functions return information about a resource in the file system.
 - `mode` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Is a numeric `bitmask` created using a logical `OR`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful change, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously changes the permissions of a file.
@@ -160,7 +160,7 @@ See manuals [chmod(2)](http://man7.org/linux/man-pages/man2/chmod.2.html)
 - `gid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful change, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously changes owner and group of a file.
@@ -172,7 +172,7 @@ See manuals [chown(2)](http://man7.org/linux/man-pages/man2/chown.2.html).
 - `use` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. If `use` exists, it will not be overwritten.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful created link, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously creates a new symbolic link (also known as a soft link) may point to an existing file or to a nonexistent one.
@@ -193,7 +193,7 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful copied, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously recursively copy a file or directory.
@@ -211,7 +211,7 @@ console.log(info.bitmask); // 0o666
 - `use` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful renamed, the `Promise` is resolved with an value with a `undefined`.
 
 Rename file or directory. See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
@@ -225,7 +225,7 @@ await pfs.rename('./path/old_name.txt', './path/new_name.txt');
 - `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful removed, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously recursively remove a file or directory. Will be `resolve` if the directory already not exists.
@@ -237,7 +237,7 @@ Asynchronously recursively remove a file or directory. Will be `resolve` if the 
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> See support of [file system flags](#file-system-flags). **Default:** `'r'`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `string`.
 
 Asynchronously reads the entire contents of a file.
@@ -256,7 +256,7 @@ console.log(content); // 'Lorem Ipsum...'
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> See support of [file system flags](#file-system-flags). **Default:** `'w'`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously writes `data` to a file, replacing the file if it already exists. if the file does not exist, it will create a new one.
@@ -276,7 +276,7 @@ await pfs.write('./file.txt', '... some text');
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> See support of [file system flags](#file-system-flags). **Default:** `'a'`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously append data to a file, creating the file if it does not yet exist.
@@ -287,7 +287,7 @@ Asynchronously append data to a file, creating the file if it does not yet exist
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `Array` of the names of the files in the directory excluding `'.'` and `'..'`.
 
 Asynchronous reads the contents of a directory. The Gets an <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> of the names of the files in the directory excluding `'.'` and `'..'`. Returns an empty `Array` if the directory is empty. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
@@ -304,7 +304,7 @@ console.log(list); // ["icons", "logo.svg"]
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
-  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronized execution. **Default:** `false`.
+  - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful execution, the `Promise` is resolved with an value with a `undefined`.
 
 Recursive directory creation. Will be `resolve` if the directory already exists.
