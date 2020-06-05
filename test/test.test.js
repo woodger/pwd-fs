@@ -11,10 +11,7 @@ describe('pfs.test(src[, options])', () => {
         await pfs.test('./dir/file.txt', null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `flag` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 

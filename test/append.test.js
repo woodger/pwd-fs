@@ -12,10 +12,7 @@ describe('pfs.append(src, data [, options])', () => {
         await pfs.append('./file.txt', content, null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `encoding` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 

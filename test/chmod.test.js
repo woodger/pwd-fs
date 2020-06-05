@@ -11,10 +11,7 @@ describe('pfs.chmod(src, mode [, options])', () => {
         await pfs.chmod('./dir/file.txt', 0o744, null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `resolve` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 

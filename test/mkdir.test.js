@@ -12,10 +12,7 @@ describe('pfs.mkdir(src [, options])', () => {
         await pfs.mkdir('./dir', null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `umask` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 

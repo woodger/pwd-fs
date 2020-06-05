@@ -8,11 +8,8 @@ describe(`constructor: new PoweredFileSystem(path)`, () => {
     try {
       const pfs = new PoweredFileSystem(null);
     }
-    catch (e) {
-      assert(
-        e.message ===
-        `Invalid value 'src' in order '#constructor()'. Expected String`
-      );
+    catch (err) {
+      assert(err instanceof TypeError);
     }
   });
 

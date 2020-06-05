@@ -11,7 +11,7 @@ describe('pfs.chown(src, uid, gid [, options])', () => {
         await pfs.chown('./dir/file.txt', 0, 0, null);
       }
       catch (err) {
-        assert(err.message === "Cannot destructure property `resolve` of 'undefined' or 'null'.");
+        assert(err instanceof TypeError);
       }
     });
 

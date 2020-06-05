@@ -11,10 +11,7 @@ describe('pfs.symlink(src, use [, options])', () => {
         await pfs.symlink('./dir/file.txt', './dir/link.txt', null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `resolve` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 
