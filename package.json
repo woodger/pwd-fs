@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "1.2.12",
+  "version": "1.2.13",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "keywords": [
     "recursive",
@@ -20,7 +20,7 @@
     "mkdir"
   ],
   "author": {
-    "name": "Stanislav Woodger",
+    "name": "Stanislav Potemkin",
     "email": "woodger@ya.ru"
   },
   "license": "MIT",
