@@ -11,10 +11,7 @@ describe('PoweredFileSystem.bitmask(mode)', () => {
       bitmask(null);
     }
     catch (err) {
-      assert(
-        err.message ===
-        "Invalid value 'mode' in order '#bitmask()'. Expected Number"
-      );
+      assert(err instanceof TypeError);
     }
   });
 

@@ -11,10 +11,7 @@ describe('pfs.rename(src, use [, options])', () => {
         await pfs.rename('./dir/file.txt', './dir/dist.txt', null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `resolve` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 

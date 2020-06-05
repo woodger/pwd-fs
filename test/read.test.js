@@ -11,7 +11,7 @@ describe('pfs.read(src [, options])', () => {
         await pfs.read('./dir/file.txt', null);
       }
       catch (err) {
-        assert(err.message === "Cannot destructure property `encoding` of 'undefined' or 'null'.");
+        assert(err instanceof TypeError);
       }
     });
 

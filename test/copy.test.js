@@ -11,10 +11,7 @@ describe('pfs.copy(src, dir [, options])', () => {
         await pfs.copy('./dir/file.txt', '.', null);
       }
       catch (err) {
-        assert(
-          err.message ===
-          "Cannot destructure property `umask` of 'undefined' or 'null'."
-        );
+        assert(err instanceof TypeError);
       }
     });
 
