@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const recurse = require('./src/recurse-io');
 const recurseSync = require('./src/recurse-io-sync');
-const te = require('./src/type-enforcement');
+const types = require('./src/types');
 
 const cwd = process.cwd();
 const flags = {
@@ -20,7 +20,7 @@ class PoweredFileSystem {
       src = cwd;
     }
 
-    const err = te.validate('#constructor()', {
+    const err = types.validate('#constructor()', {
       src
     });
 
@@ -32,7 +32,7 @@ class PoweredFileSystem {
   }
 
   static bitmask(mode) {
-    const err = te.validate('#bitmask()', {
+    const err = types.validate('#bitmask()', {
       mode
     });
 
@@ -82,7 +82,7 @@ class PoweredFileSystem {
   }
 
   test(src, {flag = 'e', resolve = true, sync = false} = {}) {
-    const err = te.validate('#test()', {
+    const err = types.validate('#test()', {
       src,
       flag,
       resolve,
@@ -120,7 +120,7 @@ class PoweredFileSystem {
   }
 
   stat(src, {resolve = true, sync = false} = {}) {
-    const err = te.validate('#stat()', {
+    const err = types.validate('#stat()', {
       src,
       resolve,
       sync
@@ -153,7 +153,7 @@ class PoweredFileSystem {
   }
 
   chmod(src, mode, {resolve = true, sync = false} = {}) {
-    const err = te.validate('#chmod()', {
+    const err = types.validate('#chmod()', {
       src,
       mode,
       resolve,
@@ -185,7 +185,7 @@ class PoweredFileSystem {
   }
 
   chown(src, uid, gid, {resolve = true, sync = false} = {}) {
-    const err = te.validate('#chown()', {
+    const err = types.validate('#chown()', {
       src,
       uid,
       gid,
@@ -218,7 +218,7 @@ class PoweredFileSystem {
   }
 
   symlink(src, use, {resolve = true, sync = false} = {}) {
-    const err = te.validate('#symlink()', {
+    const err = types.validate('#symlink()', {
       src,
       use,
       resolve,
@@ -251,7 +251,7 @@ class PoweredFileSystem {
   }
 
   copy(src, dir, {umask = 0o000, resolve = true, sync = false} = {}) {
-    const err = te.validate('#copy()', {
+    const err = types.validate('#copy()', {
       src,
       dir,
       umask,
@@ -285,7 +285,7 @@ class PoweredFileSystem {
   }
 
   rename(src, use, {resolve = true, sync = false} = {}) {
-    const err = te.validate('#rename()', {
+    const err = types.validate('#rename()', {
       src,
       use,
       resolve,
@@ -318,7 +318,7 @@ class PoweredFileSystem {
   }
 
   remove(src, {resolve = true, sync = false} = {}) {
-    const err = te.validate('#remove()', {
+    const err = types.validate('#remove()', {
       src,
       resolve,
       sync
@@ -349,9 +349,8 @@ class PoweredFileSystem {
   }
 
   read(src, {encoding = 'utf8', flag = 'r', resolve = true, sync = false} = {}) {
-    const err = te.validate('#read()', {
+    const err = types.validate('#read()', {
       src,
-      encoding,
       flag,
       resolve,
       sync
@@ -389,9 +388,8 @@ class PoweredFileSystem {
   }
 
   write(src, data, {encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true, sync = false} = {}) {
-    const err = te.validate('#write()', {
+    const err = types.validate('#write()', {
       src,
-      encoding,
       umask,
       flag,
       resolve,
@@ -434,9 +432,8 @@ class PoweredFileSystem {
   }
 
   append(src, data, {encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true, sync = false} = {}) {
-    const err = te.validate('#append()', {
+    const err = types.validate('#append()', {
       src,
-      encoding,
       umask,
       flag,
       resolve,
@@ -479,9 +476,8 @@ class PoweredFileSystem {
   }
 
   readdir(dir, {encoding = 'utf8', resolve = true, sync = false} = {}) {
-    const err = te.validate('#readdir()', {
+    const err = types.validate('#readdir()', {
       dir,
-      encoding,
       resolve,
       sync
     });
@@ -516,7 +512,7 @@ class PoweredFileSystem {
   }
 
   mkdir(dir, {umask = 0o000, resolve = true, sync = false} = {}) {
-    const err = te.validate('#mkdir()', {
+    const err = types.validate('#mkdir()', {
       dir,
       umask,
       resolve,
