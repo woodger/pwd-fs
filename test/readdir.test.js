@@ -16,7 +16,6 @@ describe('pfs.readdir(src[, options])', () => {
     });
 
     const options = {
-      encoding: String,
       resolve: Boolean,
       sync: Boolean
     };
