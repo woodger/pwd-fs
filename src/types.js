@@ -57,12 +57,14 @@ module.exports = new TypeEnforcement({
   },
   '#read()': {
     src: String,
+    encoding: String,
     flag: String,
     resolve: Boolean,
     sync: Boolean
   },
   '#write()': {
     src: String,
+    encoding: String,
     umask: Number,
     flag: String,
     resolve: Boolean,
@@ -70,6 +72,7 @@ module.exports = new TypeEnforcement({
   },
   '#append()': {
     src: String,
+    encoding: String,
     umask: Number,
     flag: String,
     resolve: Boolean,
@@ -77,6 +80,7 @@ module.exports = new TypeEnforcement({
   },
   '#readdir()': {
     dir: String,
+    encoding: String,
     resolve: Boolean,
     sync: Boolean
   },

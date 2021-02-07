@@ -40,45 +40,45 @@ class PoweredFileSystem {
       throw err;
     }
 
-    let mask = 0o000;
+    let umask = 0o000;
 
     if (mode & 256) {
-      mask += 0o400;
+      umask += 0o400;
     }
 
     if (mode & 128) {
-      mask += 0o200;
+      umask += 0o200;
     }
 
     if (mode & 64) {
-      mask += 0o100;
+      umask += 0o100;
     }
 
     if (mode & 32) {
-      mask += 0o040;
+      umask += 0o040;
     }
 
     if (mode & 16) {
-      mask += 0o020;
+      umask += 0o020;
     }
 
     if (mode & 8) {
-      mask += 0o010;
+      umask += 0o010;
     }
 
     if (mode & 4) {
-      mask += 0o004;
+      umask += 0o004;
     }
 
     if (mode & 2) {
-      mask += 0o002;
+      umask += 0o002;
     }
 
     if (mode & 1) {
-      mask += 0o001;
+      umask += 0o001;
     }
 
-    return mask;
+    return umask;
   }
 
   test(src, {flag = 'e', resolve = true, sync = false} = {}) {
@@ -351,6 +351,7 @@ class PoweredFileSystem {
   read(src, {encoding = 'utf8', flag = 'r', resolve = true, sync = false} = {}) {
     const err = types.validate('#read()', {
       src,
+      encoding,
       flag,
       resolve,
       sync
@@ -390,6 +391,7 @@ class PoweredFileSystem {
   write(src, data, {encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true, sync = false} = {}) {
     const err = types.validate('#write()', {
       src,
+      encoding,
       umask,
       flag,
       resolve,
@@ -434,6 +436,7 @@ class PoweredFileSystem {
   append(src, data, {encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true, sync = false} = {}) {
     const err = types.validate('#append()', {
       src,
+      encoding,
       umask,
       flag,
       resolve,
@@ -478,6 +481,7 @@ class PoweredFileSystem {
   readdir(dir, {encoding = 'utf8', resolve = true, sync = false} = {}) {
     const err = types.validate('#readdir()', {
       dir,
+      encoding,
       resolve,
       sync
     });
