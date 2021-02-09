@@ -160,15 +160,15 @@ exports.default = {
         if (dir === cwd) {
             return callback(null);
         }
-        const generator = function* (dir, ways, mode) {
-            const it = yield;
-            for (let i = 1; i < ways.length; i++) {
-                dir += `${sep}${ways[i]}`;
+        const sequence = function* (dir, files, mode) {
+            const iter = yield;
+            for (const item of files) {
+                dir += `${sep}${item}`;
                 fs_1.default.mkdir(dir, { mode }, (err) => {
                     if (err && err.errno !== -17) {
                         return callback(err);
                     }
-                    it.next();
+                    iter.next();
                 });
                 yield;
             }
@@ -179,11 +179,11 @@ exports.default = {
             use = cwd;
             dir = dir.substr(cwd.length);
         }
-        const ways = dir.split(sep);
+        const files = dir.split(sep);
         const mode = 0o777 - umask;
-        const it = generator(use, ways, mode);
-        it.next();
-        it.next(it);
+        const iter = sequence(use, files, mode);
+        iter.next();
+        iter.next(iter);
     }
 };
 //# sourceMappingURL=recurse-io.js.map
