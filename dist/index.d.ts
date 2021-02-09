@@ -1,6 +1,8 @@
 /// <reference types="node" />
 import fs from 'fs';
 declare type Files = Array<string>;
+declare type Stats = Promise<fs.Stats> | fs.Stats;
+declare type Void = Promise<void> | void;
 declare class PoweredFileSystem {
     #private;
     readonly pwd: string;
@@ -14,32 +16,32 @@ declare class PoweredFileSystem {
     stat(src: string, { resolve, sync }?: {
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<fs.Stats> | fs.Stats;
+    }): Stats;
     chmod(src: string, mode: number, { resolve, sync }?: {
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     chown(src: string, uid: number, gid: number, { resolve, sync }?: {
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     symlink(src: string, use: string, { resolve, sync }?: {
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     copy(src: string, dir: string, { umask, resolve, sync }?: {
         umask?: number;
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     rename(src: string, use: string, { resolve, sync }?: {
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     remove(src: string, { resolve, sync }?: {
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     read(src: string, { encoding, flag, resolve, sync }?: {
         encoding?: BufferEncoding | null;
         flag?: string;
@@ -52,14 +54,14 @@ declare class PoweredFileSystem {
         flag?: string;
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     append(src: string, data: string, { encoding, umask, flag, resolve, sync }?: {
         encoding?: BufferEncoding | null;
         umask?: number;
         flag?: string;
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
     readdir(dir: string, { encoding, resolve, sync }?: {
         encoding?: BufferEncoding | null;
         resolve?: boolean;
@@ -69,6 +71,6 @@ declare class PoweredFileSystem {
         umask?: number;
         resolve?: boolean;
         sync?: boolean;
-    }): Promise<void> | void;
+    }): Void;
 }
 export = PoweredFileSystem;

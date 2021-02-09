@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+type Files = Array<string>
+
 const {sep} = path;
 
 export default {
@@ -194,18 +196,18 @@ export default {
       return callback(null);
     }
 
-    const generator = function* (dir: string, ways: string, mode: number): number {
-      const it = yield;
+    const sequence = function* (dir: string, files: Files, mode: number): Generator<void, void, Generator> {
+      const iter = yield;
 
-      for (let i = 1; i < ways.length; i++) {
-        dir += `${sep}${ways[i]}`;
+      for (const item of files) {
+        dir += `${sep}${item}`;
 
         fs.mkdir(dir, { mode }, (err) => {
           if (err && err.errno !== -17) {
             return callback(err);
           }
 
-          it.next();
+          iter.next();
         });
 
         yield;
@@ -221,12 +223,12 @@ export default {
       dir = dir.substr(cwd.length);
     }
 
-    const ways = dir.split(sep);
+    const files = dir.split(sep);
     const mode = 0o777 - umask;
 
-    const it = generator(use, ways, mode);
+    const iter = sequence(use, files, mode);
 
-    it.next();
-    it.next(it);
+    iter.next();
+    iter.next(iter);
   }
 }
