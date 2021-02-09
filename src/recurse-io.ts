@@ -1,29 +1,25 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const {sep} = path;
-const cwd = process.cwd();
 
-module.exports = {
-  chmod(src, mode, callback) {
+export default {
+  chmod(src: string, mode: number, callback: (err: Error) => void): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
       if (err) {
-        callback(err);
-        return;
+        return callback(err);
       }
 
       if (stat.isDirectory()) {
         fs.readdir(src, (err, list) => {
           if (err) {
-            callback(err);
-            return;
+            return callback(err);
           }
 
           if (list.length === 0) {
-            fs.chmod(src, mode, callback);
-            return;
+            return fs.chmod(src, mode, callback);
           }
 
           reduce += list.length;
@@ -31,8 +27,7 @@ module.exports = {
           for (const loc of list) {
             this.chmod(`${src}${sep}${loc}`, mode, (err) => {
               if (err) {
-                callback(err);
-                return;
+                return callback(err);
               }
 
               if (--reduce === 0) {
@@ -48,25 +43,22 @@ module.exports = {
     });
   },
 
-  chown(src, uid, gid, callback) {
+  chown(src: string, uid: number, gid: number, callback: (err: Error) => void): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
       if (err) {
-        callback(err);
-        return;
+        return callback(err);
       }
 
       if (stat.isDirectory()) {
         fs.readdir(src, (err, list) => {
           if (err) {
-            callback(err);
-            return;
+            return callback(err);
           }
 
           if (list.length === 0) {
-            fs.chown(src, uid, gid, callback);
-            return;
+            return fs.chown(src, uid, gid, callback);
           }
 
           reduce += list.length;
@@ -74,8 +66,7 @@ module.exports = {
           for (const loc of list) {
             this.chown(`${src}${sep}${loc}`, uid, gid, (err) => {
               if (err) {
-                callback(err);
-                return;
+                return callback(err);
               }
 
               if (--reduce === 0) {
@@ -91,20 +82,18 @@ module.exports = {
     });
   },
 
-  copy(src, dir, umask, callback) {
+  copy(src: string, dir: string, umask: number, callback: (err: Error) => void): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
       if (err) {
-        callback(err);
-        return;
+        return callback(err);
       }
 
       if (stat.isDirectory()) {
         fs.readdir(src, (err, list) => {
           if (err) {
-            callback(err);
-            return;
+            return callback(err);
           }
 
           reduce += list.length;
@@ -117,20 +106,17 @@ module.exports = {
 
           fs.mkdir(dir, { mode }, (err) => {
             if (err) {
-              callback(err);
-              return;
+              return callback(err);
             }
 
             if (reduce === 0) {
-              callback(null);
-              return;
+              return callback(null);
             }
 
             for (const loc of list) {
               this.copy(`${src}${sep}${loc}`, dir, umask, (err) => {
                 if (err) {
-                  callback(err);
-                  return;
+                  return callback(err);
                 }
 
                 if (--reduce === 0) {
@@ -162,25 +148,22 @@ module.exports = {
     });
   },
 
-  remove(src, callback) {
+  remove(src: string, callback: (err: Error) => void): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
       if (err) {
-        callback(err);
-        return;
+        return callback(err);
       }
 
       if (stat.isDirectory()) {
         fs.readdir(src, (err, list) => {
           if (err) {
-            callback(err);
-            return;
+            return callback(err);
           }
 
           if (list.length === 0) {
-            fs.rmdir(src, callback);
-            return;
+            return fs.rmdir(src, callback);
           }
 
           reduce += list.length;
@@ -188,8 +171,7 @@ module.exports = {
           for (const loc of list) {
             this.remove(`${src}${sep}${loc}`, (err) => {
               if (err) {
-                callback(err);
-                return;
+                return callback(err);
               }
 
               if (--reduce === 0) {
@@ -205,10 +187,11 @@ module.exports = {
     });
   },
 
-  mkdir(dir, umask, callback) {
+  mkdir(dir: string, umask: number, callback: (err: Error) => void): void {
+    const cwd = process.cwd();
+
     if (dir === cwd) {
-      callback(null);
-      return;
+      return callback(null);
     }
 
     const generator = function* (dir, ways, mode) {
@@ -219,8 +202,7 @@ module.exports = {
 
         fs.mkdir(dir, { mode }, (err) => {
           if (err && err.errno !== -17) {
-            callback(err);
-            return;
+            return callback(err);
           }
 
           it.next();
@@ -243,7 +225,8 @@ module.exports = {
     const mode = 0o777 - umask;
 
     const it = generator(use, ways, mode);
+
     it.next();
     it.next(it);
   }
-};
+}

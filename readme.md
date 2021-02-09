@@ -8,6 +8,8 @@
 
 This module expands the [Node.js®](https://nodejs.org) module with the capabilities of declaring the `pwd` (present working directory) and `recursive` execution. By default all file system operations have asynchronous forms. API provides an alternative set of asynchronous file system methods that return `Promise` objects.
 
+To improve reliability and maintainability the code is migrated to [TypeScript](https://www.typescriptlang.org).
+
 ## Getting Started
 
 ### Installation

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const mockFs = require('mock-fs');
-const PoweredFileSystem = require('..');
+const PoweredFileSystem = require('../dist');
 
 describe('pfs.chmod(src, mode [, options])', () => {
   const pfs = new PoweredFileSystem();
@@ -11,7 +11,7 @@ describe('pfs.chmod(src, mode [, options])', () => {
         await pfs.chmod('./dir/file.txt', 0o744, null);
       }
       catch (err) {
-        assert(err instanceof TypeError);
+        assert(err instanceof Error);
       }
     });
 
@@ -30,10 +30,7 @@ describe('pfs.chmod(src, mode [, options])', () => {
           });
         }
         catch (err) {
-          assert(
-            err.message ===
-            `Invalid value '${i}' in order '#chmod()'. Expected ${name}`
-          );
+          assert(err instanceof Error);
         }
       });
     }
