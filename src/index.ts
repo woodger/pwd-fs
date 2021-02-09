@@ -4,11 +4,17 @@ import recurse from './recurse-io';
 import recurseSync from './recurse-io-sync';
 
 type Files = Array<string>;
+type Stats = Promise<fs.Stats> | fs.Stats;
+type Void = Promise<void> | void;
+
+interface Constants {
+  [key: string]: number
+}
 
 class PoweredFileSystem {
   readonly pwd: string = process.cwd()
 
-  #constants: object = {
+  #constants: Constants = {
     e: fs.constants.F_OK,
     r: fs.constants.R_OK,
     w: fs.constants.W_OK,
@@ -89,7 +95,7 @@ class PoweredFileSystem {
     });
   }
 
-  stat(src: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<fs.Stats> | fs.Stats {
+  stat(src: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Stats {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -111,7 +117,7 @@ class PoweredFileSystem {
     });
   }
 
-  chmod(src: string, mode: number, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  chmod(src: string, mode: number, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -131,7 +137,7 @@ class PoweredFileSystem {
     });
   }
 
-  chown(src: string, uid: number, gid: number, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  chown(src: string, uid: number, gid: number, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -151,7 +157,7 @@ class PoweredFileSystem {
     });
   }
 
-  symlink(src: string, use: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  symlink(src: string, use: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
       use = path.resolve(this.pwd, use);
@@ -172,7 +178,7 @@ class PoweredFileSystem {
     });
   }
 
-  copy(src: string, dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  copy(src: string, dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
       dir = path.resolve(this.pwd, dir);
@@ -193,7 +199,7 @@ class PoweredFileSystem {
     });
   }
 
-  rename(src: string, use: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  rename(src: string, use: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
       use = path.resolve(this.pwd, use);
@@ -214,7 +220,7 @@ class PoweredFileSystem {
     });
   }
 
-  remove(src: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  remove(src: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -261,7 +267,7 @@ class PoweredFileSystem {
     });
   }
 
-  write(src: string, data: string, { encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true, sync = false }: { encoding?: BufferEncoding | null, umask?: number, flag?: string, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  write(src: string, data: string, { encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true, sync = false }: { encoding?: BufferEncoding | null, umask?: number, flag?: string, resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -292,7 +298,7 @@ class PoweredFileSystem {
     });
   }
 
-  append(src: string, data: string, { encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true, sync = false }: { encoding?: BufferEncoding | null, umask?: number, flag?: string, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  append(src: string, data: string, { encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true, sync = false }: { encoding?: BufferEncoding | null, umask?: number, flag?: string, resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -345,7 +351,7 @@ class PoweredFileSystem {
     });
   }
 
-  mkdir(dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
+  mkdir(dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}): Void {
     if (resolve) {
       dir = path.resolve(this.pwd, dir);
     }

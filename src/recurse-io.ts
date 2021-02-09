@@ -25,7 +25,7 @@ export default {
           reduce += list.length;
 
           for (const loc of list) {
-            this.chmod(`${src}${sep}${loc}`, mode, (err) => {
+            this.chmod(`${src}${sep}${loc}`, mode, (err: Error) => {
               if (err) {
                 return callback(err);
               }
@@ -64,7 +64,7 @@ export default {
           reduce += list.length;
 
           for (const loc of list) {
-            this.chown(`${src}${sep}${loc}`, uid, gid, (err) => {
+            this.chown(`${src}${sep}${loc}`, uid, gid, (err: Error) => {
               if (err) {
                 return callback(err);
               }
@@ -114,7 +114,7 @@ export default {
             }
 
             for (const loc of list) {
-              this.copy(`${src}${sep}${loc}`, dir, umask, (err) => {
+              this.copy(`${src}${sep}${loc}`, dir, umask, (err: Error) => {
                 if (err) {
                   return callback(err);
                 }
@@ -169,7 +169,7 @@ export default {
           reduce += list.length;
 
           for (const loc of list) {
-            this.remove(`${src}${sep}${loc}`, (err) => {
+            this.remove(`${src}${sep}${loc}`, (err: Error) => {
               if (err) {
                 return callback(err);
               }
@@ -194,7 +194,7 @@ export default {
       return callback(null);
     }
 
-    const generator = function* (dir, ways, mode) {
+    const generator = function* (dir: string, ways: string, mode: number): number {
       const it = yield;
 
       for (let i = 1; i < ways.length; i++) {
