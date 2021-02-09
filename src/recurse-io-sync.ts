@@ -1,17 +1,16 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const {sep} = path;
-const cwd = process.cwd();
 
-module.exports = {
-  chmod(src, mode) {
+export default {
+  chmod(src: string, mode: number): void {
     const stat = fs.statSync(src);
 
     if (stat.isDirectory()) {
       const list = fs.readdirSync(src);
 
-      for (let loc of list) {
+      for (const loc of list) {
         this.chmod(`${src}${sep}${loc}`, mode);
       }
     }
@@ -19,13 +18,13 @@ module.exports = {
     fs.chmodSync(src, mode);
   },
 
-  chown(src, uid, gid) {
+  chown(src: string, uid: number, gid: number): void {
     const stat = fs.statSync(src);
 
     if (stat.isDirectory()) {
       const list = fs.readdirSync(src);
 
-      for (let loc of list) {
+      for (const loc of list) {
         this.chown(`${src}${sep}${loc}`, uid, gid);
       }
     }
@@ -33,7 +32,7 @@ module.exports = {
     fs.chownSync(src, uid, gid);
   },
 
-  copy(src, dir, umask) {
+  copy(src: string, dir: string, umask: number): void {
     const stat = fs.statSync(src);
 
     if (stat.isDirectory()) {
@@ -46,7 +45,7 @@ module.exports = {
       dir = `${dir}${sep}${loc}`;
       fs.mkdirSync(dir, mode);
 
-      for (let loc of list) {
+      for (const loc of list) {
         this.copy(`${src}${sep}${loc}`, dir, umask);
       }
     }
@@ -58,13 +57,13 @@ module.exports = {
     }
   },
 
-  remove(src) {
+  remove(src: string): void {
     const stat = fs.statSync(src);
 
     if (stat.isDirectory()) {
       const list = fs.readdirSync(src);
 
-      for (let loc of list) {
+      for (const loc of list) {
         this.remove(`${src}${sep}${loc}`);
       }
 
@@ -75,8 +74,9 @@ module.exports = {
     }
   },
 
-  mkdir(dir, umask) {
+  mkdir(dir: string, umask: number): void {
     const mode = 0o777 - umask;
+    const cwd = process.cwd();
     let use = '';
 
     if (dir.indexOf(cwd) === 0) {
@@ -86,17 +86,17 @@ module.exports = {
 
     const ways = dir.split(sep).slice(1);
 
-    for (let loc of ways) {
+    for (const loc of ways) {
       use += `${sep}${loc}`;
 
       try {
         fs.mkdirSync(use, { mode });
       }
-      catch (e) {
-        if (e.errno !== -17) {
-          throw e;
+      catch (err) {
+        if (err.errno !== -17) {
+          throw err;
         }
       }
     }
   }
-};
+}

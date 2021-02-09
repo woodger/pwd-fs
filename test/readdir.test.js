@@ -1,6 +1,6 @@
 const assert = require('assert');
 const mockFs = require('mock-fs');
-const PoweredFileSystem = require('..');
+const PoweredFileSystem = require('../dist');
 
 describe('pfs.readdir(src[, options])', () => {
   const pfs = new PoweredFileSystem();

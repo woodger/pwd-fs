@@ -1,5 +1,5 @@
 const assert = require('assert');
-const PoweredFileSystem = require('..');
+const PoweredFileSystem = require('../dist');
 
 describe(`constructor: new PoweredFileSystem(path)`, () => {
   const cwd = process.cwd();

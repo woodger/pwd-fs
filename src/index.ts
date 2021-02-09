@@ -1,45 +1,27 @@
-const fs = require('fs');
-const path = require('path');
-const recurse = require('./src/recurse-io');
-const recurseSync = require('./src/recurse-io-sync');
-const types = require('./src/types');
+import fs from 'fs';
+import path from 'path';
+import recurse from './recurse-io';
+import recurseSync from './recurse-io-sync';
 
-const cwd = process.cwd();
-const flags = {
-  test: {
+type Files = Array<string>;
+
+class PoweredFileSystem {
+  readonly pwd: string = process.cwd()
+
+  #constants: object = {
     e: fs.constants.F_OK,
     r: fs.constants.R_OK,
     w: fs.constants.W_OK,
     x: fs.constants.X_OK
   }
-};
 
-class PoweredFileSystem {
-  constructor(src = '') {
-    if (src === '') {
-      src = cwd;
+  constructor(pwd?: string) {
+    if (pwd) {
+      this.pwd = path.resolve(pwd);
     }
-
-    const err = types.validate('#constructor()', {
-      src
-    });
-
-    if (err) {
-      throw err;
-    }
-
-    this.pwd = path.resolve(cwd, src);
   }
 
-  static bitmask(mode) {
-    const err = types.validate('#bitmask()', {
-      mode
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  static bitmask(mode: number) {
     let umask = 0o000;
 
     if (mode & 256) {
@@ -81,23 +63,12 @@ class PoweredFileSystem {
     return umask;
   }
 
-  test(src, {flag = 'e', resolve = true, sync = false} = {}) {
-    const err = types.validate('#test()', {
-      src,
-      flag,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
-    if (flags.test.hasOwnProperty(flag) === false) {
+  test(src: string, { flag = 'e', resolve = true, sync = false }: { flag?: string, resolve?: boolean, sync?: boolean } = {}): Promise<boolean> | boolean {
+    if (this.#constants.hasOwnProperty(flag) === false) {
       throw new Error(`Unknown file test flag: ${flag}`);
     }
 
-    flag = flags.test[flag];
+    const mode = this.#constants[flag];
 
     if (resolve) {
       src = path.resolve(this.pwd, src);
@@ -108,10 +79,9 @@ class PoweredFileSystem {
     }
 
     return new Promise((resolve, reject) => {
-      fs.access(src, flag, (err) => {
+      fs.access(src, mode, (err) => {
         if (err) {
-          resolve(false);
-          return;
+          return resolve(false);
         }
 
         resolve(true);
@@ -119,17 +89,7 @@ class PoweredFileSystem {
     });
   }
 
-  stat(src, {resolve = true, sync = false} = {}) {
-    const err = types.validate('#stat()', {
-      src,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  stat(src: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<fs.Stats> | fs.Stats {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -139,31 +99,19 @@ class PoweredFileSystem {
     }
 
     return new Promise((resolve, reject) => {
-      fs.lstat(src, (err, info) => {
+      fs.lstat(src, (err, stats) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
-        info.bitmask = this.constructor.bitmask(info.mode);
+        (<any>stats).bitmask = PoweredFileSystem.bitmask(stats.mode);
 
-        resolve(info);
+        resolve(stats);
       });
     });
   }
 
-  chmod(src, mode, {resolve = true, sync = false} = {}) {
-    const err = types.validate('#chmod()', {
-      src,
-      mode,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  chmod(src: string, mode: number, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -175,8 +123,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       recurse.chmod(src, mode, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -184,19 +131,7 @@ class PoweredFileSystem {
     });
   }
 
-  chown(src, uid, gid, {resolve = true, sync = false} = {}) {
-    const err = types.validate('#chown()', {
-      src,
-      uid,
-      gid,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  chown(src: string, uid: number, gid: number, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -208,8 +143,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       recurse.chown(src, uid, gid, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -217,18 +151,7 @@ class PoweredFileSystem {
     });
   }
 
-  symlink(src, use, {resolve = true, sync = false} = {}) {
-    const err = types.validate('#symlink()', {
-      src,
-      use,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  symlink(src: string, use: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
       use = path.resolve(this.pwd, use);
@@ -241,8 +164,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       fs.symlink(src, use, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -250,19 +172,7 @@ class PoweredFileSystem {
     });
   }
 
-  copy(src, dir, {umask = 0o000, resolve = true, sync = false} = {}) {
-    const err = types.validate('#copy()', {
-      src,
-      dir,
-      umask,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  copy(src: string, dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
       dir = path.resolve(this.pwd, dir);
@@ -275,8 +185,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       recurse.copy(src, dir, umask, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -284,18 +193,7 @@ class PoweredFileSystem {
     });
   }
 
-  rename(src, use, {resolve = true, sync = false} = {}) {
-    const err = types.validate('#rename()', {
-      src,
-      use,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  rename(src: string, use: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
       use = path.resolve(this.pwd, use);
@@ -308,8 +206,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       fs.rename(src, use, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -317,17 +214,7 @@ class PoweredFileSystem {
     });
   }
 
-  remove(src, {resolve = true, sync = false} = {}) {
-    const err = types.validate('#remove()', {
-      src,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  remove(src: string, { resolve = true, sync = false }: { resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -339,8 +226,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       recurse.remove(src, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -348,19 +234,7 @@ class PoweredFileSystem {
     });
   }
 
-  read(src, {encoding = 'utf8', flag = 'r', resolve = true, sync = false} = {}) {
-    const err = types.validate('#read()', {
-      src,
-      encoding,
-      flag,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  read(src: string, { encoding = 'utf8', flag = 'r', resolve = true, sync = false }: { encoding?: BufferEncoding | null, flag?: string, resolve?: boolean, sync?: boolean } = {}): Promise<string> | string {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -379,8 +253,7 @@ class PoweredFileSystem {
       },
       (err, content) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve(content);
@@ -388,20 +261,7 @@ class PoweredFileSystem {
     });
   }
 
-  write(src, data, {encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true, sync = false} = {}) {
-    const err = types.validate('#write()', {
-      src,
-      encoding,
-      umask,
-      flag,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  write(src: string, data: string, { encoding = 'utf8', umask = 0o000, flag = 'w', resolve = true, sync = false }: { encoding?: BufferEncoding | null, umask?: number, flag?: string, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -424,8 +284,7 @@ class PoweredFileSystem {
       },
       (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -433,20 +292,7 @@ class PoweredFileSystem {
     });
   }
 
-  append(src, data, {encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true, sync = false} = {}) {
-    const err = types.validate('#append()', {
-      src,
-      encoding,
-      umask,
-      flag,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  append(src: string, data: string, { encoding = 'utf8', umask = 0o000, flag = 'a', resolve = true, sync = false }: { encoding?: BufferEncoding | null, umask?: number, flag?: string, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       src = path.resolve(this.pwd, src);
     }
@@ -469,8 +315,7 @@ class PoweredFileSystem {
       },
       (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -478,18 +323,7 @@ class PoweredFileSystem {
     });
   }
 
-  readdir(dir, {encoding = 'utf8', resolve = true, sync = false} = {}) {
-    const err = types.validate('#readdir()', {
-      dir,
-      encoding,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  readdir(dir: string, { encoding = 'utf8', resolve = true, sync = false }: { encoding?: BufferEncoding | null, resolve?: boolean, sync?: boolean } = {}): Promise<Files> | Files {
     if (resolve) {
       dir = path.resolve(this.pwd, dir);
     }
@@ -501,13 +335,9 @@ class PoweredFileSystem {
     }
 
     return new Promise((resolve, reject) => {
-      fs.readdir(dir, {
-        encoding
-      },
-      (err, list) => {
+      fs.readdir(dir, { encoding }, (err, list) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve(list);
@@ -515,18 +345,7 @@ class PoweredFileSystem {
     });
   }
 
-  mkdir(dir, {umask = 0o000, resolve = true, sync = false} = {}) {
-    const err = types.validate('#mkdir()', {
-      dir,
-      umask,
-      resolve,
-      sync
-    });
-
-    if (err) {
-      throw err;
-    }
-
+  mkdir(dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}): Promise<void> | void {
     if (resolve) {
       dir = path.resolve(this.pwd, dir);
     }
@@ -538,8 +357,7 @@ class PoweredFileSystem {
     return new Promise((resolve, reject) => {
       recurse.mkdir(dir, umask, (err) => {
         if (err) {
-          reject(err);
-          return;
+          return reject(err);
         }
 
         resolve();
@@ -548,4 +366,4 @@ class PoweredFileSystem {
   }
 }
 
-module.exports = PoweredFileSystem;
+export = PoweredFileSystem;
