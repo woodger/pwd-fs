@@ -9,7 +9,8 @@
     "resolveJsonModule": true,
     "alwaysStrict": true,
     "declaration": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "noImplicitThis": true
   },
   "files": [
     "./src/index.ts"
