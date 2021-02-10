@@ -10,7 +10,8 @@
     "alwaysStrict": true,
     "declaration": true,
     "noImplicitAny": true,
-    "noImplicitThis": true
+    "noImplicitThis": true,
+    "strictFunctionTypes": true
   },
   "files": [
     "./src/index.ts"
