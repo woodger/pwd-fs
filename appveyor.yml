@@ -1,14 +1,14 @@
 environment:
   matrix:
-    - nodejs_version: "8"
-    - nodejs_version: "10"
+    - nodejs_version: 8
+    - nodejs_version: 10
 install:
   - ps: Install-Product node $env:nodejs_version
   - npm config set loglevel warn
   - npm install --silent
   - npm install -g typescript
 test_script:
-  - tsc
+  - npm run build
   - npm test
 build: off
 cache:
