@@ -8,6 +8,7 @@ describe('#constructor: new PoweredFileSystem(path)', () => {
 
   it('Throw an exception if first argument is not a string type', () => {
     try {
+      // @ts-ignore
       new PoweredFileSystem(null);
     }
     catch (err) {
