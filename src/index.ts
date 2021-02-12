@@ -26,8 +26,8 @@ export = class PoweredFileSystem {
     }
   }
 
-  test(src: string, options: { sync: true, resolve?: boolean, flag: Flag }): boolean;
-  test(src: string, options?: { sync?: false, resolve?: boolean, flag: Flag }): Promise<boolean>;
+  test(src: string, options: { sync: true, resolve?: boolean, flag?: Flag }): boolean;
+  test(src: string, options?: { sync?: false, resolve?: boolean, flag?: Flag }): Promise<boolean>;
 
   test(src: string, { sync = false, resolve = true, flag = 'e' }: { sync?: boolean, resolve?: boolean, flag?: Flag } = {}) {
     const mode = this.#constants[flag];

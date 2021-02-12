@@ -35,10 +35,7 @@ describe('append(src, data [, options])', () => {
     const pfs = new PoweredFileSystem();
     const chance = new Chance();
 
-    const before = await pfs.stat(
-      './tmpdir/binapp'
-    );
-
+    const before = await pfs.stat('./tmpdir/binapp');
     const payload = chance.paragraph();
 
     pfs.append('./tmpdir/binapp', payload, {
