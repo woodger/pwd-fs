@@ -3,7 +3,7 @@ import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
 
-describe('read(src [, options])', () => {
+describe('readdir(src[, options])', () => {
   beforeEach(() => {
     const chance = new Chance();
 
@@ -17,42 +17,38 @@ describe('read(src [, options])', () => {
 
   afterEach(mockFs.restore);
 
-  it('Positive: Must read content of file', async () => {
+  it('Positive: Must return a directory listing', async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = await pfs.read('./tmpdir/binapp');
+    const listOfFiles = await pfs.readdir('./tmpdir');
 
-    assert(length > 0);
+    assert.deepStrictEqual(listOfFiles, [
+      'binapp',
+      'libxbase'
+    ]);
   });
 
-  it('Positive: Must read content of file', async () => {
+  it(`Positive: Must return a directory listing in 'sync' mode`, async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = pfs.read('./tmpdir/binapp', {
+    const listOfFiles = pfs.readdir('./tmpdir', {
       sync: true
     });
 
-    assert(length > 0);
+    assert.deepStrictEqual(listOfFiles, [
+      'binapp',
+      'libxbase'
+    ]);
   });
 
-  it('Positive: Must read string type of file by default', async () => {
-    const pfs = new PoweredFileSystem();
-
-    const { length } = pfs.read('./tmpdir/binapp', {
-      sync: true
-    });
-
-    assert(length > 0);
-  });
-
-  it('Negative: Throw if resource is not file', async () => {
+  it('Negative: Throw if resource is not directory', async () => {
     const pfs = new PoweredFileSystem();
 
     try {
-      await pfs.read(`./tmpdir/libxbase`);
+      await pfs.readdir(`./tmpdir/binapp`);
     }
     catch (err) {
-      assert(err.errno === -21);
+      assert(err.errno === -20);
     }
   });
 
@@ -63,7 +59,7 @@ describe('read(src [, options])', () => {
     const base = chance.guid();
 
     try {
-      await pfs.read(`./${base}`);
+      await pfs.readdir(`./${base}`);
     }
     catch (err) {
       assert(err.errno === -2);
@@ -77,7 +73,7 @@ describe('read(src [, options])', () => {
     const base = chance.guid();
 
     try {
-      pfs.read(`./${base}`, {
+      pfs.readdir(`./${base}`, {
         sync: true
       });
     }

@@ -3,7 +3,7 @@ import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
 
-describe('read(src [, options])', () => {
+describe('rename(src, use [, options])', () => {
   beforeEach(() => {
     const chance = new Chance();
 
@@ -17,43 +17,44 @@ describe('read(src [, options])', () => {
 
   afterEach(mockFs.restore);
 
-  it('Positive: Must read content of file', async () => {
+  it('Positive: Must be recursive rename file', async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = await pfs.read('./tmpdir/binapp');
+    await pfs.rename('./tmpdir/binapp', './tmpdir/newapp');
+    const exist = await pfs.test('./tmpdir/newapp');
 
-    assert(length > 0);
+    assert(exist === true);
   });
 
-  it('Positive: Must read content of file', async () => {
+  it(`Positive: Must be recursive rename file in 'sync' mode`, async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = pfs.read('./tmpdir/binapp', {
+    pfs.rename('./tmpdir/binapp', './tmpdir/newapp', {
       sync: true
     });
 
-    assert(length > 0);
+    const exist = await pfs.test('./tmpdir/newapp');
+    assert(exist === true);
   });
 
-  it('Positive: Must read string type of file by default', async () => {
+  it('Positive: Must be recursive rename directory', async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = pfs.read('./tmpdir/binapp', {
+    await pfs.rename('./tmpdir/libxbase', './tmpdir/newxbase');
+    const exist = await pfs.test('./tmpdir/newxbase');
+
+    assert(exist === true);
+  });
+
+  it(`Positive: Must be recursive rename directory in 'sync' mode`, async () => {
+    const pfs = new PoweredFileSystem();
+
+    pfs.rename('./tmpdir/libxbase', './tmpdir/newxbase', {
       sync: true
     });
 
-    assert(length > 0);
-  });
-
-  it('Negative: Throw if resource is not file', async () => {
-    const pfs = new PoweredFileSystem();
-
-    try {
-      await pfs.read(`./tmpdir/libxbase`);
-    }
-    catch (err) {
-      assert(err.errno === -21);
-    }
+    const exist = await pfs.test('./tmpdir/newxbase');
+    assert(exist === true);
   });
 
   it('Negative: Throw if not exists resource', async () => {
@@ -63,7 +64,7 @@ describe('read(src [, options])', () => {
     const base = chance.guid();
 
     try {
-      await pfs.read(`./${base}`);
+      await pfs.rename(`./${base}`, './tmpdir/newapp');
     }
     catch (err) {
       assert(err.errno === -2);
@@ -77,7 +78,7 @@ describe('read(src [, options])', () => {
     const base = chance.guid();
 
     try {
-      pfs.read(`./${base}`, {
+      pfs.rename(`./${base}`, './tmpdir/newapp', {
         sync: true
       });
     }

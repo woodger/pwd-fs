@@ -10,7 +10,7 @@ interface Constants {
   [key: string]: number
 }
 
-export = class FileSystem {
+export = class PoweredFileSystem {
   readonly pwd: string = process.cwd()
 
   #constants: Constants = {

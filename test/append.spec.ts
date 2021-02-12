@@ -1,7 +1,7 @@
 import assert from 'assert';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
-import FileSystem from '../src';
+import PoweredFileSystem from '../src';
 
 describe('append(src, data [, options])', () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('append(src, data [, options])', () => {
   afterEach(mockFs.restore);
 
   it('Positive: Must append content to file', async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
     const chance = new Chance();
 
     const before = await pfs.stat('./tmpdir/binapp');
@@ -32,7 +32,7 @@ describe('append(src, data [, options])', () => {
   });
 
   it(`Positive: Must append content to file in 'sync' mode`, async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
     const chance = new Chance();
 
     const before = await pfs.stat(
@@ -51,7 +51,7 @@ describe('append(src, data [, options])', () => {
   });
 
   it(`Negative: Unexpected option 'flag' returns Error`, async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
     const chance = new Chance();
 
     try {
@@ -61,8 +61,8 @@ describe('append(src, data [, options])', () => {
         flag: 'r'
       });
     }
-    catch ({ errno }) {
-      assert(errno === -9);
+    catch (err) {
+      assert(err.errno === -9);
     }
   });
 });

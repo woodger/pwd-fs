@@ -1,7 +1,7 @@
 import assert from 'assert';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
-import FileSystem from '../src';
+import PoweredFileSystem from '../src';
 
 describe('chown(src, uid, gid [, options])', () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('chown(src, uid, gid [, options])', () => {
   afterEach(mockFs.restore);
 
   it('Positive: Changes the permissions of a file', async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
 
     await pfs.chown('./tmpdir/binapp', 0, 0);
     const { uid, gid } = await pfs.stat('./tmpdir/binapp');
@@ -27,7 +27,7 @@ describe('chown(src, uid, gid [, options])', () => {
   });
 
   it('Positive: Changes the permissions of a directory', async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
 
     await pfs.chown('./tmpdir/libxbase', 0, 0);
     const { uid, gid } = await pfs.stat('./tmpdir/libxbase');
@@ -36,7 +36,7 @@ describe('chown(src, uid, gid [, options])', () => {
   });
 
   it(`Positive: Changes the permissions of a file in 'sync' mode`, async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
 
     pfs.chown('./tmpdir/binapp', 1, 1, {
       sync: true
@@ -48,7 +48,7 @@ describe('chown(src, uid, gid [, options])', () => {
   });
 
   it('Positive: Changes the permissions of a directory in sync mode', async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
 
     pfs.chown('./tmpdir/libxbase', 1, 1, {
       sync: true
@@ -60,26 +60,26 @@ describe('chown(src, uid, gid [, options])', () => {
   });
 
   it('Negative: To a non-existent resource to return an Error', async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
 
     try {
       await pfs.chown('./non-existent-source', 1, 1);
     }
-    catch ({ errno }) {
-      assert(errno === -2);
+    catch (err) {
+      assert(err.errno === -2);
     }
   });
 
   it(`Negative: To a non-existent resource to return an Error in 'sync' mode`, async () => {
-    const pfs = new FileSystem();
+    const pfs = new PoweredFileSystem();
 
     try {
       pfs.chown('./non-existent-source', 1, 1, {
         sync: true
       });
     }
-    catch ({ errno }) {
-      assert(errno === -2);
+    catch (err) {
+      assert(err.errno === -2);
     }
   });
 });

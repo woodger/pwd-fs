@@ -3,7 +3,7 @@ import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
 
-describe('read(src [, options])', () => {
+describe(`stat(src [, options])`, () => {
   beforeEach(() => {
     const chance = new Chance();
 
@@ -11,49 +11,50 @@ describe('read(src [, options])', () => {
       'tmpdir': {
         'binapp': chance.paragraph(),
         'libxbase': mockFs.directory()
-      },
+      }
     });
   });
 
   afterEach(mockFs.restore);
 
-  it('Positive: Must read content of file', async () => {
+  it('Positive: Must be created a symbolic link', async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = await pfs.read('./tmpdir/binapp');
+    await pfs.symlink('./tmpdir/binapp', './flexapp');
 
-    assert(length > 0);
+    const stats = await pfs.stat('./flexapp');
+    assert(stats.isSymbolicLink());
   });
 
-  it('Positive: Must read content of file', async () => {
+  it(`Positive: Must be created a symbolic link in 'sync' mode`, async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = pfs.read('./tmpdir/binapp', {
+    pfs.symlink('./tmpdir/binapp', './flexapp', {
       sync: true
     });
 
-    assert(length > 0);
+    const stats = await pfs.stat('./flexapp');
+    assert(stats.isSymbolicLink());
   });
 
-  it('Positive: Must read string type of file by default', async () => {
+  it('Positive: Must be created a symbolic link for directory', async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = pfs.read('./tmpdir/binapp', {
+    await pfs.symlink(`./tmpdir/libxbase`, './flexapp');
+
+    const stats = await pfs.stat('./flexapp');
+    assert(stats.isSymbolicLink());
+  });
+
+  it(`Positive: Must be created a symbolic link for directory in 'sync' mode`, async () => {
+    const pfs = new PoweredFileSystem();
+
+    pfs.symlink(`./tmpdir/libxbase`, './flexapp', {
       sync: true
     });
 
-    assert(length > 0);
-  });
-
-  it('Negative: Throw if resource is not file', async () => {
-    const pfs = new PoweredFileSystem();
-
-    try {
-      await pfs.read(`./tmpdir/libxbase`);
-    }
-    catch (err) {
-      assert(err.errno === -21);
-    }
+    const stats = await pfs.stat('./flexapp');
+    assert(stats.isSymbolicLink());
   });
 
   it('Negative: Throw if not exists resource', async () => {
@@ -63,7 +64,7 @@ describe('read(src [, options])', () => {
     const base = chance.guid();
 
     try {
-      await pfs.read(`./${base}`);
+      await pfs.symlink(`./${base}`, './linkapp');
     }
     catch (err) {
       assert(err.errno === -2);
@@ -77,7 +78,7 @@ describe('read(src [, options])', () => {
     const base = chance.guid();
 
     try {
-      pfs.read(`./${base}`, {
+      pfs.symlink(`./${base}`, './linkapp', {
         sync: true
       });
     }
