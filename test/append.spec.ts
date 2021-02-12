@@ -1,9 +1,9 @@
 import assert from 'assert';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
-import PoweredFileSystem  from '../src';
+import FileSystem from '../src';
 
-describe('#pfs.append(src, data [, options])', () => {
+describe('append(src, data [, options])', () => {
   beforeEach(() => {
     const chance = new Chance();
 
@@ -17,48 +17,52 @@ describe('#pfs.append(src, data [, options])', () => {
 
   afterEach(mockFs.restore);
 
-  it('Must append content to file', async () => {
-    const pfs = new PoweredFileSystem();
+  it('Positive: Must append content to file', async () => {
+    const pfs = new FileSystem();
     const chance = new Chance();
 
-    const statBefore = await pfs.stat('./tmpdir/binapp');
+    const before = await pfs.stat('./tmpdir/binapp');
 
     const payload = chance.paragraph();
     await pfs.append('./tmpdir/binapp', payload);
 
-    const statAfter = await pfs.stat('./tmpdir/binapp');
+    const after = await pfs.stat('./tmpdir/binapp');
 
-    // assert(statAfter.size > statBefore.size);
+    assert(after.size > before.size);
   });
 
-  it(`Must append content to file in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
+  it(`Positive: Must append content to file in 'sync' mode`, async () => {
+    const pfs = new FileSystem();
     const chance = new Chance();
 
-    const statBefore = await pfs.stat('./tmpdir/binapp');
+    const before = await pfs.stat(
+      './tmpdir/binapp'
+    );
 
     const payload = chance.paragraph();
+
     pfs.append('./tmpdir/binapp', payload, {
       sync: true
     });
 
-    const statAfter = await pfs.stat('./tmpdir/binapp');
+    const after = await pfs.stat('./tmpdir/binapp');
 
-    // assert(statAfter.size > statBefore.size);
+    assert(after.size > before.size);
   });
 
-  it(`Unexpected option 'flag' returns Error`, async () => {
-    const pfs = new PoweredFileSystem();
+  it(`Negative: Unexpected option 'flag' returns Error`, async () => {
+    const pfs = new FileSystem();
     const chance = new Chance();
 
     try {
       const payload = chance.paragraph();
+
       await pfs.append('./tmpdir/binapp', payload, {
         flag: 'r'
       });
     }
-    catch (err) {
-      assert(err.message === "EBADF, bad file descriptor");
+    catch ({ errno }) {
+      assert(errno === -9);
     }
   });
 });

@@ -1,28 +1,28 @@
 import assert from 'assert';
-import PoweredFileSystem  from '../src';
+import FileSystem from '../src';
 
-describe('#constructor: new PoweredFileSystem(path)', () => {
-  it('Must be backwards compatible with #require', () => {
-    assert(require('../src') === PoweredFileSystem);
+describe('#constructor: new FileSystem(path)', () => {
+  it('Positive: Must be backwards compatible with #require', () => {
+    assert(require('../src') === FileSystem);
   });
 
-  it('Throw an exception if first argument is not a string type', () => {
+  it('Positive: An empty path must match the context of the cwd', () => {
+    const { pwd } = new FileSystem();
+    assert(pwd === process.cwd());
+  });
+
+  it('Positive: Absolute path must match the context of the pwd', () => {
+    const { pwd } = new FileSystem(__dirname);
+    assert(pwd === __dirname);
+  });
+
+  it('Negative: Throw an exception if first argument is not a string type', () => {
     try {
       // @ts-ignore
-      new PoweredFileSystem(null);
+      new FileSystem(null);
     }
     catch (err) {
       assert(err);
     }
-  });
-
-  it('An empty path must match the context of the cwd', () => {
-    const {pwd} = new PoweredFileSystem();
-    assert(pwd === process.cwd());
-  });
-
-  it('Absolute path must match the context of the pwd', () => {
-    const {pwd} = new PoweredFileSystem(__dirname);
-    assert(pwd === __dirname);
   });
 });

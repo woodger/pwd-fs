@@ -1,9 +1,9 @@
 import assert from 'assert';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
-import PoweredFileSystem  from '../src';
+import FileSystem from '../src';
 
-describe('#pfs.append(src, data [, options])', () => {
+describe('chmod(src, mode [, options])', () => {
   beforeEach(() => {
     const chance = new Chance();
 
@@ -17,58 +17,49 @@ describe('#pfs.append(src, data [, options])', () => {
 
   afterEach(mockFs.restore);
 
-  it('Changes directory and file permissions', async () => {
-    const pfs = new PoweredFileSystem();
+  it('Positive: Changes directory and file permissions', async () => {
+    const pfs = new FileSystem();
 
     await pfs.chmod('./tmpdir', 0o744);
-    const stat = await pfs.stat('./tmpdir/binapp');
 
-    // assert(stat.bitmask === 0o744);
-    // ???
+    const { mode } = await pfs.stat('./tmpdir/binapp');
+    const umask = FileSystem.bitmask(mode);
 
-    assert(stat);
+    assert(umask === 0o744);
   });
 
-  it(`Changes directory and file permissions in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
+  it(`Positive: Changes directory and file permissions in 'sync' mode`, async () => {
+    const pfs = new FileSystem();
 
     pfs.chmod('./tmpdir', 0o744, {
       sync: true
     });
 
-    const stat = await pfs.stat('./tmpdir/binapp');
+    const { mode } = await pfs.stat('./tmpdir/binapp');
+    const umask = FileSystem.bitmask(mode);
 
-    pfs.stat('./tmpdir/binapp', {
-      sync: true
-    });
-
-    // assert(stat.bitmask === 0o744);
-    // ???
-
-    assert(stat);
+    assert(umask === 0o744);
   });
 
-  it('Search permission is denied on a component of the path prefix', async () => {
-    const pfs = new PoweredFileSystem();
+  it('Negative: Search permission is denied on a component of the path prefix', async () => {
+    const pfs = new FileSystem();
 
     try {
       await pfs.chmod('./tmpdir', 0);
     }
-    catch (err) {
-      assert(err.message.includes('EACCES, permission denied') > -1);
+    catch ({ errno }) {
+      assert(errno === -9);
     }
   });
 
-  it('To a non-existent resource to return an Error', async () => {
-    const pfs = new PoweredFileSystem();
+  it('Negative: Throw if not exists resource', async () => {
+    const pfs = new FileSystem();
 
     try {
       await pfs.chmod('./non-existent-source', 0o744);
     }
-    catch (err) {
-      const index = err.message.indexOf('ENOENT, no such file or directory');
-
-      assert(index > -1);
+    catch ({ errno }) {
+      assert(errno === -2);
     }
   });
 });
