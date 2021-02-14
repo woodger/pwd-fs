@@ -9,9 +9,12 @@ describe('remove(src [, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -23,17 +26,6 @@ describe('remove(src [, options])', () => {
     await pfs.remove('./tmpdir');
     const exist = await pfs.test('./tmpdir');
 
-    assert(exist === false);
-  });
-
-  it(`Positive: Removal a directory with a file in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-
-    pfs.remove('./tmpdir', {
-      sync: true
-    });
-
-    const exist = await pfs.test('./tmpdir');
     assert(exist === false);
   });
 
@@ -51,19 +43,32 @@ describe('remove(src [, options])', () => {
     }
   });
 
-  it(`Negative: Throw if not exists resource in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-    const chance = new Chance();
+  describe('sync mode', () => {
+    it('Positive: Removal a directory with a file', async () => {
+      const pfs = new PoweredFileSystem();
 
-    const base = chance.guid();
-
-    try {
-      pfs.remove(`./${base}`, {
+      pfs.remove('./tmpdir', {
         sync: true
       });
-    }
-    catch (err) {
-      assert(err.errno === -2);
-    }
+
+      const exist = await pfs.test('./tmpdir');
+      assert(exist === false);
+    });
+
+    it('Negative: Throw if not exists resource', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const base = chance.guid();
+
+      try {
+        pfs.remove(`./${base}`, {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -2);
+      }
+    });
   });
 });

@@ -9,9 +9,12 @@ describe('chown(src, uid, gid [, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -35,30 +38,6 @@ describe('chown(src, uid, gid [, options])', () => {
     assert(uid === 0 && gid === 0);
   });
 
-  it(`Positive: Changes the permissions of a file in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-
-    pfs.chown('./tmpdir/binapp', 1, 1, {
-      sync: true
-    });
-
-    const { uid, gid } = await pfs.stat('./tmpdir/binapp');
-
-    assert(uid === 1 && gid === 1);
-  });
-
-  it('Positive: Changes the permissions of a directory in sync mode', async () => {
-    const pfs = new PoweredFileSystem();
-
-    pfs.chown('./tmpdir/libxbase', 1, 1, {
-      sync: true
-    });
-
-    const { uid, gid } = await pfs.stat('./tmpdir/libxbase');
-
-    assert(uid === 1 && gid === 1);
-  });
-
   it('Negative: To a non-existent resource to return an Error', async () => {
     const pfs = new PoweredFileSystem();
 
@@ -70,16 +49,42 @@ describe('chown(src, uid, gid [, options])', () => {
     }
   });
 
-  it(`Negative: To a non-existent resource to return an Error in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
+  describe('sync mode', () => {
+    it('Positive: Changes the permissions of a file', async () => {
+      const pfs = new PoweredFileSystem();
 
-    try {
-      pfs.chown('./non-existent-source', 1, 1, {
+      pfs.chown('./tmpdir/binapp', 1, 1, {
         sync: true
       });
-    }
-    catch (err) {
-      assert(err.errno === -2);
-    }
+
+      const { uid, gid } = await pfs.stat('./tmpdir/binapp');
+
+      assert(uid === 1 && gid === 1);
+    });
+
+    it('Positive: Changes the permissions of a directory', async () => {
+      const pfs = new PoweredFileSystem();
+
+      pfs.chown('./tmpdir/libxbase', 1, 1, {
+        sync: true
+      });
+
+      const { uid, gid } = await pfs.stat('./tmpdir/libxbase');
+
+      assert(uid === 1 && gid === 1);
+    });
+
+    it(`Negative: To a non-existent resource to return an Error`, async () => {
+      const pfs = new PoweredFileSystem();
+
+      try {
+        pfs.chown('./non-existent-source', 1, 1, {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -2);
+      }
+    });
   });
 });

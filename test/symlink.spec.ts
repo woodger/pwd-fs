@@ -3,13 +3,13 @@ import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
 
-describe(`stat(src [, options])`, () => {
+describe('symlink(src, use [, options])', () => {
   beforeEach(() => {
     const chance = new Chance();
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       }
     });
@@ -26,32 +26,10 @@ describe(`stat(src [, options])`, () => {
     assert(stats.isSymbolicLink());
   });
 
-  it(`Positive: Must be created a symbolic link in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-
-    pfs.symlink('./tmpdir/binapp', './flexapp', {
-      sync: true
-    });
-
-    const stats = await pfs.stat('./flexapp');
-    assert(stats.isSymbolicLink());
-  });
-
   it('Positive: Must be created a symbolic link for directory', async () => {
     const pfs = new PoweredFileSystem();
 
     await pfs.symlink(`./tmpdir/libxbase`, './flexapp');
-
-    const stats = await pfs.stat('./flexapp');
-    assert(stats.isSymbolicLink());
-  });
-
-  it(`Positive: Must be created a symbolic link for directory in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-
-    pfs.symlink(`./tmpdir/libxbase`, './flexapp', {
-      sync: true
-    });
 
     const stats = await pfs.stat('./flexapp');
     assert(stats.isSymbolicLink());
@@ -71,19 +49,43 @@ describe(`stat(src [, options])`, () => {
     }
   });
 
-  it(`Negative: Throw if not exists resource in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-    const chance = new Chance();
+  describe('sync mode', () => {
+    it('Positive: Must be created a symbolic link', async () => {
+      const pfs = new PoweredFileSystem();
 
-    const base = chance.guid();
-
-    try {
-      pfs.symlink(`./${base}`, './linkapp', {
+      pfs.symlink('./tmpdir/binapp', './flexapp', {
         sync: true
       });
-    }
-    catch (err) {
-      assert(err.errno === -2);
-    }
+
+      const stats = await pfs.stat('./flexapp');
+      assert(stats.isSymbolicLink());
+    });
+
+    it('Positive: Must be created a symbolic link for directory', async () => {
+      const pfs = new PoweredFileSystem();
+
+      pfs.symlink(`./tmpdir/libxbase`, './flexapp', {
+        sync: true
+      });
+
+      const stats = await pfs.stat('./flexapp');
+      assert(stats.isSymbolicLink());
+    });
+
+    it('Negative: Throw if not exists resource', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const base = chance.guid();
+
+      try {
+        pfs.symlink(`./${base}`, './linkapp', {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -2);
+      }
+    });
   });
 });

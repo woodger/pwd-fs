@@ -9,9 +9,12 @@ describe('mkdir(src [, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -25,7 +28,6 @@ describe('mkdir(src [, options])', () => {
     await pfs.mkdir(`./tmpdir/${base}`);
 
     const exist = await pfs.test(`./tmpdir/${base}`);
-
     assert(exist);
   });
 
@@ -33,20 +35,8 @@ describe('mkdir(src [, options])', () => {
     const pfs = new PoweredFileSystem('./tmpdir');
 
     await pfs.mkdir('.');
-    const exist = await pfs.test('.');
-
-    assert(exist);
-  });
-
-  it(`Positive: Make current directory in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem('./tmpdir');
-
-    pfs.mkdir('.', {
-      sync: true
-    });
 
     const exist = await pfs.test('.');
-
     assert(exist);
   });
 
@@ -58,23 +48,6 @@ describe('mkdir(src [, options])', () => {
 
     for (const item of [base, base]) {
       await pfs.mkdir(`./tmpdir/${item}`);
-
-      const exist = await pfs.test(`./tmpdir/${item}`);
-
-      assert(exist);
-    }
-  });
-
-  it(`Positive: Should work fine with the existing directory in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-    const chance = new Chance();
-
-    const base = chance.guid();
-
-    for (const item of [base, base]) {
-      pfs.mkdir(`./tmpdir/${item}`, {
-        sync: true
-      });
 
       const exist = await pfs.test(`./tmpdir/${item}`);
       assert(exist);
@@ -95,19 +68,62 @@ describe('mkdir(src [, options])', () => {
     }
   });
 
-  it(`Negative: Throw an exception if trying to create a directory in file in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-    const chance = new Chance();
+  describe('sync mode', () => {
+    it('Positive: Create directories in the working directory', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
 
-    const base = chance.guid();
+      const base = chance.guid();
 
-    try {
-      pfs.mkdir(`./tmpdir/binapp/${base}`, {
+      pfs.mkdir(`./tmpdir/${base}`, {
         sync: true
       });
-    }
-    catch (err) {
-      assert(err.errno === -20);
-    }
+
+      const exist = await pfs.test(`./tmpdir/${base}`);
+      assert(exist);
+    });
+
+    it('Positive: Make current directory', async () => {
+      const pfs = new PoweredFileSystem('./tmpdir');
+
+      pfs.mkdir('.', {
+        sync: true
+      });
+
+      const exist = await pfs.test('.');
+      assert(exist);
+    });
+
+    it('Positive: Should work fine with the existing directory', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const base = chance.guid();
+
+      for (const item of [base, base]) {
+        pfs.mkdir(`./tmpdir/${item}`, {
+          sync: true
+        });
+
+        const exist = await pfs.test(`./tmpdir/${item}`);
+        assert(exist);
+      }
+    });
+
+    it('Negative: Throw an exception if trying to create a directory in file', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const base = chance.guid();
+
+      try {
+        pfs.mkdir(`./tmpdir/binapp/${base}`, {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -20);
+      }
+    });
   });
 });

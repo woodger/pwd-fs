@@ -9,9 +9,12 @@ describe('test(src[, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
-      }
+      },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -31,30 +34,10 @@ describe('test(src[, options])', () => {
     assert(exist);
   });
 
-  it(`Positive: For existing directory should return 'true' in 'sync' mode`, () =>  {
-    const pfs = new PoweredFileSystem();
-
-    const exist = pfs.test('./tmpdir/libxbase', {
-      sync: true
-    });
-
-    assert(exist);
-  });
-
   it(`Positive: For existing file should return 'true'`, async () => {
     const pfs = new PoweredFileSystem();
 
     const exist = await pfs.test('./tmpdir/binapp');
-    assert(exist);
-  });
-
-  it(`Positive: For existing file should return 'true' in 'sync' mode`, () =>  {
-    const pfs = new PoweredFileSystem();
-
-    const exist = pfs.test('./tmpdir/binapp', {
-      sync: true
-    });
-
     assert(exist);
   });
 
@@ -68,15 +51,58 @@ describe('test(src[, options])', () => {
     assert(exists === false);
   });
 
-  it(`Positive: A non-existent file must return 'false' in 'sync' mode`, async () => {
+  it(`Positive: Should return 'true' for absolute source`, async () => {
     const pfs = new PoweredFileSystem();
-    const chance = new Chance();
 
-    const base = chance.guid();
-    const exists = pfs.test(`./${base}`, {
-      sync: true
+    const exists = await pfs.test(process.cwd(), {
+      resolve: false
     });
 
-    assert(exists === false);
+    assert(exists);
+  });
+
+  describe('sync mode', () => {
+    it(`Positive: For existing directory should return 'true'`, () =>  {
+      const pfs = new PoweredFileSystem();
+
+      const exist = pfs.test('./tmpdir/libxbase', {
+        sync: true
+      });
+
+      assert(exist);
+    });
+
+    it(`Positive: For existing file should return 'true'`, () =>  {
+      const pfs = new PoweredFileSystem();
+
+      const exist = pfs.test('./tmpdir/binapp', {
+        sync: true
+      });
+
+      assert(exist);
+    });
+
+    it(`Positive: A non-existent file must return 'false'`, async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const base = chance.guid();
+      const exists = pfs.test(`./${base}`, {
+        sync: true
+      });
+
+      assert(exists === false);
+    });
+
+    it(`Positive: Should return 'true' for absolute source`, () => {
+      const pfs = new PoweredFileSystem();
+
+      const exists = pfs.test(process.cwd(), {
+        sync: true,
+        resolve: false
+      });
+
+      assert(exists);
+    });
   });
 });

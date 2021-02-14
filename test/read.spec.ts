@@ -9,9 +9,12 @@ describe('read(src [, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -21,26 +24,6 @@ describe('read(src [, options])', () => {
     const pfs = new PoweredFileSystem();
 
     const { length } = await pfs.read('./tmpdir/binapp');
-
-    assert(length > 0);
-  });
-
-  it('Positive: Must read content of file', async () => {
-    const pfs = new PoweredFileSystem();
-
-    const { length } = pfs.read('./tmpdir/binapp', {
-      sync: true
-    });
-
-    assert(length > 0);
-  });
-
-  it('Positive: Must read string type of file by default', async () => {
-    const pfs = new PoweredFileSystem();
-
-    const { length } = pfs.read('./tmpdir/binapp', {
-      sync: true
-    });
 
     assert(length > 0);
   });
@@ -70,19 +53,41 @@ describe('read(src [, options])', () => {
     }
   });
 
-  it(`Negative: Throw if not exists resource in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-    const chance = new Chance();
+  describe('sync mode', () => {
+    it('Positive: Must read content of file', async () => {
+      const pfs = new PoweredFileSystem();
 
-    const base = chance.guid();
-
-    try {
-      pfs.read(`./${base}`, {
+      const { length } = pfs.read('./tmpdir/binapp', {
         sync: true
       });
-    }
-    catch (err) {
-      assert(err.errno === -2);
-    }
+
+      assert(length > 0);
+    });
+
+    it('Positive: Must read string type of file by default', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const { length } = pfs.read('./tmpdir/binapp', {
+        sync: true
+      });
+
+      assert(length > 0);
+    });
+
+    it(`Negative: Throw if not exists resource`, async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const base = chance.guid();
+
+      try {
+        pfs.read(`./${base}`, {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -2);
+      }
+    });
   });
 });

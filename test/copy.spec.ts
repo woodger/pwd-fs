@@ -10,9 +10,12 @@ describe('copy(src, dir [, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -54,20 +57,6 @@ describe('copy(src, dir [, options])', () => {
     assert(umask === 0o666);
   });
 
-  it(`Positive: Copying a file in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-    const dist = os.tmpdir();
-
-    pfs.copy('./tmpdir/binapp', dist, {
-      sync: true
-    });
-
-    const { mode } = await pfs.stat(`${dist}/binapp`);
-    const umask = PoweredFileSystem.bitmask(mode);
-
-    assert(umask === 0o666);
-  });
-
   it('Negative: Throw if not exists resource', async () => {
     const pfs = new PoweredFileSystem();
 
@@ -88,5 +77,61 @@ describe('copy(src, dir [, options])', () => {
     catch (err) {
       assert(err.errno === -17);
     }
+  });
+
+  describe('sync mode', () => {
+    it('Positive: Copying a file', async () => {
+      const pfs = new PoweredFileSystem();
+      const dist = os.tmpdir();
+
+      pfs.copy('./tmpdir/binapp', dist, {
+        sync: true
+      });
+
+      const { mode } = await pfs.stat(`${dist}/binapp`);
+      const umask = PoweredFileSystem.bitmask(mode);
+
+      assert(umask === 0o666);
+    });
+
+    it('Positive: Recursive copying a directory', async () => {
+      const pfs = new PoweredFileSystem();
+      const dist = os.tmpdir();
+
+      pfs.copy('./tmpdir', dist, {
+        sync: true
+      });
+
+      const { mode } = await pfs.stat(`${dist}/tmpdir/libxbase`);
+      const umask = PoweredFileSystem.bitmask(mode);
+
+      assert(umask === 0o777);
+    });
+
+    it('Negative: Throw if not exists resource', async () => {
+      const pfs = new PoweredFileSystem();
+
+      try {
+        pfs.copy('./non-existent', '.', {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -2);
+      }
+    });
+
+    it('Negative: An attempt to copy to an existing resource should return an Error', async () => {
+      const pfs = new PoweredFileSystem();
+
+      try {
+        pfs.copy('./tmpdir', '.', {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -17);
+      }
+    });
   });
 });

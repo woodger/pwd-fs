@@ -9,9 +9,12 @@ describe('chmod(src, mode [, options])', () => {
 
     mockFs({
       'tmpdir': {
-        'binapp': chance.paragraph(),
+        'binapp': chance.string(),
         'libxbase': mockFs.directory()
       },
+      'flexapp': mockFs.symlink({
+        path: 'tmpdir/binapp'
+      })
     });
   });
 
@@ -21,19 +24,6 @@ describe('chmod(src, mode [, options])', () => {
     const pfs = new PoweredFileSystem();
 
     await pfs.chmod('./tmpdir', 0o744);
-
-    const { mode } = await pfs.stat('./tmpdir/binapp');
-    const umask = PoweredFileSystem.bitmask(mode);
-
-    assert(umask === 0o744);
-  });
-
-  it(`Positive: Changes directory and file permissions in 'sync' mode`, async () => {
-    const pfs = new PoweredFileSystem();
-
-    pfs.chmod('./tmpdir', 0o744, {
-      sync: true
-    });
 
     const { mode } = await pfs.stat('./tmpdir/binapp');
     const umask = PoweredFileSystem.bitmask(mode);
@@ -61,5 +51,46 @@ describe('chmod(src, mode [, options])', () => {
     catch (err) {
       assert(err.errno === -2);
     }
+  });
+
+  describe('sync mode', () => {
+    it(`Positive: Changes directory and file permissions`, async () => {
+      const pfs = new PoweredFileSystem();
+
+      pfs.chmod('./tmpdir', 0o744, {
+        sync: true
+      });
+
+      const { mode } = await pfs.stat('./tmpdir/binapp');
+      const umask = PoweredFileSystem.bitmask(mode);
+
+      assert(umask === 0o744);
+    });
+
+    it('Negative: Search permission is denied on a component of the path prefix', async () => {
+      const pfs = new PoweredFileSystem();
+
+      try {
+        pfs.chmod('./tmpdir', 0, {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -9);
+      }
+    });
+
+    it('Negative: Throw if not exists resource', async () => {
+      const pfs = new PoweredFileSystem();
+
+      try {
+        pfs.chmod('./non-existent-source', 0o744, {
+          sync: true
+        });
+      }
+      catch (err) {
+        assert(err.errno === -2);
+      }
+    });
   });
 });
