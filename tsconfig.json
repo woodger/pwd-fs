@@ -1,19 +1,15 @@
 {
+  "extends": "@tsconfig/node10/tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es2020",
-    "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "./dist",
-    "resolveJsonModule": true,
-    "alwaysStrict": true,
     "declaration": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictFunctionTypes": true
+    "outDir": "./lib",
   },
-  "files": [
-    "./src/index.ts"
+  "include": [
+    "src/**/*",
+    "**/*.spec.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

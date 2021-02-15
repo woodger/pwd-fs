@@ -1,8 +1,9 @@
-coverage
 test
 src
-node_modules
+lib/test
 appveyor.yml
+node_modules
+coverage
 yarn.lock
 package-lock.json
 .nyc_output
