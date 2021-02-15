@@ -15,15 +15,4 @@ describe('#constructor: new PoweredFileSystem(path)', () => {
     const { pwd } = new PoweredFileSystem(__dirname);
     assert(pwd === __dirname);
   });
-
-  it('Negative: Throw an exception if first argument is not a string type', () => {
-    try {
-      // @ts-ignore
-      new PoweredFileSystem(null);
-    }
-    catch (err) {
-      console.log(err.errno);
-      assert(err);
-    }
-  });
 });
