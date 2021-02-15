@@ -38,7 +38,6 @@ npm i pwd-fs
 * [pfs.append(src, data[, options])](#pfsappendsrc-data-options)
 * [pfs.readdir(dir[, options])](#pfsreaddirdir-options)
 * [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
-* [static: bitmask(mode)](#static-bitmaskmode)
 * [pfs.pwd](#pfspwd)
 
 The scope `URI` of the class methods are divided into groups.
@@ -129,8 +128,6 @@ Flag | Description
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `fs.Stats`.
 
-> `fs.Stats` extended `bitmask` field.
-
 These functions return information about a resource in the file system.
 
 #### pfs.chmod(src, mode[, options])
@@ -146,9 +143,9 @@ Asynchronously changes the permissions of a file.
 
 ```js
 await pfs.chmod('./path', 0o750);
-const info = await pfs.stat('./path');
+const { mode } = await pfs.stat('./path');
 
-console.log(info.bitmask === 0o750); // true
+console.log(PoweredFileSystem.bitmask(mode) === 0o750); // true
 ```
 
 > **Caveats:** on Windows only the write permission can be changed, and the distinction among the permissions of group, owner or others is not implemented.
@@ -201,10 +198,10 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 Asynchronously recursively copy a file or directory.
 
 ```js
-await pfs.copy('./path/file.txt', './dest');
-const info = await pfs.stat('./dest/path/file.txt');
+await pfs.copy('./path/file.txt', './dist');
+const { mode } = await pfs.stat('./dist/path/file.txt');
 
-console.log(info.bitmask); // 0o666
+console.log(PoweredFileSystem.bitmask(mode) === 0o666); // true
 ```
 
 #### pfs.rename(src, use[, options])
@@ -313,21 +310,6 @@ Recursive directory creation. Will be `resolve` if the directory already exists.
 
 ```js
 await pfs.mkdir('./static/images');
-```
-
-#### static: bitmask(mode)
-
-- `mode` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
-`fs.stat(path[, options], callback)` function provides information about the file system resource. A `stat.mode` is a bit-field that describes the type and mode of the file. Extends an instance of the standard module `fs.Stats` by adding a `bitmask` field.
-- returns: <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>.
-
-```js
-const fs = require('fs');
-const {bitmask} = require('pwd-fs');
-
-fs.stat('./path', (err, stat) => {
-  console.log(bitmask(stat.mode)); // 0o755
-});
 ```
 
 #### pfs.pwd

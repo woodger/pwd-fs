@@ -6,7 +6,7 @@ type Files = Array<string>
 const {sep} = path;
 
 export default {
-  chmod(src: string, mode: number, callback: (err: Error) => void): void {
+  chmod(src: string, mode: number, callback: fs.NoParamCallback): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
@@ -27,7 +27,7 @@ export default {
           reduce += list.length;
 
           for (const loc of list) {
-            this.chmod(`${src}${sep}${loc}`, mode, (err: Error) => {
+            this.chmod(`${src}${sep}${loc}`, mode, (err) => {
               if (err) {
                 return callback(err);
               }
@@ -45,15 +45,15 @@ export default {
     });
   },
 
-  chown(src: string, uid: number, gid: number, callback: (err: Error) => void): void {
+  chown(src: string, uid: number, gid: number, callback: fs.NoParamCallback): void {
     let reduce = 0;
 
-    fs.stat(src, (err, stat) => {
+    fs.stat(src, (err, stats) => {
       if (err) {
         return callback(err);
       }
 
-      if (stat.isDirectory()) {
+      if (stats.isDirectory()) {
         fs.readdir(src, (err, list) => {
           if (err) {
             return callback(err);
@@ -66,7 +66,7 @@ export default {
           reduce += list.length;
 
           for (const loc of list) {
-            this.chown(`${src}${sep}${loc}`, uid, gid, (err: Error) => {
+            this.chown(`${src}${sep}${loc}`, uid, gid, (err) => {
               if (err) {
                 return callback(err);
               }
@@ -84,7 +84,7 @@ export default {
     });
   },
 
-  copy(src: string, dir: string, umask: number, callback: (err: Error) => void): void {
+  copy(src: string, dir: string, umask: number, callback: fs.NoParamCallback): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
@@ -116,7 +116,7 @@ export default {
             }
 
             for (const loc of list) {
-              this.copy(`${src}${sep}${loc}`, dir, umask, (err: Error) => {
+              this.copy(`${src}${sep}${loc}`, dir, umask, (err) => {
                 if (err) {
                   return callback(err);
                 }
@@ -150,7 +150,7 @@ export default {
     });
   },
 
-  remove(src: string, callback: (err: Error) => void): void {
+  remove(src: string, callback: fs.NoParamCallback): void {
     let reduce = 0;
 
     fs.stat(src, (err, stat) => {
@@ -171,7 +171,7 @@ export default {
           reduce += list.length;
 
           for (const loc of list) {
-            this.remove(`${src}${sep}${loc}`, (err: Error) => {
+            this.remove(`${src}${sep}${loc}`, (err) => {
               if (err) {
                 return callback(err);
               }
@@ -189,7 +189,7 @@ export default {
     });
   },
 
-  mkdir(dir: string, umask: number, callback: (err: Error) => void): void {
+  mkdir(dir: string, umask: number, callback: fs.NoParamCallback): void {
     const cwd = process.cwd();
 
     if (dir === cwd) {
