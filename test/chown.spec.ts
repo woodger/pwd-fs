@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -23,8 +24,8 @@ describe('chown(src, uid, gid [, options])', () => {
   it('Positive: Changes the permissions of a file', async () => {
     const pfs = new PoweredFileSystem();
 
-    await pfs.chown('./tmpdir/binapp', 0, 0);
-    const { uid, gid } = await pfs.stat('./tmpdir/binapp');
+    await pfs.chown('./tmpdir', 0, 0);
+    const { uid, gid } = await pfs.stat('./tmpdir');
 
     assert(uid === 0 && gid === 0);
   });
@@ -36,6 +37,19 @@ describe('chown(src, uid, gid [, options])', () => {
     const { uid, gid } = await pfs.stat('./tmpdir/libxbase');
 
     assert(uid === 0 && gid === 0);
+  });
+
+  it('Positive: Changes the permissions of a file, when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+    await pfs.chown(`${cwd}${sep}tmpdir${sep}binapp`, 1, 1, {
+      resolve: false
+    });
+
+    const { uid, gid } = await pfs.stat('./tmpdir/binapp');
+
+    assert(uid === 1 && gid === 1);
   });
 
   it('Negative: To a non-existent resource to return an Error', async () => {
@@ -65,11 +79,25 @@ describe('chown(src, uid, gid [, options])', () => {
     it('Positive: Changes the permissions of a directory', async () => {
       const pfs = new PoweredFileSystem();
 
-      pfs.chown('./tmpdir/libxbase', 1, 1, {
+      pfs.chown('./tmpdir', 1, 1, {
         sync: true
       });
 
-      const { uid, gid } = await pfs.stat('./tmpdir/libxbase');
+      const { uid, gid } = await pfs.stat('./tmpdir');
+
+      assert(uid === 1 && gid === 1);
+    });
+
+    it('Positive: Changes the permissions of a file, when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+      pfs.chown(`${cwd}${sep}tmpdir${sep}binapp`, 1, 1, {
+        sync: true,
+        resolve: false
+      });
+
+      const { uid, gid } = await pfs.stat('./tmpdir/binapp');
 
       assert(uid === 1 && gid === 1);
     });

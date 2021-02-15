@@ -1,5 +1,6 @@
 import assert from 'assert';
 import os from 'os';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -23,8 +24,8 @@ describe('copy(src, dir [, options])', () => {
 
   it('Positive: Copying a item file', async () => {
     const pfs = new PoweredFileSystem();
-    const dist = os.tmpdir();
 
+    const dist = os.tmpdir();
     await pfs.copy('./tmpdir/binapp', dist);
 
     const { mode } = await pfs.stat(`${dist}/binapp`);
@@ -35,8 +36,8 @@ describe('copy(src, dir [, options])', () => {
 
   it('Positive: Recursive copying a directory', async () => {
     const pfs = new PoweredFileSystem();
-    const dist = os.tmpdir();
 
+    const dist = os.tmpdir();
     await pfs.copy('./tmpdir', dist);
 
     const { mode } = await pfs.stat(`${dist}/tmpdir/libxbase`);
@@ -47,9 +48,25 @@ describe('copy(src, dir [, options])', () => {
 
   it('Positive: Recursive copying a directory. Permission check of file', async () => {
     const pfs = new PoweredFileSystem();
+
+    const dist = os.tmpdir();
+    await pfs.copy('./tmpdir', dist);
+
+    const { mode } = await pfs.stat(`${dist}/tmpdir/binapp`);
+    const umask = PoweredFileSystem.bitmask(mode);
+
+    assert(umask === 0o666);
+  });
+
+  it('Positive: Copying a item file when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
     const dist = os.tmpdir();
 
-    await pfs.copy('./tmpdir', dist);
+    await pfs.copy(`${cwd}${sep}tmpdir`, dist, {
+      resolve: false
+    });
 
     const { mode } = await pfs.stat(`${dist}/tmpdir/binapp`);
     const umask = PoweredFileSystem.bitmask(mode);
@@ -106,6 +123,23 @@ describe('copy(src, dir [, options])', () => {
       const umask = PoweredFileSystem.bitmask(mode);
 
       assert(umask === 0o777);
+    });
+
+    it('Positive: Copying a item file when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+      const dist = os.tmpdir();
+
+      pfs.copy(`${cwd}${sep}tmpdir`, dist, {
+        sync: true,
+        resolve: false
+      });
+
+      const { mode } = await pfs.stat(`${dist}/tmpdir/binapp`);
+      const umask = PoweredFileSystem.bitmask(mode);
+
+      assert(umask === 0o666);
     });
 
     it('Negative: Throw if not exists resource', async () => {

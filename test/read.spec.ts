@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -20,12 +21,34 @@ describe('read(src [, options])', () => {
 
   afterEach(mockFs.restore);
 
-  it('Positive: Must read content of file', async () => {
+  it('Positive: Must read content of file; String type by default', async () => {
     const pfs = new PoweredFileSystem();
 
-    const { length } = await pfs.read('./tmpdir/binapp');
+    const raw = await pfs.read('./tmpdir/binapp');
 
-    assert(length > 0);
+    assert(raw.length > 0);
+  });
+
+  it('Positive: Must read Buffer content of file when encoding is null', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const raw = await pfs.read('./tmpdir/binapp', {
+      encoding: null
+    });
+
+    assert(raw instanceof Buffer);
+  });
+
+  it('Positive: Must read content of file, when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+
+    const raw = await pfs.read(`${cwd}${sep}tmpdir${sep}binapp`, {
+      resolve: false
+    });
+
+    assert(raw.length > 0);
   });
 
   it('Negative: Throw if resource is not file', async () => {
@@ -54,7 +77,7 @@ describe('read(src [, options])', () => {
   });
 
   describe('sync mode', () => {
-    it('Positive: Must read content of file', async () => {
+    it('Positive: Must read content of file; String type by default', async () => {
       const pfs = new PoweredFileSystem();
 
       const { length } = pfs.read('./tmpdir/binapp', {
@@ -64,11 +87,25 @@ describe('read(src [, options])', () => {
       assert(length > 0);
     });
 
-    it('Positive: Must read string type of file by default', async () => {
+    it('Positive: Must read Buffer content of file when encoding is null', async () => {
       const pfs = new PoweredFileSystem();
 
-      const { length } = pfs.read('./tmpdir/binapp', {
+      const raw = pfs.read('./tmpdir/binapp', {
+        encoding: null,
         sync: true
+      });
+
+      assert(raw instanceof Buffer);
+    });
+
+    it('Positive: Must read content of file, when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+
+      const { length } = pfs.read(`${cwd}${sep}tmpdir${sep}binapp`, {
+        sync: true,
+        resolve: false
       });
 
       assert(length > 0);

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -24,6 +25,21 @@ describe('readdir(src[, options])', () => {
     const pfs = new PoweredFileSystem();
 
     const listOfFiles = await pfs.readdir('./tmpdir');
+
+    assert.deepStrictEqual(listOfFiles, [
+      'binapp',
+      'libxbase'
+    ]);
+  });
+
+  it('Positive: Must return a directory listing, when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+
+    const listOfFiles = await pfs.readdir(`${cwd}${sep}tmpdir`, {
+      resolve: false
+    });
 
     assert.deepStrictEqual(listOfFiles, [
       'binapp',
@@ -57,11 +73,27 @@ describe('readdir(src[, options])', () => {
   });
 
   describe('sync mode', () => {
-    it(`Positive: Must return a directory listing`, async () => {
+    it('Positive: Must return a directory listing', async () => {
       const pfs = new PoweredFileSystem();
 
       const listOfFiles = pfs.readdir('./tmpdir', {
         sync: true
+      });
+
+      assert.deepStrictEqual(listOfFiles, [
+        'binapp',
+        'libxbase'
+      ]);
+    });
+
+    it('Positive: Must return a directory listing, when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+
+      const listOfFiles = pfs.readdir(`${cwd}${sep}tmpdir`, {
+        sync: true,
+        resolve: false
       });
 
       assert.deepStrictEqual(listOfFiles, [

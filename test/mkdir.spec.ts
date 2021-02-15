@@ -1,4 +1,6 @@
 import assert from 'assert';
+import os from 'os';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -40,6 +42,15 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
+  it(`Positive: Make current directory, when current directory is absolute path`, async () => {
+    const pfs = new PoweredFileSystem('./tmpdir');
+
+    await pfs.mkdir(process.cwd());
+
+    const exist = await pfs.test('.');
+    assert(exist);
+  });
+
   it('Positive: Should work fine with the existing directory', async () => {
     const pfs = new PoweredFileSystem();
     const chance = new Chance();
@@ -52,6 +63,21 @@ describe('mkdir(src [, options])', () => {
       const exist = await pfs.test(`./tmpdir/${item}`);
       assert(exist);
     }
+  });
+
+  it('Positive: Create directories when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+    const chance = new Chance();
+
+    const tmpdir = os.tmpdir();
+    const base = chance.guid();
+
+    await pfs.mkdir(`${tmpdir}${sep}${base}`, {
+      resolve: false
+    });
+
+    const exist = await pfs.test(`${tmpdir}${sep}${base}`);
+    assert(exist);
   });
 
   it('Negative: Throw an exception if trying to create a directory in file', async () => {
@@ -108,6 +134,38 @@ describe('mkdir(src [, options])', () => {
         const exist = await pfs.test(`./tmpdir/${item}`);
         assert(exist);
       }
+    });
+
+    it('Positive: Create directories when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const tmpdir = os.tmpdir();
+      const base = chance.guid();
+
+      pfs.mkdir(`${tmpdir}${sep}${base}`, {
+        sync: true,
+        resolve: false
+      });
+
+      const exist = await pfs.test(`${tmpdir}${sep}${base}`);
+      assert(exist);
+    });
+
+    it('Positive: Create in current directories when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const cwd = process.cwd();
+      const base = chance.guid();
+
+      pfs.mkdir(`${cwd}${sep}${base}`, {
+        sync: true,
+        resolve: false
+      });
+
+      const exist = await pfs.test(base);
+      assert(exist);
     });
 
     it('Negative: Throw an exception if trying to create a directory in file', async () => {

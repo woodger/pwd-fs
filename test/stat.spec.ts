@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -34,11 +35,23 @@ describe('stat(src [, options])', () => {
     assert(stats.isDirectory());
   });
 
-  it(`Positive: Must return information a symlink`, async () => {
+  it('Positive: Must return information a symlink', async () => {
     const pfs = new PoweredFileSystem();
 
     const stats = await pfs.stat('./flexapp');
     assert(stats.isSymbolicLink());
+  });
+
+  it('Positive: Must return stats information, when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+
+    const stats = await pfs.stat(`${cwd}${sep}tmpdir`, {
+      resolve: false
+    });
+
+    assert(stats.isDirectory());
   });
 
   it('Negative: Throw if not exists resource', async () => {
@@ -84,6 +97,19 @@ describe('stat(src [, options])', () => {
       });
 
       assert(stats.isSymbolicLink());
+    });
+
+    it('Positive: Must return stats information, when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+
+      const stats = pfs.stat(`${cwd}${sep}tmpdir`, {
+        sync: true,
+        resolve: false
+      });
+
+      assert(stats.isDirectory());
     });
 
     it('Negative: Throw if not exists resource', async () => {

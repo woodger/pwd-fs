@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -37,15 +38,30 @@ describe('write(src, data[, options])', () => {
     assert(stats.size > 0);
   });
 
-  it(`Positive: Must rewrite content if file already exists`, async () => {
+  it('Positive: Must rewrite content if file already exists', async () => {
     const pfs = new PoweredFileSystem();
     const chance = new Chance();
 
     const payload = chance.paragraph();
 
     await pfs.write('./tmpdir/binapp', payload);
-    const stats = await pfs.stat(`./tmpdir/binapp`);
 
+    const stats = await pfs.stat(`./tmpdir/binapp`);
+    assert(stats.size > 0);
+  });
+
+  it(`Positive: Must write content to file, when path is absolute`, async () => {
+    const pfs = new PoweredFileSystem();
+    const chance = new Chance();
+
+    const payload = chance.paragraph();
+    const cwd = process.cwd();
+
+    await pfs.write(`${cwd}${sep}tmpdir${sep}binapp`, payload, {
+      resolve: false
+    });
+
+    const stats = await pfs.stat(`./tmpdir/binapp`);
     assert(stats.size > 0);
   });
 
@@ -96,7 +112,22 @@ describe('write(src, data[, options])', () => {
       });
 
       const stats = await pfs.stat(`./tmpdir/${base}`);
+      assert(stats.size > 0);
+    });
 
+    it(`Positive: Must write content to file, when path is absolute`, async () => {
+      const pfs = new PoweredFileSystem();
+      const chance = new Chance();
+
+      const payload = chance.paragraph();
+      const cwd = process.cwd();
+
+      pfs.write(`${cwd}${sep}tmpdir${sep}binapp`, payload, {
+        sync: true,
+        resolve: false
+      });
+
+      const stats = await pfs.stat(`./tmpdir/binapp`);
       assert(stats.size > 0);
     });
 

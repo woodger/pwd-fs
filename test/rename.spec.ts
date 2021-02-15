@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -26,7 +27,7 @@ describe('rename(src, use [, options])', () => {
     await pfs.rename('./tmpdir/binapp', './tmpdir/newapp');
     const exist = await pfs.test('./tmpdir/newapp');
 
-    assert(exist === true);
+    assert(exist);
   });
 
   it('Positive: Must be recursive rename directory', async () => {
@@ -35,7 +36,20 @@ describe('rename(src, use [, options])', () => {
     await pfs.rename('./tmpdir/libxbase', './tmpdir/newxbase');
     const exist = await pfs.test('./tmpdir/newxbase');
 
-    assert(exist === true);
+    assert(exist);
+  });
+
+  it('Positive: Must be recursive rename directory, when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+
+    await pfs.rename(`${cwd}${sep}tmpdir`, `${cwd}${sep}newxbase`, {
+      resolve: false
+    });
+
+    const exist = await pfs.test('./newxbase');
+    assert(exist);
   });
 
   it('Negative: Throw if not exists resource', async () => {
@@ -61,7 +75,7 @@ describe('rename(src, use [, options])', () => {
       });
 
       const exist = await pfs.test('./tmpdir/newapp');
-      assert(exist === true);
+      assert(exist);
     });
 
     it('Positive: Must be recursive rename directory', async () => {
@@ -72,7 +86,21 @@ describe('rename(src, use [, options])', () => {
       });
 
       const exist = await pfs.test('./tmpdir/newxbase');
-      assert(exist === true);
+      assert(exist);
+    });
+
+    it('Positive: Must be recursive rename directory, when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+
+      pfs.rename(`${cwd}${sep}tmpdir`, `${cwd}${sep}newxbase`, {
+        sync: true,
+        resolve: false
+      });
+
+      const exist = await pfs.test('./newxbase');
+      assert(exist);
     });
 
     it('Negative: Throw if not exists resource', async () => {

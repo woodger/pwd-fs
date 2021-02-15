@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -54,7 +55,9 @@ describe('test(src[, options])', () => {
   it(`Positive: Should return 'true' for absolute source`, async () => {
     const pfs = new PoweredFileSystem();
 
-    const exists = await pfs.test(process.cwd(), {
+    const cwd = process.cwd();
+
+    const exists = await pfs.test(`${cwd}${sep}tmpdir`, {
       resolve: false
     });
 
@@ -94,10 +97,12 @@ describe('test(src[, options])', () => {
       assert(exists === false);
     });
 
-    it(`Positive: Should return 'true' for absolute source`, () => {
+    it(`Positive: Should return 'true' for absolute source`, async () => {
       const pfs = new PoweredFileSystem();
 
-      const exists = pfs.test(process.cwd(), {
+      const cwd = process.cwd();
+
+      const exists = pfs.test(`${cwd}${sep}tmpdir`, {
         sync: true,
         resolve: false
       });

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -26,6 +27,20 @@ describe('chmod(src, mode [, options])', () => {
     await pfs.chmod('./tmpdir', 0o744);
 
     const { mode } = await pfs.stat('./tmpdir/binapp');
+    const umask = PoweredFileSystem.bitmask(mode);
+
+    assert(umask === 0o744);
+  });
+
+  it('Positive: Must be changes directory when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+    await pfs.chmod(`${cwd}${sep}tmpdir${sep}libxbase` , 0o744, {
+      resolve: false
+    });
+
+    const { mode } = await pfs.stat('./tmpdir/libxbase');
     const umask = PoweredFileSystem.bitmask(mode);
 
     assert(umask === 0o744);
@@ -62,6 +77,22 @@ describe('chmod(src, mode [, options])', () => {
       });
 
       const { mode } = await pfs.stat('./tmpdir/binapp');
+      const umask = PoweredFileSystem.bitmask(mode);
+
+      assert(umask === 0o744);
+    });
+
+    it('Positive: Must be changes directory when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+
+      pfs.chmod(`${cwd}${sep}tmpdir${sep}libxbase` , 0o744, {
+        sync: true,
+        resolve: false
+      });
+
+      const { mode } = await pfs.stat('./tmpdir/libxbase');
       const umask = PoweredFileSystem.bitmask(mode);
 
       assert(umask === 0o744);

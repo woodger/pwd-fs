@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { sep } from 'path';
 import mockFs from 'mock-fs';
 import Chance  from 'chance';
 import PoweredFileSystem from '../src';
@@ -24,8 +25,21 @@ describe('remove(src [, options])', () => {
     const pfs = new PoweredFileSystem();
 
     await pfs.remove('./tmpdir');
-    const exist = await pfs.test('./tmpdir');
 
+    const exist = await pfs.test('./tmpdir');
+    assert(exist === false);
+  });
+
+  it('Positive: Removal a directory with a file, when path is absolute', async () => {
+    const pfs = new PoweredFileSystem();
+
+    const cwd = process.cwd();
+
+    await pfs.remove(`${cwd}${sep}tmpdir`, {
+      resolve: false
+    });
+
+    const exist = await pfs.test('./tmpdir');
     assert(exist === false);
   });
 
@@ -49,6 +63,20 @@ describe('remove(src [, options])', () => {
 
       pfs.remove('./tmpdir', {
         sync: true
+      });
+
+      const exist = await pfs.test('./tmpdir');
+      assert(exist === false);
+    });
+
+    it('Positive: Removal a directory with a file, when path is absolute', async () => {
+      const pfs = new PoweredFileSystem();
+
+      const cwd = process.cwd();
+
+      pfs.remove(`${cwd}${sep}tmpdir`, {
+        sync: true,
+        resolve: false
       });
 
       const exist = await pfs.test('./tmpdir');
