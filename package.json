@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "2.1.5",
+  "version": "2.1.7",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "keywords": [
     "umask",
@@ -25,7 +25,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/woodger/pwd-fs"
+    "url": "https://github.com/woodger/pwd-fs.git"
   },
   "engines": {
     "node": ">=8.12.0"

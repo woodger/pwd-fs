@@ -10,6 +10,6 @@ install:
 test_script:
   - npm run build
   - npm test
-build: off
+build: on
 cache:
   - node_modules
