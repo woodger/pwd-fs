@@ -1,6 +1,5 @@
-test
 src
-lib/test
+test
 appveyor.yml
 node_modules
 coverage
