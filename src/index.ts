@@ -3,22 +3,22 @@ import path from 'path';
 import recurse from './recurse-io';
 import recurseSync from './recurse-io-sync';
 
-type Files = Array<string>;
-type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
-
 interface Constants {
   [key: string]: number
 }
 
-export = class PoweredFileSystem {
-  readonly pwd: string = process.cwd()
+type Files = Array<string>;
+type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
 
-  #constants: Constants = {
+export default class PoweredFileSystem {
+  readonly pwd: string = process.cwd();
+
+  readonly constants: Constants = {
     e: fs.constants.F_OK,
     r: fs.constants.R_OK,
     w: fs.constants.W_OK,
     x: fs.constants.X_OK
-  }
+  };
 
   constructor(pwd?: string) {
     if (pwd) {
@@ -30,7 +30,7 @@ export = class PoweredFileSystem {
   test(src: string, options?: { sync?: false, resolve?: boolean, flag?: Flag }): Promise<boolean>;
 
   test(src: string, { sync = false, resolve = true, flag = 'e' }: { sync?: boolean, resolve?: boolean, flag?: Flag } = {}) {
-    const mode = this.#constants[flag];
+    const mode = this.constants[flag];
 
     if (resolve) {
       src = path.resolve(this.pwd, src);
@@ -407,3 +407,5 @@ export = class PoweredFileSystem {
     return umask;
   }
 }
+
+module.exports = PoweredFileSystem;
