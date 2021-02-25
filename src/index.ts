@@ -3,12 +3,11 @@ import path from 'path';
 import recurse from './recurse-io';
 import recurseSync from './recurse-io-sync';
 
+type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
+
 interface Constants {
   [key: string]: number
 }
-
-type Files = Array<string>;
-type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
 
 export default class PoweredFileSystem {
   readonly pwd: string = process.cwd();
@@ -26,10 +25,23 @@ export default class PoweredFileSystem {
     }
   }
 
-  test(src: string, options: { sync: true, resolve?: boolean, flag?: Flag }): boolean;
-  test(src: string, options?: { sync?: false, resolve?: boolean, flag?: Flag }): Promise<boolean>;
+  test(src: string, options: {
+    sync: true,
+    resolve?: boolean,
+    flag?: Flag
+  }): boolean;
 
-  test(src: string, { sync = false, resolve = true, flag = 'e' }: { sync?: boolean, resolve?: boolean, flag?: Flag } = {}) {
+  test(src: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    flag?: Flag
+  }): Promise<boolean>;
+
+  test(src: string, { sync = false, resolve = true, flag = 'e' }: {
+    sync?: boolean,
+    resolve?: boolean,
+    flag?: Flag
+  } = {}) {
     const mode = this.constants[flag];
 
     if (resolve) {
@@ -51,10 +63,20 @@ export default class PoweredFileSystem {
     });
   }
 
-  stat(src: string, options: { sync: true, resolve?: boolean }): fs.Stats;
-  stat(src: string, options?: { sync?: false, resolve?: boolean }): Promise<fs.Stats>;
+  stat(src: string, options: {
+    sync: true,
+    resolve?: boolean
+  }): fs.Stats;
 
-  stat(src: string, { sync = false, resolve = true }: { sync?: boolean, resolve?: boolean } = {}) {
+  stat(src: string, options?: {
+    sync?: false,
+    resolve?: boolean
+  }): Promise<fs.Stats>;
+
+  stat(src: string, { sync = false, resolve = true }: {
+    sync?: boolean,
+    resolve?: boolean
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -74,10 +96,20 @@ export default class PoweredFileSystem {
     });
   }
 
-  chmod(src: string, mode: number, options: { sync: true, resolve?: boolean }): void;
-  chmod(src: string, mode: number, options?: { sync?: false, resolve?: boolean }): Promise<void>;
+  chmod(src: string, mode: number, options: {
+    sync: true,
+    resolve?: boolean
+  }): void;
 
-  chmod(src: string, mode: number, { sync = false, resolve = true }: { sync?: boolean, resolve?: boolean } = {}) {
+  chmod(src: string, mode: number, options?: {
+    sync?: false,
+    resolve?: boolean
+  }): Promise<void>;
+
+  chmod(src: string, mode: number, { sync = false, resolve = true }: {
+    sync?: boolean,
+    resolve?: boolean
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -97,10 +129,20 @@ export default class PoweredFileSystem {
     });
   }
 
-  chown(src: string, uid: number, gid: number, options: { sync: true, resolve?: boolean }): void;
-  chown(src: string, uid: number, gid: number, options?: { sync?: false, resolve?: boolean }): Promise<void>;
+  chown(src: string, uid: number, gid: number, options: {
+    sync: true,
+    resolve?: boolean
+  }): void;
 
-  chown(src: string, uid: number, gid: number, { sync = false, resolve = true }: { sync?: boolean, resolve?: boolean } = {}) {
+  chown(src: string, uid: number, gid: number, options?: {
+    sync?: false,
+    resolve?: boolean
+  }): Promise<void>;
+
+  chown(src: string, uid: number, gid: number, { sync = false, resolve = true }: {
+    sync?: boolean,
+    resolve?: boolean
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -120,10 +162,20 @@ export default class PoweredFileSystem {
     });
   }
 
-  symlink(src: string, use: string, options: { sync: true, resolve?: boolean }): void;
-  symlink(src: string, use: string, options?: { sync?: false, resolve?: boolean }): Promise<void>;
+  symlink(src: string, use: string, options: {
+    sync: true,
+    resolve?: boolean
+  }): void;
 
-  symlink(src: string, use: string, { sync = false, resolve = true }: { sync?: boolean, resolve?: boolean } = {}) {
+  symlink(src: string, use: string, options?: {
+    sync?: false,
+    resolve?: boolean
+  }): Promise<void>;
+
+  symlink(src: string, use: string, { sync = false, resolve = true }: {
+    sync?: boolean,
+    resolve?: boolean
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
       use = this.resolve(use);
@@ -144,10 +196,23 @@ export default class PoweredFileSystem {
     });
   }
 
-  copy(src: string, dir: string, options: { sync: true, resolve?: boolean, umask?: number }): void;
-  copy(src: string, dir: string, options?: { sync?: false, resolve?: boolean, umask?: number }): Promise<void>;
+  copy(src: string, dir: string, options: {
+    sync: true,
+    resolve?: boolean,
+    umask?: number
+  }): void;
 
-  copy(src: string, dir: string, { sync = false, resolve = true, umask = 0o000 }: { sync?: boolean, resolve?: boolean, umask?: number } = {}) {
+  copy(src: string, dir: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    umask?: number
+  }): Promise<void>;
+
+  copy(src: string, dir: string, { sync = false, resolve = true, umask = 0o000 }: {
+    sync?: boolean,
+    resolve?: boolean,
+    umask?: number
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
       dir = this.resolve(dir);
@@ -168,10 +233,20 @@ export default class PoweredFileSystem {
     });
   }
 
-  rename(src: string, use: string, options: { sync: true, resolve?: boolean }): void;
-  rename(src: string, use: string, options?: { sync?: false, resolve?: boolean }): Promise<void>;
+  rename(src: string, use: string, options: {
+    sync: true,
+    resolve?: boolean
+  }): void;
 
-  rename(src: string, use: string, { sync = false, resolve = true }: { sync?: boolean, resolve?: boolean } = {}) {
+  rename(src: string, use: string, options?: {
+    sync?: false,
+    resolve?: boolean
+  }): Promise<void>;
+
+  rename(src: string, use: string, { sync = false, resolve = true }: {
+    sync?: boolean,
+    resolve?: boolean
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
       use = this.resolve(use);
@@ -192,10 +267,20 @@ export default class PoweredFileSystem {
     });
   }
 
-  remove(src: string, options: { sync: true, resolve?: boolean }): void;
-  remove(src: string, options?: { sync?: false, resolve?: boolean }): Promise<void>;
+  remove(src: string, options: {
+    sync: true,
+    resolve?: boolean
+  }): void;
 
-  remove(src: string, { sync = false, resolve = true }: { sync?: boolean, resolve?: boolean } = {}) {
+  remove(src: string, options?: {
+    sync?: false,
+    resolve?: boolean
+  }): Promise<void>;
+
+  remove(src: string, { sync = false, resolve = true }: {
+    sync?: boolean,
+    resolve?: boolean
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -215,10 +300,40 @@ export default class PoweredFileSystem {
     });
   }
 
-  read(src: string, options: { sync: true, resolve?: boolean, encoding?: BufferEncoding | null, flag?: Flag }): string | Buffer;
-  read(src: string, options?: { sync?: false, resolve?: boolean, encoding?: BufferEncoding | null, flag?: Flag }): Promise<string | Buffer>;
+  read(src: string, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding?: BufferEncoding,
+    flag?: Flag
+  }): string;
 
-  read(src: string, { sync = false, resolve = true, encoding = 'utf8', flag = 'r' }: { sync?: boolean, resolve?: boolean, encoding?: BufferEncoding | null, flag?: Flag } = {}) {
+  read(src: string, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding?: null,
+    flag?: Flag
+  }): Buffer;
+
+  read(src: string, options: {
+    sync?: false,
+    resolve?: boolean,
+    encoding: null,
+    flag?: Flag
+  }): Promise<Buffer>;
+
+  read(src: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    encoding?: BufferEncoding,
+    flag?: Flag
+  }): Promise<string>;
+
+  read(src: string, { sync = false, resolve = true, encoding = 'utf8', flag = 'r' }: {
+    sync?: boolean,
+    resolve?: boolean,
+    encoding?: BufferEncoding | null,
+    flag?: Flag
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -245,10 +360,45 @@ export default class PoweredFileSystem {
     });
   }
 
-  write(src: string, data: Buffer | string, options: { sync: true, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number, flag?: Flag }): void;
-  write(src: string, data: Buffer | string, options?: { sync?: false, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number, flag?: Flag }): Promise<void>;
+  write(src: string, data: Buffer, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding: null,
+    umask?: number,
+    flag?: Flag
+  }): void;
 
-  write(src: string, data: Buffer | string, { sync = false, resolve = true, encoding = 'utf8', umask = 0o000, flag = 'w' }: { sync?: boolean, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number, flag?: Flag } = {}) {
+  write(src: string, data: string, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding?: BufferEncoding,
+    umask?: number,
+    flag?: Flag
+  }): void;
+
+  write(src: string, data: Buffer, options: {
+    sync?: false,
+    resolve?: boolean,
+    encoding: null,
+    umask?: number,
+    flag?: Flag
+  }): Promise<void>;
+
+  write(src: string, data: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    encoding?: BufferEncoding,
+    umask?: number,
+    flag?: Flag
+  }): Promise<void>;
+
+  write(src: string, data: Buffer | string, { sync = false, resolve = true, encoding = 'utf8', umask = 0o000, flag = 'w' }: {
+    sync?: boolean,
+    resolve?: boolean,
+    encoding?: BufferEncoding | null,
+    umask?: number,
+    flag?: Flag
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -279,10 +429,45 @@ export default class PoweredFileSystem {
     });
   }
 
-  append(src: string, data: Buffer | string, options: { sync: true, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number, flag?: Flag }): void;
-  append(src: string, data: Buffer | string, options?: { sync?: false, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number, flag?: Flag }): Promise<void>;
+  append(src: string, data: Buffer, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding: null,
+    umask?: number,
+    flag?: Flag
+  }): void;
 
-  append(src: string, data: Buffer | string, { sync = false, resolve = true, encoding = 'utf8', umask = 0o000, flag = 'a' }: { sync?: boolean, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number, flag?: Flag } = {}) {
+  append(src: string, data: string, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding?: BufferEncoding,
+    umask?: number,
+    flag?: Flag
+  }): void;
+
+  append(src: string, data: Buffer, options: {
+    sync?: false,
+    resolve?: boolean,
+    encoding: null,
+    umask?: number,
+    flag?: Flag
+  }): Promise<void>;
+
+  append(src: string, data: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    encoding?: BufferEncoding,
+    umask?: number,
+    flag?: Flag
+  }): Promise<void>;
+
+  append(src: string, data: Buffer | string, { sync = false, resolve = true, encoding = 'utf8', umask = 0o000, flag = 'a' }: {
+    sync?: boolean,
+    resolve?: boolean,
+    encoding?: BufferEncoding | null,
+    umask?: number,
+    flag?: Flag
+  } = {}) {
     if (resolve) {
       src = this.resolve(src);
     }
@@ -313,10 +498,23 @@ export default class PoweredFileSystem {
     });
   }
 
-  readdir(dir: string, options: { sync: true, resolve?: boolean, encoding?: BufferEncoding | null }): Files;
-  readdir(dir: string, options?: { sync?: false, resolve?: boolean, encoding?: BufferEncoding | null }): Promise<Files>;
+  readdir(dir: string, options: {
+    sync: true,
+    resolve?: boolean,
+    encoding?: BufferEncoding | null
+  }): string[];
 
-  readdir(dir: string, { sync = false, resolve = true, encoding = 'utf8' }: { sync?: boolean, resolve?: boolean, encoding?: BufferEncoding | null } = {}) {
+  readdir(dir: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    encoding?: BufferEncoding | null
+  }): Promise<string[]>;
+
+  readdir(dir: string, { sync = false, resolve = true, encoding = 'utf8' }: {
+    sync?: boolean,
+    resolve?: boolean,
+    encoding?: BufferEncoding | null
+  } = {}) {
     if (resolve) {
       dir = this.resolve(dir);
     }
@@ -338,10 +536,23 @@ export default class PoweredFileSystem {
     });
   }
 
-  mkdir(dir: string, options: { sync: true, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number }): void;
-  mkdir(dir: string, options?: { sync?: false, resolve?: boolean, encoding?: BufferEncoding | null, umask?: number }): Promise<void>;
+  mkdir(dir: string, options: {
+    sync: true,
+    resolve?: boolean,
+    umask?: number
+  }): void;
 
-  mkdir(dir: string, { umask = 0o000, resolve = true, sync = false }: { umask?: number, resolve?: boolean, sync?: boolean } = {}) {
+  mkdir(dir: string, options?: {
+    sync?: false,
+    resolve?: boolean,
+    umask?: number
+  }): Promise<void>;
+
+  mkdir(dir: string, { umask = 0o000, resolve = true, sync = false }: {
+    umask?: number,
+    resolve?: boolean,
+    sync?: boolean
+  } = {}) {
     if (resolve) {
       dir = this.resolve(dir);
     }
