@@ -1,10 +1,9 @@
 /// <reference types="node" />
 import fs from 'fs';
+declare type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
 interface Constants {
     [key: string]: number;
 }
-declare type Files = Array<string>;
-declare type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
 export default class PoweredFileSystem {
     readonly pwd: string;
     readonly constants: Constants;
@@ -80,40 +79,80 @@ export default class PoweredFileSystem {
     read(src: string, options: {
         sync: true;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
+        encoding?: BufferEncoding;
         flag?: Flag;
-    }): string | Buffer;
+    }): string;
+    read(src: string, options: {
+        sync: true;
+        resolve?: boolean;
+        encoding?: null;
+        flag?: Flag;
+    }): Buffer;
+    read(src: string, options: {
+        sync?: false;
+        resolve?: boolean;
+        encoding: null;
+        flag?: Flag;
+    }): Promise<Buffer>;
     read(src: string, options?: {
         sync?: false;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
+        encoding?: BufferEncoding;
         flag?: Flag;
-    }): Promise<string | Buffer>;
-    write(src: string, data: Buffer | string, options: {
+    }): Promise<string>;
+    write(src: string, data: Buffer, options: {
         sync: true;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
+        encoding: null;
         umask?: number;
         flag?: Flag;
     }): void;
-    write(src: string, data: Buffer | string, options?: {
+    write(src: string, data: string, options: {
+        sync: true;
+        resolve?: boolean;
+        encoding?: BufferEncoding;
+        umask?: number;
+        flag?: Flag;
+    }): void;
+    write(src: string, data: Buffer, options: {
         sync?: false;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
+        encoding: null;
         umask?: number;
         flag?: Flag;
     }): Promise<void>;
-    append(src: string, data: Buffer | string, options: {
+    write(src: string, data: string, options?: {
+        sync?: false;
+        resolve?: boolean;
+        encoding?: BufferEncoding;
+        umask?: number;
+        flag?: Flag;
+    }): Promise<void>;
+    append(src: string, data: Buffer, options: {
         sync: true;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
+        encoding: null;
         umask?: number;
         flag?: Flag;
     }): void;
-    append(src: string, data: Buffer | string, options?: {
+    append(src: string, data: string, options: {
+        sync: true;
+        resolve?: boolean;
+        encoding?: BufferEncoding;
+        umask?: number;
+        flag?: Flag;
+    }): void;
+    append(src: string, data: Buffer, options: {
         sync?: false;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
+        encoding: null;
+        umask?: number;
+        flag?: Flag;
+    }): Promise<void>;
+    append(src: string, data: string, options?: {
+        sync?: false;
+        resolve?: boolean;
+        encoding?: BufferEncoding;
         umask?: number;
         flag?: Flag;
     }): Promise<void>;
@@ -121,22 +160,20 @@ export default class PoweredFileSystem {
         sync: true;
         resolve?: boolean;
         encoding?: BufferEncoding | null;
-    }): Files;
+    }): string[];
     readdir(dir: string, options?: {
         sync?: false;
         resolve?: boolean;
         encoding?: BufferEncoding | null;
-    }): Promise<Files>;
+    }): Promise<string[]>;
     mkdir(dir: string, options: {
         sync: true;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
         umask?: number;
     }): void;
     mkdir(dir: string, options?: {
         sync?: false;
         resolve?: boolean;
-        encoding?: BufferEncoding | null;
         umask?: number;
     }): Promise<void>;
     private resolve;
