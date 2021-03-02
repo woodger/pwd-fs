@@ -6,6 +6,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/woodger/pwd-fs/badge.svg)](https://coveralls.io/github/woodger/pwd-fs)
 [![Known Vulnerabilities](https://snyk.io/test/github/woodger/type-enforcement/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/type-enforcement?targetFile=package.json)
 
+[![npm](https://nodei.co/npm/pwd-fs.png)](https://www.npmjs.com/package/pwd-fs)
+
 This module expands the [Node.js®](https://nodejs.org) module with the capabilities of declaring the `pwd` (present working directory) and `recursive` execution. By default all file system operations have asynchronous forms. API provides an alternative set of asynchronous file system methods that return `Promise` objects.
 
 To improve reliability and maintainability the code is migrated to [TypeScript](https://www.typescriptlang.org).
@@ -61,7 +63,7 @@ This class implemented by following the [ECMAScript® 2018 Language Specificatio
 String form paths are interpreted as UTF-8 character sequences identifying the absolute or relative filename.
 
 ```js
-const PoweredFileSystem = require('pwd-fs');
+import PoweredFileSystem from 'pwd-fs';
 
 /**
  * pfs.pwd === process.cwd()
@@ -73,7 +75,7 @@ const pfs = new PoweredFileSystem();
 Relative paths will be resolved relative to the current working directory as specified by `process.cwd()`:
 
 ```js
-const PoweredFileSystem = require('pwd-fs');
+import PoweredFileSystem from 'pwd-fs';
 
 /**
  * pfs.pwd === `${process.cwd()}/foo/bar`
@@ -85,7 +87,7 @@ const pfs = new PoweredFileSystem('./foo/bar');
 Absolute paths:
 
 ```js
-const PoweredFileSystem = require('pwd-fs');
+import PoweredFileSystem from 'pwd-fs';
 
 /**
  * pfs.pwd === __dirname
