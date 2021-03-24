@@ -62,7 +62,7 @@ This class implemented by following the [ECMAScript® 2018 Language Specificatio
 
 String form paths are interpreted as UTF-8 character sequences identifying the absolute or relative filename.
 
-```js
+```ts
 import PoweredFileSystem from 'pwd-fs';
 
 /**
@@ -74,7 +74,7 @@ const pfs = new PoweredFileSystem();
 
 Relative paths will be resolved relative to the current working directory as specified by `process.cwd()`:
 
-```js
+```ts
 import PoweredFileSystem from 'pwd-fs';
 
 /**
@@ -86,7 +86,7 @@ const pfs = new PoweredFileSystem('./foo/bar');
 
 Absolute paths:
 
-```js
+```ts
 import PoweredFileSystem from 'pwd-fs';
 
 /**
@@ -107,7 +107,7 @@ const pfs = new PoweredFileSystem(__dirname);
 
 Tests a user's permissions for the file or directory specified by path.
 
-```js
+```ts
 const access = await pfs.test('./path');
 console.log(test); // true
 ```
@@ -143,7 +143,7 @@ These functions return information about a resource in the file system.
 
 Asynchronously changes the permissions of a file.
 
-```js
+```ts
 await pfs.chmod('./path', 0o750);
 const { mode } = await pfs.stat('./path');
 
@@ -178,11 +178,11 @@ See manuals [chown(2)](http://man7.org/linux/man-pages/man2/chown.2.html).
 
 Asynchronously creates a new symbolic link (also known as a soft link) may point to an existing file or to a nonexistent one.
 
-```js
+```ts
 await pfs.symlink('./path', './link');
-const info = await pfs.stat('./link');
+const stats = await pfs.stat('./link');
 
-console.log(info.isSymbolicLink()); // true
+console.log(stats.isSymbolicLink()); // true
 ```
 
 See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
@@ -199,7 +199,7 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 
 Asynchronously recursively copy a file or directory.
 
-```js
+```ts
 await pfs.copy('./path/file.txt', './dist');
 const { mode } = await pfs.stat('./dist/path/file.txt');
 
@@ -217,7 +217,7 @@ console.log(PoweredFileSystem.bitmask(mode) === 0o666); // true
 
 Rename file or directory. See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
 
-```js
+```ts
 await pfs.rename('./path/old_name.txt', './path/new_name.txt');
 ```
 
@@ -236,14 +236,14 @@ Asynchronously recursively remove a file or directory. Will be `resolve` if the 
 - `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
+  - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> | <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> See support of [file system flags](#file-system-flags). **Default:** `'r'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `string`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `string`. If no encoding is specified <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)>, the data is returned as a <[Buffer](https://nodejs.org/api/buffer.html)> object.
 
 Asynchronously reads the entire contents of a file.
 
-```js
+```ts
 const content = await pfs.read('./file.txt');
 console.log(content); // 'Lorem Ipsum...'
 ```
@@ -261,8 +261,9 @@ console.log(content); // 'Lorem Ipsum...'
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously writes `data` to a file, replacing the file if it already exists. if the file does not exist, it will create a new one.
+The encoding option is ignored if data is a buffer.
 
-```js
+```ts
 await pfs.write('./file.txt', '... some text');
 ```
 
@@ -282,18 +283,28 @@ await pfs.write('./file.txt', '... some text');
 
 Asynchronously append data to a file, creating the file if it does not yet exist.
 
+> NOTE Method is deprecated. To be removed in the next major version
+
+**Use 'write' with { flag: 'a' } option**
+
+```ts
+await pfs.write('./file', 'some content', {
+  flag: 'a'
+});
+```
+
 #### pfs.readdir(dir[, options]
 
 - `dir` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the directory you want to read.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `resolve` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Declaration whether relative paths will be resolved. **Default:** `true`.
-  - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
+  - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> | <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `Array` of the names of the files in the directory excluding `'.'` and `'..'`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `Array` of the names of the files in the directory excluding `'.'` and `'..'`. If no encoding is specified <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)>, the data is returned as a <[Buffer](https://nodejs.org/api/buffer.html)> object. Otherwise, the data will be a string.
 
 Asynchronous reads the contents of a directory. The Gets an <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> of the names of the files in the directory excluding `'.'` and `'..'`. Returns an empty `Array` if the directory is empty. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
 
-```js
+```ts
 const list = await pfs.readdir('./files');
 console.log(list); // ["icons", "logo.svg"]
 ```
@@ -310,7 +321,7 @@ console.log(list); // ["icons", "logo.svg"]
 
 Recursive directory creation. Will be `resolve` if the directory already exists.
 
-```js
+```ts
 await pfs.mkdir('./static/images');
 ```
 
