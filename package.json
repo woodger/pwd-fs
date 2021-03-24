@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "2.1.11",
+  "version": "2.2.0",
   "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
   "keywords": [
     "umask",
@@ -46,6 +46,5 @@
     "mocha": "^6.2.2",
     "mock-fs": "^4.10.1",
     "typescript": "^4.1.4"
-  },
-  "dependencies": {}
+  }
 }

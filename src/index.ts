@@ -3,10 +3,14 @@ import path from 'path';
 import recurse from './recurse-io';
 import recurseSync from './recurse-io-sync';
 
-type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
+export type Mode = 'e' | 'r' | 'w' | 'x';
+export type Flag = Mode | 'a';
 
-interface Constants {
-  [key: string]: number
+export interface Constants {
+  e: number,
+  r: number,
+  w: number,
+  x: number
 }
 
 export default class PoweredFileSystem {
@@ -28,19 +32,19 @@ export default class PoweredFileSystem {
   test(src: string, options: {
     sync: true,
     resolve?: boolean,
-    flag?: Flag
+    flag?: Mode
   }): boolean;
 
   test(src: string, options?: {
     sync?: false,
     resolve?: boolean,
-    flag?: Flag
+    flag?: Mode
   }): Promise<boolean>;
 
   test(src: string, { sync = false, resolve = true, flag = 'e' }: {
     sync?: boolean,
     resolve?: boolean,
-    flag?: Flag
+    flag?: Mode
   } = {}) {
     const mode = this.constants[flag];
 
@@ -468,6 +472,8 @@ export default class PoweredFileSystem {
     umask?: number,
     flag?: Flag
   } = {}) {
+    console.log(`'append' with be removed in the next major version. Use 'write' with { flag: 'a' } option`);
+
     if (resolve) {
       src = this.resolve(src);
     }

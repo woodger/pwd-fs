@@ -1,8 +1,12 @@
 /// <reference types="node" />
 import fs from 'fs';
-declare type Flag = 'a' | 'e' | 'r' | 'w' | 'x';
-interface Constants {
-    [key: string]: number;
+export declare type Mode = 'e' | 'r' | 'w' | 'x';
+export declare type Flag = Mode | 'a';
+export interface Constants {
+    e: number;
+    r: number;
+    w: number;
+    x: number;
 }
 export default class PoweredFileSystem {
     readonly pwd: string;
@@ -11,12 +15,12 @@ export default class PoweredFileSystem {
     test(src: string, options: {
         sync: true;
         resolve?: boolean;
-        flag?: Flag;
+        flag?: Mode;
     }): boolean;
     test(src: string, options?: {
         sync?: false;
         resolve?: boolean;
-        flag?: Flag;
+        flag?: Mode;
     }): Promise<boolean>;
     stat(src: string, options: {
         sync: true;
@@ -179,4 +183,3 @@ export default class PoweredFileSystem {
     private resolve;
     static bitmask(mode: number): number;
 }
-export {};
