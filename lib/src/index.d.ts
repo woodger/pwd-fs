@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import fs from 'fs';
 export declare type Mode = 'e' | 'r' | 'w' | 'x';
 export declare type Flag = Mode | 'a';

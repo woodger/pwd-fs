@@ -472,8 +472,6 @@ export default class PoweredFileSystem {
     umask?: number,
     flag?: Flag
   } = {}) {
-    console.log(`'append' with be removed in the next major version. Use 'write' with { flag: 'a' } option`);
-
     if (resolve) {
       src = this.resolve(src);
     }
