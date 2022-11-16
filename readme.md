@@ -37,7 +37,7 @@ npm i pwd-fs
 * [pfs.remove(src[, options])](#pfsremovesrc-options)
 * [pfs.read(src[, options])](#pfsreadsrc-options)
 * [pfs.write(src, data[, options])](#pfswritesrc-data-options)
-* [pfs.append(src, data[, options])](#pfsappendsrc-data-options)
+* [pfs.append(src, data[, options])](#pfsappendsrc-data-options-colorboxredcolorwhite-deprecated-) $\colorbox{red}{{\color{white}{ deprecated }}}$
 * [pfs.readdir(dir[, options])](#pfsreaddirdir-options)
 * [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
 * [pfs.pwd](#pfspwd)
@@ -47,7 +47,7 @@ The scope `URI` of the class methods are divided into groups.
 | URI                         | Methods                                                          |
 |-----------------------------|------------------------------------------------------------------|
 | Common (file and directory) | `chmod` `chown` `copy` `remove` `rename` `symlink` `stat` `test` |
-| File only                   | `append` `read` `write`                                          |
+| File only                   | `read` `write`                                          |
 | Directory only              | `mkdir` `readdir`                                                |
 
 
@@ -269,7 +269,8 @@ await pfs.write('./file.txt', '... some text');
 
 > This function is limited to writing only `string`. For `stream`, `fs.createWriteStream()` is recommended.
 
-#### pfs.append(src, data[, options])
+#### pfs.append(src, data[, options]) $\colorbox{red}{{\color{white}{ deprecated }}}$
+
 
 - `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
 - `data` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>
@@ -283,9 +284,9 @@ await pfs.write('./file.txt', '... some text');
 
 Asynchronously append data to a file, creating the file if it does not yet exist.
 
-> NOTE Method is deprecated. To be removed in the next major version
+> NOTE Method is deprecated. May be removed in the next major version
 
-**Use 'write' with { flag: 'a' } option**
+**Use instead [pfs.write(src, data[, options])](#pfswritesrc-data-options) with { flag: 'a' } option**
 
 ```ts
 await pfs.write('./file', 'some content', {
@@ -362,7 +363,7 @@ Encoding | Description
 
 #### File system flags
 
-The following flags are available for `pfs.read`, `pfs.write` and `pfs.append` the flag option takes a <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>.
+The following flags are available for `pfs.read` and `pfs.write` the flag option takes a <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>.
 
 Flag | Description
 -----|------------
