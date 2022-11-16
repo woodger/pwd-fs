@@ -37,7 +37,7 @@ npm i pwd-fs
 * [pfs.remove(src[, options])](#pfsremovesrc-options)
 * [pfs.read(src[, options])](#pfsreadsrc-options)
 * [pfs.write(src, data[, options])](#pfswritesrc-data-options)
-* [pfs.append(src, data[, options])](#pfsappendsrc-data-options) <span style="background-color:#d50027; margin-left: 0.25rem; padding: 1px 3px; border-radius: 3px; color: #fff">deprecated</span>
+* [pfs.append(src, data[, options])](#pfsappendsrc-data-options-colorboxredcolorwhite-deprecated-) $\colorbox{red}{{\color{white}{ deprecated }}}$
 * [pfs.readdir(dir[, options])](#pfsreaddirdir-options)
 * [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
 * [pfs.pwd](#pfspwd)
