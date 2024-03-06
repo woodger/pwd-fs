@@ -1,234 +1,239 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
-type Files = Array<string>
+export type Files = Array<string>;
+export type NoParamCallback = fs.NoParamCallback;
 
-const {sep} = path;
+const { sep } = path;
 
-export default {
-  chmod(src: string, mode: number, callback: fs.NoParamCallback): void {
-    let reduce = 0;
+function chmod(src: string, mode: number, callback: NoParamCallback) {
+  let reduce = 0;
 
-    fs.stat(src, (err, stat) => {
-      if (err) {
-        return callback(err);
-      }
+  fs.stat(src, (err, stat) => {
+    if (err) {
+      return callback(err);
+    }
 
-      if (stat.isDirectory()) {
-        fs.readdir(src, (err, list) => {
-          if (err) {
-            return callback(err);
-          }
+    if (stat.isDirectory()) {
+      fs.readdir(src, (err, list) => {
+        if (err) {
+          return callback(err);
+        }
 
-          if (list.length === 0) {
-            return fs.chmod(src, mode, callback);
-          }
+        if (list.length === 0) {
+          return fs.chmod(src, mode, callback);
+        }
 
-          reduce += list.length;
+        reduce += list.length;
 
-          for (const loc of list) {
-            this.chmod(`${src}${sep}${loc}`, mode, (err) => {
-              if (err) {
-                return callback(err);
-              }
-
-              if (--reduce === 0) {
-                fs.chmod(src, mode, callback);
-              }
-            });
-          }
-        });
-      }
-      else {
-        fs.chmod(src, mode, callback);
-      }
-    });
-  },
-
-  chown(src: string, uid: number, gid: number, callback: fs.NoParamCallback): void {
-    let reduce = 0;
-
-    fs.stat(src, (err, stats) => {
-      if (err) {
-        return callback(err);
-      }
-
-      if (stats.isDirectory()) {
-        fs.readdir(src, (err, list) => {
-          if (err) {
-            return callback(err);
-          }
-
-          if (list.length === 0) {
-            return fs.chown(src, uid, gid, callback);
-          }
-
-          reduce += list.length;
-
-          for (const loc of list) {
-            this.chown(`${src}${sep}${loc}`, uid, gid, (err) => {
-              if (err) {
-                return callback(err);
-              }
-
-              if (--reduce === 0) {
-                fs.chown(src, uid, gid, callback);
-              }
-            });
-          }
-        });
-      }
-      else {
-        fs.chown(src, uid, gid, callback);
-      }
-    });
-  },
-
-  copy(src: string, dir: string, umask: number, callback: fs.NoParamCallback): void {
-    let reduce = 0;
-
-    fs.stat(src, (err, stat) => {
-      if (err) {
-        return callback(err);
-      }
-
-      if (stat.isDirectory()) {
-        fs.readdir(src, (err, list) => {
-          if (err) {
-            return callback(err);
-          }
-
-          reduce += list.length;
-
-          const paths = src.split(sep);
-          const loc = paths[paths.length - 1];
-          const mode = 0o777 - umask;
-
-          dir = `${dir}${sep}${loc}`;
-
-          fs.mkdir(dir, { mode }, (err) => {
+        for (const loc of list) {
+          chmod(`${src}${sep}${loc}`, mode, (err) => {
             if (err) {
               return callback(err);
             }
 
-            if (reduce === 0) {
-              return callback(null);
-            }
-
-            for (const loc of list) {
-              this.copy(`${src}${sep}${loc}`, dir, umask, (err) => {
-                if (err) {
-                  return callback(err);
-                }
-
-                if (--reduce === 0) {
-                  callback(null);
-                }
-              });
+            if (--reduce === 0) {
+              fs.chmod(src, mode, callback);
             }
           });
-        });
-      }
-      else {
-        const mode = 0o666 - umask;
-        const loc = path.basename(src);
+        }
+      });
+    }
+    else {
+      fs.chmod(src, mode, callback);
+    }
+  });
+}
 
-        const readStream = fs.createReadStream(src);
-        const writeStream = fs.createWriteStream(`${dir}${sep}${loc}`, {
-          mode
-        });
+function chown(src: string, uid: number, gid: number, callback: NoParamCallback) {
+  let reduce = 0;
 
-        readStream.on('error', callback);
-        writeStream.on('error', callback);
+  fs.stat(src, (err, stats) => {
+    if (err) {
+      return callback(err);
+    }
 
-        writeStream.on('close', () => {
-          callback(null);
-        });
+    if (stats.isDirectory()) {
+      fs.readdir(src, (err, list) => {
+        if (err) {
+          return callback(err);
+        }
 
-        readStream.pipe(writeStream);
-      }
-    });
-  },
+        if (list.length === 0) {
+          return fs.chown(src, uid, gid, callback);
+        }
 
-  remove(src: string, callback: fs.NoParamCallback): void {
-    let reduce = 0;
+        reduce += list.length;
 
-    fs.stat(src, (err, stat) => {
-      if (err) {
-        return callback(err);
-      }
+        for (const loc of list) {
+          chown(`${src}${sep}${loc}`, uid, gid, (err) => {
+            if (err) {
+              return callback(err);
+            }
 
-      if (stat.isDirectory()) {
-        fs.readdir(src, (err, list) => {
+            if (--reduce === 0) {
+              fs.chown(src, uid, gid, callback);
+            }
+          });
+        }
+      });
+    }
+    else {
+      fs.chown(src, uid, gid, callback);
+    }
+  });
+}
+
+function copy(src: string, dir: string, umask: number, callback: NoParamCallback) {
+  let reduce = 0;
+
+  fs.stat(src, (err, stat) => {
+    if (err) {
+      return callback(err);
+    }
+
+    if (stat.isDirectory()) {
+      fs.readdir(src, (err, list) => {
+        if (err) {
+          return callback(err);
+        }
+
+        reduce += list.length;
+
+        const paths = src.split(sep);
+        const loc = paths[paths.length - 1];
+        const mode = 0o777 - umask;
+
+        dir = `${dir}${sep}${loc}`;
+
+        fs.mkdir(dir, { mode }, (err) => {
           if (err) {
             return callback(err);
           }
 
-          if (list.length === 0) {
-            return fs.rmdir(src, callback);
+          if (reduce === 0) {
+            return callback(null);
           }
 
-          reduce += list.length;
-
           for (const loc of list) {
-            this.remove(`${src}${sep}${loc}`, (err) => {
+            copy(`${src}${sep}${loc}`, dir, umask, (err) => {
               if (err) {
                 return callback(err);
               }
 
               if (--reduce === 0) {
-                fs.rmdir(src, callback);
+                callback(null);
               }
             });
           }
         });
-      }
-      else {
-        fs.unlink(src, callback);
-      }
-    });
-  },
+      });
+    }
+    else {
+      const mode = 0o666 - umask;
+      const loc = path.basename(src);
 
-  mkdir(dir: string, umask: number, callback: fs.NoParamCallback): void {
-    const cwd = process.cwd();
+      const readStream = fs.createReadStream(src);
+      const writeStream = fs.createWriteStream(`${dir}${sep}${loc}`, {
+        mode
+      });
 
-    if (dir === cwd) {
-      return callback(null);
+      readStream.on('error', callback);
+      writeStream.on('error', callback);
+
+      writeStream.on('close', () => {
+        callback(null);
+      });
+
+      readStream.pipe(writeStream);
+    }
+  });
+}
+
+function remove(src: string, callback: NoParamCallback) {
+  fs.stat(src, (err, stat) => {
+    if (err) {
+      return callback(err);
     }
 
-    const sequence = function* (dir: string, files: Files, mode: number): Generator<void, void, Generator> {
-      const iter = yield;
+    if (stat.isDirectory()) {
+      fs.readdir(src, (err, list) => {
+        if (err) {
+          return callback(err);
+        }
+        
+        let reduce = list.length;
 
-      for (const item of files) {
-        dir += `${sep}${item}`;
+        if (reduce === 0) {
+          return fs.rmdir(src, callback);
+        }
 
-        fs.mkdir(dir, { mode }, (err) => {
-          if (err && err.errno !== -17) {
-            return callback(err);
-          }
+        for (const loc of list) {
+          remove(`${src}${sep}${loc}`, (err) => {
+            if (err) {
+              return callback(err);
+            }
 
-          iter.next();
-        });
-
-        yield;
-      }
-
-      callback(null);
-    };
-
-    let use = '';
-
-    if (dir.indexOf(cwd) === 0) {
-      use = cwd;
-      dir = dir.substr(cwd.length);
+            if (--reduce === 0) {
+              fs.rmdir(src, callback);
+            }
+          });
+        }
+      });
     }
+    else {
+      fs.unlink(src, callback);
+    }
+  });
+}
 
-    const files = dir.split(sep);
-    const mode = 0o777 - umask;
+function mkdir(dir: string, umask: number, callback: NoParamCallback) {
+  const cwd = process.cwd();
 
-    const iter = sequence(use, files, mode);
-
-    iter.next();
-    iter.next(iter);
+  if (dir === cwd) {
+    return callback(null);
   }
+
+  const sequence = function* (dir: string, files: Files, mode: number): Generator<void, void, Generator> {
+    const iter = yield;
+
+    for (const item of files) {
+      dir += `${sep}${item}`;
+
+      fs.mkdir(dir, { mode }, (err) => {
+        if (err && err.errno !== -17) {
+          return callback(err);
+        }
+
+        iter.next();
+      });
+
+      yield;
+    }
+
+    callback(null);
+  };
+
+  let use = '';
+
+  if (dir.indexOf(cwd) === 0) {
+    use = cwd;
+    dir = dir.substr(cwd.length);
+  }
+
+  const files = dir.split(sep);
+  const mode = 0o777 - umask;
+
+  const iter = sequence(use, files, mode);
+
+  iter.next();
+  iter.next(iter);
+}
+
+export default {
+  chmod,
+  chown,
+  copy,
+  remove,
+  mkdir
 }
