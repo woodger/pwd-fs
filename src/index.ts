@@ -1,10 +1,11 @@
-import fs from 'fs';
-import path from 'path';
-import recurse from './recurse-io';
+import fs from 'node:fs';
+import path from 'node:path';
+import recurse, { Files, NoParamCallback } from './recurse-io';
 import recurseSync from './recurse-io-sync';
 
-export type Mode = 'e' | 'r' | 'w' | 'x';
+export type Mode = keyof Constants;
 export type Flag = Mode | 'a';
+export type Stats = fs.Stats;
 
 export interface Constants {
   e: number,
@@ -13,8 +14,20 @@ export interface Constants {
   x: number
 }
 
+const permissions = [
+  0o400, // OWNER_READ
+  0o200, // OWNER_WRITE
+  0o100, // OWNER_EXECUTE
+  0o040, // GROUP_READ
+  0o020, // GROUP_WRITE
+  0o010, // GROUP_EXECUTE
+  0o004, // OTHERS_READ
+  0o002, // OTHERS_WRITE
+  0o001, // OTHERS_EXECUTE
+];
+
 export default class PoweredFileSystem {
-  readonly pwd: string = process.cwd();
+  readonly pwd: string;
 
   readonly constants: Constants = {
     e: fs.constants.F_OK,
@@ -24,9 +37,7 @@ export default class PoweredFileSystem {
   };
 
   constructor(pwd?: string) {
-    if (pwd) {
-      this.pwd = path.resolve(pwd);
-    }
+    this.pwd = pwd ? path.resolve(pwd) : process.cwd();
   }
 
   test(src: string, options: {
@@ -67,15 +78,9 @@ export default class PoweredFileSystem {
     });
   }
 
-  stat(src: string, options: {
-    sync: true,
-    resolve?: boolean
-  }): fs.Stats;
+  stat(src: string, options: { sync: true, resolve?: boolean }): Stats;
 
-  stat(src: string, options?: {
-    sync?: false,
-    resolve?: boolean
-  }): Promise<fs.Stats>;
+  stat(src: string, options?: { sync?: false, resolve?: boolean }): Promise<Stats>;
 
   stat(src: string, { sync = false, resolve = true }: {
     sync?: boolean,
@@ -581,46 +586,20 @@ export default class PoweredFileSystem {
   }
 
   static bitmask(mode: number) {
+    if (typeof mode !== 'number') {
+      throw new Error(
+        `Argument of type '${typeof mode}' is not assignable to parameter of type 'number'.`
+      );
+    }
+
     let umask = 0o000;
 
-    if (mode & 256) {
-      umask += 0o400;
-    }
-
-    if (mode & 128) {
-      umask += 0o200;
-    }
-
-    if (mode & 64) {
-      umask += 0o100;
-    }
-
-    if (mode & 32) {
-      umask += 0o040;
-    }
-
-    if (mode & 16) {
-      umask += 0o020;
-    }
-
-    if (mode & 8) {
-      umask += 0o010;
-    }
-
-    if (mode & 4) {
-      umask += 0o004;
-    }
-
-    if (mode & 2) {
-      umask += 0o002;
-    }
-
-    if (mode & 1) {
-      umask += 0o001;
+    for (const flag of permissions) {
+      if (mode & flag) {
+        umask += flag;
+      }
     }
 
     return umask;
   }
 }
-
-module.exports = PoweredFileSystem;
