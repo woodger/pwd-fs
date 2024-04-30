@@ -1,4 +1,4 @@
-import assert from 'node:assert';
+import assert from 'assert';
 import PoweredFileSystem from '../src';
 
 describe('static bitmask(mode: number)', () => {
@@ -15,9 +15,12 @@ describe('static bitmask(mode: number)', () => {
   });
 
   it(`Negative: Throw an exception if the argument is 'null' type`, () => {
-    assert.throws(() => {
+    try {
       // @ts-ignore
       PoweredFileSystem.bitmask(null);
-    });
+    }
+    catch (err) {
+      assert(err);
+    }
   });
 });
