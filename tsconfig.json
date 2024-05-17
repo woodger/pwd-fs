@@ -11,10 +11,9 @@
     "strict": true,
     "useUnknownInCatchVariables": false,
     "declaration": true,
-    "declarationDir": "lib"
+    "outDir": "lib"
   },
   "exclude": [
-    "jest.config.ts",
-    "lib"
+    "jest.config.ts"
   ]
 }
