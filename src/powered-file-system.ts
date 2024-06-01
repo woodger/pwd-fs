@@ -26,6 +26,26 @@ const permissions: number[] = [
   0o001  // OTHERS_EXECUTE
 ];
 
+export function bitmask(mode: number) {
+  const type = typeof mode;
+
+  if (type !== 'number') {
+    throw new Error(
+      `Argument of type '${type}' is not assignable to parameter of type 'number'.`
+    );
+  }
+
+  let umask = 0o000;
+
+  for (const flag of permissions) {
+    if (mode & flag) {
+      umask += flag;
+    }
+  }
+
+  return umask;
+}
+
 export class PoweredFileSystem {
   readonly pwd: string;
 
@@ -36,32 +56,14 @@ export class PoweredFileSystem {
     x: fs.constants.X_OK
   };
 
+  static bitmask = bitmask;
+
   constructor(pwd?: string) {
     this.pwd = pwd ? path.resolve(pwd) : process.cwd();
   }
   
   private resolve(src: string) {
     return path.resolve(this.pwd, src);
-  }
-  
-  static bitmask(mode: number) {
-    const type = typeof mode;
-
-    if (type !== 'number') {
-      throw new Error(
-        `Argument of type '${type}' is not assignable to parameter of type 'number'.`
-      );
-    }
-
-    let umask = 0o000;
-
-    for (const flag of permissions) {
-      if (mode & flag) {
-        umask += flag;
-      }
-    }
-
-    return umask;
   }
 
   test(src: string, options: {

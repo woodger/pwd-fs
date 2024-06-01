@@ -19,7 +19,7 @@ To improve reliability and maintainability the code is migrated to [TypeScript](
 To use `Powered File System` in your project, run:
 
 ```bash
-npm i pwd-fs
+npm install pwd-fs
 ```
 
 #### Table of Contents
@@ -63,19 +63,17 @@ This class implemented by following the [ECMAScript® 2018 Language Specificatio
 String form paths are interpreted as UTF-8 character sequences identifying the absolute or relative filename.
 
 ```ts
-import PoweredFileSystem from 'pwd-fs';
+import { pfs } from 'pwd-fs';
 
 /**
  * pfs.pwd === process.cwd()
  */
-
-const pfs = new PoweredFileSystem();
 ```
 
 Relative paths will be resolved relative to the current working directory as specified by `process.cwd()`:
 
 ```ts
-import PoweredFileSystem from 'pwd-fs';
+import { PoweredFileSystem } from 'pwd-fs';
 
 /**
  * pfs.pwd === `${process.cwd()}/foo/bar`
@@ -87,7 +85,7 @@ const pfs = new PoweredFileSystem('./foo/bar');
 Absolute paths:
 
 ```ts
-import PoweredFileSystem from 'pwd-fs';
+import { PoweredFileSystem } from 'pwd-fs';
 
 /**
  * pfs.pwd === __dirname
@@ -141,10 +139,12 @@ These functions return information about a resource in the file system.
 Asynchronously changes the permissions of a file.
 
 ```ts
+import { bitmask } from 'pwd-fs';
+
 await pfs.chmod('./path', 0o750);
 const { mode } = await pfs.stat('./path');
 
-console.log(PoweredFileSystem.bitmask(mode) === 0o750); // true
+console.log(bitmask(mode) === 0o750); // true
 ```
 
 > **Caveats:** on Windows only the write permission can be changed, and the distinction among the permissions of group, owner or others is not implemented.
@@ -194,10 +194,12 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 Asynchronously recursively copy a file or directory.
 
 ```ts
+import { bitmask } from 'pwd-fs';
+
 await pfs.copy('./path/file.txt', './dist');
 const { mode } = await pfs.stat('./dist/path/file.txt');
 
-console.log(PoweredFileSystem.bitmask(mode) === 0o666); // true
+console.log(bitmask(mode) === 0o666); // true
 ```
 
 #### pfs.rename(src, use[, options])

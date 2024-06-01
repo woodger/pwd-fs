@@ -10,12 +10,13 @@ export interface IConstants {
     w: number;
     x: number;
 }
+export declare function bitmask(mode: number): number;
 export declare class PoweredFileSystem {
     readonly pwd: string;
     readonly constants: IConstants;
+    static bitmask: typeof bitmask;
     constructor(pwd?: string);
     private resolve;
-    static bitmask(mode: number): number;
     test(src: string, options: {
         sync: true;
         flag?: Mode;

@@ -1,11 +1,11 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import Chance  from 'chance';
+import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
-import PoweredFileSystem from '../src';
+import { pfs } from '../src';
 
 describe('chown(src, uid, gid [, options])', () => {
-  const pfs = new PoweredFileSystem();
   const chance = new Chance();
 
   beforeEach(() => {
@@ -25,7 +25,6 @@ describe('chown(src, uid, gid [, options])', () => {
   
   it('Positive: Changes the permissions of a file', async () => {
     const { uid, gid } = fs.statSync('./tmpdir/tings.txt');
-    
     await pfs.chown('./tmpdir/tings.txt', uid, gid);
 
     assert(uid && gid);
@@ -34,7 +33,6 @@ describe('chown(src, uid, gid [, options])', () => {
   
   it('Positive: Changes the permissions of a directory', async () => {
     const { uid, gid } = fs.statSync('./tmpdir/digest');
-
     await pfs.chown('./tmpdir/digest', uid, gid);
 
     assert(uid && gid);
