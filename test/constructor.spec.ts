@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import PoweredFileSystem from '../src';
+import { PoweredFileSystem } from '../src';
 
 describe('#constructor: new PoweredFileSystem(pwd?)', () => {
   it('Positive: An empty path must match the context of the cwd', () => {

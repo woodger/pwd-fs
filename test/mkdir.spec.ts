@@ -1,8 +1,9 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import Chance  from 'chance';
+import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
-import PoweredFileSystem from '../src';
+import { PoweredFileSystem } from '../src';
 
 describe('mkdir(src [, options])', () => {
   const pfs = new PoweredFileSystem();
