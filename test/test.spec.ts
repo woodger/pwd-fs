@@ -1,11 +1,9 @@
 import assert from 'node:assert';
-import fs from 'node:fs';
 import Chance  from 'chance';
 import { fmock, restore } from './__fmock';
-import PoweredFileSystem from '../src';
+import { pfs } from '../src';
 
 describe('test(src[, options])', () => {
-  const pfs = new PoweredFileSystem();
   const chance = new Chance();
 
   beforeEach(() => {

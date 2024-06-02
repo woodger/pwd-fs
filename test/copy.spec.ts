@@ -1,12 +1,11 @@
 import assert from 'node:assert';
-import { sep } from 'node:path';
 import fs from 'node:fs';
 import Chance  from 'chance';
+import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
-import PoweredFileSystem, { bitmask } from '../src';
+import { pfs } from '../src';
 
 describe('copy(src, dir [, options])', () => {
-  const pfs = new PoweredFileSystem();
   const chance = new Chance();
   
   beforeEach(() => {

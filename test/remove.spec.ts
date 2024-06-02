@@ -1,11 +1,11 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import Chance  from 'chance';
-import { type Iframe, fmock, restore } from './__fmock';
-import PoweredFileSystem from '../src';
+import { expect } from 'expect';
+import { Iframe, fmock, restore } from './__fmock';
+import { pfs } from '../src';
 
 describe('remove(src [, options])', () => {
-  const pfs = new PoweredFileSystem();
   const chance = new Chance();
   
   beforeEach(() => {

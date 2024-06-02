@@ -3,17 +3,17 @@
     "lib": [
 			"es2022"
 		],
-		"module": "es2022",
+		"module": "CommonJS",
 		"target": "es2022",
 		"moduleResolution": "node",
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "useUnknownInCatchVariables": false,
     "declaration": true,
+    "noEmitOnError": true,
+    "noUnusedLocals": false,
     "outDir": "lib"
-  },
-  "exclude": [
-    "jest.config.ts"
-  ]
+  }
 }
