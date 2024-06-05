@@ -1,20 +1,19 @@
-import fs from 'node:fs';
+import fs, { NoParamCallback } from 'node:fs';
 import path from 'node:path';
 
-export type Files = Array<string>;
-export type NoParamCallback = fs.NoParamCallback;
+type Files = Array<string>;
 
 const { sep } = path;
 
-function chmod(src: string, mode: number, callback: NoParamCallback) {
+export function chmod(src: string, mode: number, callback: NoParamCallback) {
   let reduce = 0;
 
-  fs.stat(src, (err, stat) => {
+  fs.stat(src, (err, stats) => {
     if (err) {
       return callback(err);
     }
 
-    if (stat.isDirectory()) {
+    if (stats.isDirectory()) {
       fs.readdir(src, (err, list) => {
         if (err) {
           return callback(err);
@@ -45,12 +44,20 @@ function chmod(src: string, mode: number, callback: NoParamCallback) {
   });
 }
 
-function chown(src: string, uid: number, gid: number, callback: NoParamCallback) {
+export function chown(src: string, uid: number, gid: number, callback: NoParamCallback) {
   let reduce = 0;
 
   fs.stat(src, (err, stats) => {
     if (err) {
       return callback(err);
+    }
+
+    if (uid === 0) {
+      uid = stats.uid;
+    }
+
+    if (gid === 0) {
+      gid = stats.gid;
     }
 
     if (stats.isDirectory()) {
@@ -84,7 +91,7 @@ function chown(src: string, uid: number, gid: number, callback: NoParamCallback)
   });
 }
 
-function copy(src: string, dir: string, umask: number, callback: NoParamCallback) {
+export function copy(src: string, dir: string, umask: number, callback: NoParamCallback) {
   let reduce = 0;
 
   fs.stat(src, (err, stat) => {
@@ -150,7 +157,7 @@ function copy(src: string, dir: string, umask: number, callback: NoParamCallback
   });
 }
 
-function remove(src: string, callback: NoParamCallback) {
+export function remove(src: string, callback: NoParamCallback) {
   fs.stat(src, (err, stat) => {
     if (err) {
       return callback(err);
@@ -187,7 +194,7 @@ function remove(src: string, callback: NoParamCallback) {
   });
 }
 
-function mkdir(dir: string, umask: number, callback: NoParamCallback) {
+export function mkdir(dir: string, umask: number, callback: NoParamCallback) {
   const cwd = process.cwd();
 
   if (dir === cwd) {
@@ -218,7 +225,7 @@ function mkdir(dir: string, umask: number, callback: NoParamCallback) {
 
   if (dir.indexOf(cwd) === 0) {
     use = cwd;
-    dir = dir.substr(cwd.length);
+    dir = dir.substring(cwd.length);
   }
 
   const files = dir.split(sep);
@@ -228,12 +235,4 @@ function mkdir(dir: string, umask: number, callback: NoParamCallback) {
 
   iter.next();
   iter.next(iter);
-}
-
-export default {
-  chmod,
-  chown,
-  copy,
-  remove,
-  mkdir
 }

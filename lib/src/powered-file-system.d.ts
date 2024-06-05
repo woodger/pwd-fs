@@ -1,16 +1,17 @@
 /// <reference types="node" />
 /// <reference types="node" />
 import fs from 'node:fs';
+import { bitmask } from './bitmask';
 export type Mode = keyof IConstants;
 export type Flag = Mode | 'a';
 export type Stats = fs.Stats;
+export * from './bitmask';
 export interface IConstants {
     e: number;
     r: number;
     w: number;
     x: number;
 }
-export declare function bitmask(mode: number): number;
 export declare class PoweredFileSystem {
     readonly pwd: string;
     readonly constants: IConstants;
@@ -37,11 +38,15 @@ export declare class PoweredFileSystem {
     chmod(src: string, mode: number, options?: {
         sync?: false;
     }): Promise<void>;
-    chown(src: string, uid: number, gid: number, options: {
+    chown(src: string, options: {
         sync: true;
+        uid?: number;
+        gid?: number;
     }): void;
-    chown(src: string, uid: number, gid: number, options?: {
+    chown(src: string, options?: {
         sync?: false;
+        uid?: number;
+        gid?: number;
     }): Promise<void>;
     symlink(src: string, use: string, options: {
         sync: true;
@@ -113,24 +118,36 @@ export declare class PoweredFileSystem {
         umask?: number;
         flag?: Flag;
     }): Promise<void>;
+    /**
+    * @deprecated The method should not be used
+    */
     append(src: string, data: Buffer, options: {
         sync: true;
         encoding: null;
         umask?: number;
         flag?: Flag;
     }): void;
+    /**
+    * @deprecated The method should not be used
+    */
     append(src: string, data: string, options: {
         sync: true;
         encoding?: BufferEncoding;
         umask?: number;
         flag?: Flag;
     }): void;
+    /**
+    * @deprecated The method should not be used
+    */
     append(src: string, data: Buffer, options: {
         sync?: false;
         encoding: null;
         umask?: number;
         flag?: Flag;
     }): Promise<void>;
+    /**
+    * @deprecated The method should not be used
+    */
     append(src: string, data: string, options?: {
         sync?: false;
         encoding?: BufferEncoding;

@@ -47,7 +47,7 @@ The scope `URI` of the class methods are divided into groups.
 | URI                         | Methods                                                          |
 |-----------------------------|------------------------------------------------------------------|
 | Common (file and directory) | `chmod` `chown` `copy` `remove` `rename` `symlink` `stat` `test` |
-| File only                   | `read` `write`                                          |
+| File only                   | `read` `write`                                                   |
 | Directory only              | `mkdir` `readdir`                                                |
 
 
@@ -151,13 +151,13 @@ console.log(bitmask(mode) === 0o750); // true
 
 See manuals [chmod(2)](http://man7.org/linux/man-pages/man2/chmod.2.html)
 
-#### pfs.chown(src, uid, gid[, options])
+#### pfs.chown(src, [, options])
 
 - `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
-- `uid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
-- `gid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
+  - `uid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> The file's new owner's user id.
+  - `gid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> The file's new group's group id.
 - returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful change, the `Promise` is resolved with an value with a `undefined`.
 
 Asynchronously changes owner and group of a file.

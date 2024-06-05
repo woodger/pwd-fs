@@ -1,49 +1,20 @@
-import fs from 'node:fs';
+import fs, { NoParamCallback } from 'node:fs';
 import path from 'node:path';
-import recurse, { Files, NoParamCallback } from './recurse-io';
-import recurseSync from './recurse-io-sync';
+import { chmod, chown, copy, remove, mkdir } from './recurse-io';
+import { chmodSync, chownSync, copySync, removeSync, mkdirSync } from './recurse-io-sync';
+import { bitmask } from './bitmask';
 
 export type Mode = keyof IConstants;
 export type Flag = Mode | 'a';
 export type Stats = fs.Stats;
+
+export * from './bitmask';
 
 export interface IConstants {
   e: number,
   r: number,
   w: number,
   x: number
-}
-
-const permissions: number[] = [
-  0o400, // OWNER_READ
-  0o200, // OWNER_WRITE
-  0o100, // OWNER_EXECUTE
-  0o040, // GROUP_READ
-  0o020, // GROUP_WRITE
-  0o010, // GROUP_EXECUTE
-  0o004, // OTHERS_READ
-  0o002, // OTHERS_WRITE
-  0o001  // OTHERS_EXECUTE
-];
-
-export function bitmask(mode: number) {
-  const type = typeof mode;
-
-  if (type !== 'number') {
-    throw new Error(
-      `Argument of type '${type}' is not assignable to parameter of type 'number'.`
-    );
-  }
-
-  let umask = 0o000;
-
-  for (const flag of permissions) {
-    if (mode & flag) {
-      umask += flag;
-    }
-  }
-
-  return umask;
 }
 
 export class PoweredFileSystem {
@@ -133,11 +104,11 @@ export class PoweredFileSystem {
     src = this.resolve(src);
 
     if (sync) {
-      return recurseSync.chmod(src, mode);
+      return chmodSync(src, mode);
     }
 
     return new Promise<void>((resolve, reject) => {
-      recurse.chmod(src, mode, (err) => {
+      chmod(src, mode, (err) => {
         if (err) {
           return reject(err);
         }
@@ -147,23 +118,27 @@ export class PoweredFileSystem {
     });
   }
 
-  chown(src: string, uid: number, gid: number, options: {
-    sync: true
+  chown(src: string, options: {
+    sync: true,
+    uid?: number,
+    gid?: number
   }): void;
 
-  chown(src: string, uid: number, gid: number, options?: {
-    sync?: false
+  chown(src: string, options?: {
+    sync?: false,
+    uid?: number,
+    gid?: number
   }): Promise<void>;
 
-  chown(src: string, uid: number, gid: number, { sync = false }: { sync?: boolean } = {}) {
+  chown(src: string, { sync = false, uid = 0, gid = 0 }: { sync?: boolean, uid?: number, gid?: number } = {}) {
     src = this.resolve(src);
 
     if (sync) {
-      return recurseSync.chown(src, uid, gid);
+      return chownSync(src, uid, gid);
     }
 
     return new Promise<void>((resolve, reject) => {
-      recurse.chown(src, uid, gid, (err) => {
+      chown(src, uid, gid, (err) => {
         if (err) {
           return reject(err);
         }
@@ -218,11 +193,11 @@ export class PoweredFileSystem {
     dir = this.resolve(dir);
     
     if (sync) {
-      return recurseSync.copy(src, dir, umask);
+      return copySync(src, dir, umask);
     }
 
     return new Promise<void>((resolve, reject) => {
-      recurse.copy(src, dir, umask, (err) => {
+      copy(src, dir, umask, (err) => {
         if (err) {
           return reject(err);
         }
@@ -271,17 +246,23 @@ export class PoweredFileSystem {
     src = this.resolve(src);
 
     if (sync) {
-      return recurseSync.remove(src);
+      removeSync(src);
     }
 
     return new Promise<void>((resolve, reject) => {
-      recurse.remove(src, (err) => {
+      const callback: NoParamCallback = (err) => {
         if (err) {
           return reject(err);
         }
 
         resolve();
-      });
+      };
+
+      if ('rm' in fs) {
+        return fs.rm(src, { recursive: true }, callback);
+      }
+      
+      remove(src, callback);
     });
   }
 
@@ -400,6 +381,9 @@ export class PoweredFileSystem {
     });
   }
 
+  /**
+  * @deprecated The method should not be used
+  */
   append(src: string, data: Buffer, options: {
     sync: true,
     encoding: null,
@@ -407,6 +391,9 @@ export class PoweredFileSystem {
     flag?: Flag
   }): void;
 
+  /**
+  * @deprecated The method should not be used
+  */
   append(src: string, data: string, options: {
     sync: true,
     encoding?: BufferEncoding,
@@ -414,6 +401,9 @@ export class PoweredFileSystem {
     flag?: Flag
   }): void;
 
+  /**
+  * @deprecated The method should not be used
+  */
   append(src: string, data: Buffer, options: {
     sync?: false,
     encoding: null,
@@ -421,6 +411,9 @@ export class PoweredFileSystem {
     flag?: Flag
   }): Promise<void>;
 
+  /**
+  * @deprecated The method should not be used
+  */
   append(src: string, data: string, options?: {
     sync?: false,
     encoding?: BufferEncoding,
@@ -428,6 +421,9 @@ export class PoweredFileSystem {
     flag?: Flag
   }): Promise<void>;
 
+  /**
+  * @deprecated The method should not be used
+  */
   append(src: string, data: Buffer | string, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'a' }: {
     sync?: boolean,
     encoding?: BufferEncoding | null,
@@ -511,11 +507,11 @@ export class PoweredFileSystem {
     dir = this.resolve(dir);
 
     if (sync) {
-      return recurseSync.mkdir(dir, umask);
+      return mkdirSync(dir, umask);
     }
 
     return new Promise<void>((resolve, reject) => {
-      recurse.mkdir(dir, umask, (err) => {
+      mkdir(dir, umask, (err) => {
         if (err) {
           return reject(err);
         }
