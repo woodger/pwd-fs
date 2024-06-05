@@ -3,35 +3,43 @@ import path from 'node:path';
 
 const { sep } = path;
 
-function chmod(src: string, mode: number) {
-  const stat = fs.statSync(src);
+export function chmodSync(src: string, mode: number) {
+  const stats = fs.statSync(src);
 
-  if (stat.isDirectory()) {
+  if (stats.isDirectory()) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      chmod(`${src}${sep}${loc}`, mode);
+      chmodSync(`${src}${sep}${loc}`, mode);
     }
   }
 
   fs.chmodSync(src, mode);
 }
 
-function chown(src: string, uid: number, gid: number) {
-  const stat = fs.statSync(src);
+export function chownSync(src: string, uid: number, gid: number) {
+  const stats = fs.statSync(src);
 
-  if (stat.isDirectory()) {
+  if (uid === 0) {
+    uid = stats.uid;
+  }
+
+  if (gid === 0) {
+    gid = stats.gid;
+  }
+
+  if (stats.isDirectory()) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      chown(`${src}${sep}${loc}`, uid, gid);
+      chownSync(`${src}${sep}${loc}`, uid, gid);
     }
   }
 
   fs.chownSync(src, uid, gid);
 }
 
-function copy(src: string, dir: string, umask: number) {
+export function copySync(src: string, dir: string, umask: number) {
   const stat = fs.statSync(src);
 
   if (stat.isDirectory()) {
@@ -45,7 +53,7 @@ function copy(src: string, dir: string, umask: number) {
     fs.mkdirSync(dir, mode);
 
     for (const loc of list) {
-      copy(`${src}${sep}${loc}`, dir, umask);
+      copySync(`${src}${sep}${loc}`, dir, umask);
     }
   }
   else {
@@ -56,14 +64,14 @@ function copy(src: string, dir: string, umask: number) {
   }
 }
 
-function remove(src: string) {
-  const stat = fs.statSync(src);
+export function removeSync(src: string) {
+  const stats = fs.statSync(src);
 
-  if (stat.isDirectory()) {
+  if (stats.isDirectory()) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      remove(`${src}${sep}${loc}`);
+      removeSync(`${src}${sep}${loc}`);
     }
 
     fs.rmdirSync(src);
@@ -73,14 +81,14 @@ function remove(src: string) {
   }
 }
 
-function mkdir(dir: string, umask: number) {
+export function mkdirSync(dir: string, umask: number) {
   const mode = 0o777 - umask;
   const cwd = process.cwd();
   let use = '';
 
   if (dir.indexOf(cwd) === 0) {
     use = cwd;
-    dir = dir.substr(cwd.length);
+    dir = dir.substring(cwd.length);
   }
 
   const ways = dir.split(sep).slice(1);
@@ -97,12 +105,4 @@ function mkdir(dir: string, umask: number) {
       }
     }
   }
-}
-
-export default {
-  chmod,
-  chown,
-  copy,
-  remove,
-  mkdir
 }
