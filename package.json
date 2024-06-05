@@ -29,11 +29,11 @@
   "engines": {
     "node": ">=13.2.0"
   },
-  "main": "./lib/src/index.js",
-  "types": "./lib/src/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha ./lib/test"
+    "test": "mocha ./dist/test"
   },
   "devDependencies": {
     "@types/chance": "^1.1.6",
