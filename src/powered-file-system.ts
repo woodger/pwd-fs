@@ -92,13 +92,9 @@ export class PoweredFileSystem {
     });
   }
 
-  chmod(src: string, mode: number, options: {
-    sync: true
-  }): void;
+  chmod(src: string, mode: number, options: { sync: true }): void;
   
-  chmod(src: string, mode: number, options?: {
-    sync?: false
-  }): Promise<void>;
+  chmod(src: string, mode: number, options?: { sync?: false }): Promise<void>;
   
   chmod(src: string, mode: number, { sync = false }: { sync?: boolean } = {}) {
     src = this.resolve(src);
@@ -148,13 +144,9 @@ export class PoweredFileSystem {
     });
   }
 
-  symlink(src: string, use: string, options: {
-    sync: true
-  }): void;
+  symlink(src: string, use: string, options: { sync: true }): void;
 
-  symlink(src: string, use: string, options?: {
-    sync?: false
-  }): Promise<void>;
+  symlink(src: string, use: string, options?: { sync?: false }): Promise<void>;
 
   symlink(src: string, use: string, { sync = false }: { sync?: boolean } = {}) {
     src = this.resolve(src);
@@ -207,13 +199,9 @@ export class PoweredFileSystem {
     });
   }
 
-  rename(src: string, use: string, options: {
-    sync: true
-  }): void;
+  rename(src: string, use: string, options: { sync: true }): void;
 
-  rename(src: string, use: string, options?: {
-    sync?: false
-  }): Promise<void>;
+  rename(src: string, use: string, options?: { sync?: false }): Promise<void>;
 
   rename(src: string, use: string, { sync = false }: { sync?: boolean } = {}) {
     src = this.resolve(src);
@@ -234,13 +222,9 @@ export class PoweredFileSystem {
     });
   }
 
-  remove(src: string, options: {
-    sync: true
-  }): void;
+  remove(src: string, options: { sync: true }): void;
 
-  remove(src: string, options?: {
-    sync?: false
-  }): Promise<void>;
+  remove(src: string, options?: { sync?: false }): Promise<void>;
 
   remove(src: string, { sync = false }: { sync?: boolean } = {}) {
     src = this.resolve(src);
@@ -268,15 +252,15 @@ export class PoweredFileSystem {
 
   read(src: string, options: {
     sync: true,
-    encoding?: BufferEncoding,
+    encoding: null,
     flag?: Flag
-  }): string;
+  }): Buffer;
 
   read(src: string, options: {
     sync: true,
-    encoding?: null,
+    encoding?: BufferEncoding,
     flag?: Flag
-  }): Buffer;
+  }): string;
 
   read(src: string, options: {
     sync?: false,
@@ -298,10 +282,14 @@ export class PoweredFileSystem {
     src = this.resolve(src);
 
     if (sync) {
-      return fs.readFileSync(src, {
+      const content = fs.readFileSync(src, {
         encoding,
         flag
       });
+
+      return encoding === null
+        ? Buffer.from(content)
+        : content;
     }
 
     return new Promise((resolve, reject) => {
@@ -421,9 +409,6 @@ export class PoweredFileSystem {
     flag?: Flag
   }): Promise<void>;
 
-  /**
-  * @deprecated The method should not be used
-  */
   append(src: string, data: Buffer | string, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'a' }: {
     sync?: boolean,
     encoding?: BufferEncoding | null,

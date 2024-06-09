@@ -70,12 +70,12 @@ describe('read(src [, options])', () => {
   
   
   it('[sync] Positive: Must read Buffer content of file when encoding is null', () => {
-    const buffer = pfs.read('./tmpdir/tings.txt', {
-      encoding: null,
-      sync: true
+    const buf = pfs.read('./tmpdir/tings.txt', {
+      sync: true,
+      encoding: null
     });
 
-    assert(buffer instanceof Buffer);
+    assert(buf instanceof Buffer);
   });
   
   

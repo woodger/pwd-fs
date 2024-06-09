@@ -162,10 +162,13 @@ class PoweredFileSystem {
     read(src, { sync = false, encoding = 'utf8', flag = 'r' } = {}) {
         src = this.resolve(src);
         if (sync) {
-            return node_fs_1.default.readFileSync(src, {
+            const content = node_fs_1.default.readFileSync(src, {
                 encoding,
                 flag
             });
+            return encoding === null
+                ? Buffer.from(content)
+                : content;
         }
         return new Promise((resolve, reject) => {
             node_fs_1.default.readFile(src, {
@@ -202,9 +205,6 @@ class PoweredFileSystem {
             });
         });
     }
-    /**
-    * @deprecated The method should not be used
-    */
     append(src, data, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'a' } = {}) {
         src = this.resolve(src);
         const mode = 0o666 - umask;
