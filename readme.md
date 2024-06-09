@@ -37,10 +37,10 @@ npm install pwd-fs
 * [pfs.remove(src[, options])](#pfsremovesrc-options)
 * [pfs.read(src[, options])](#pfsreadsrc-options)
 * [pfs.write(src, data[, options])](#pfswritesrc-data-options)
-* [pfs.append(src, data[, options])](#pfsappendsrc-data-options-deprecated) `deprecated`
 * [pfs.readdir(dir[, options])](#pfsreaddirdir-options)
 * [pfs.mkdir(dir[, options])](#pfsmkdirdir-options)
 * [pfs.pwd](#pfspwd)
+* [static: bitmask(mode)](#static-bitmaskmode)
 
 The scope `URI` of the class methods are divided into groups.
 
@@ -65,9 +65,7 @@ String form paths are interpreted as UTF-8 character sequences identifying the a
 ```ts
 import { pfs } from 'pwd-fs';
 
-/**
- * pfs.pwd === process.cwd()
- */
+// pfs.pwd === process.cwd()
 ```
 
 Relative paths will be resolved relative to the current working directory as specified by `process.cwd()`:
@@ -75,9 +73,7 @@ Relative paths will be resolved relative to the current working directory as spe
 ```ts
 import { PoweredFileSystem } from 'pwd-fs';
 
-/**
- * pfs.pwd === `${process.cwd()}/foo/bar`
- */
+// pfs.pwd === `${process.cwd()}/foo/bar`
 
 const pfs = new PoweredFileSystem('./foo/bar');
 ```
@@ -87,9 +83,7 @@ Absolute paths:
 ```ts
 import { PoweredFileSystem } from 'pwd-fs';
 
-/**
- * pfs.pwd === __dirname
- */
+// pfs.pwd === __dirname
 
 const pfs = new PoweredFileSystem(__dirname);
 ```
@@ -194,12 +188,9 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 Asynchronously recursively copy a file or directory.
 
 ```ts
-import { bitmask } from 'pwd-fs';
+import { pfs } from 'pwd-fs';
 
 await pfs.copy('./path/file.txt', './dist');
-const { mode } = await pfs.stat('./dist/path/file.txt');
-
-console.log(bitmask(mode) === 0o666); // true
 ```
 
 #### pfs.rename(src, use[, options])
@@ -321,19 +312,40 @@ await pfs.mkdir('./static/images');
 
 The full path from the root directory to the present working directory: in the context of which relative paths will be resolved.
 
+#### static: bitmask(mode)
+
+Masking is the act of applying a mask to a value. Bitwise ANDing in order to extract a subset of the bits in the value.
+
+```ts
+import { bitmask } from 'pwd-fs';
+
+// Access: (0644/-rw-r--r--)
+const { mode } = await pfs.stat('./things.txt');
+const access = bitmask(mode);
+
+console.log(access === 0o644); // true
+```
+
+Applying the mask to the value means that we want to clear the first (higher) 4 bits, and keep the last (lower) 4 bits. Thus we have extracted the lower 4 bits. The result is:
+
+```
+mode:   33188
+mask:   0o644 (rw-rw-r--)
+```
+
 #### Mode creation mask
 
 The following table shows some examples of how to set the extension `mode` or `umask` for files and directories.
 
-Umask | Mode files | Mode directories
-------|-------|------------
-0o000 | 0o666 (rw-rw-rw-) | 0o777 (rwxrwxrwx)
-0o002 | 0o664 (rw-rw-r--) | 0o775 (rwxrwxr-x)
-0o007 | 0o660 (rw-rw----) | 0o770 (rwxrwx---)
-0o022 | 0o644 (rw-r--r--) | 0o755 (rwxr-xr-x)
-0o027 | 0o640 (rw-r-----) | 0o750 (rwxr-x---)
-0o077 | 0o600 (rw-------) | 0o700 (rwx------)
-0o277 | 0o400 (r--------) | 0o500 (r-x------)
+| Umask | Mode files        | Mode directories  |
+|-------|-------------------|-------------------|
+| 0o000 | 0o666 (rw-rw-rw-) | 0o777 (rwxrwxrwx) |
+| 0o002 | 0o664 (rw-rw-r--) | 0o775 (rwxrwxr-x) |
+| 0o007 | 0o660 (rw-rw----) | 0o770 (rwxrwx---) |
+| 0o022 | 0o644 (rw-r--r--) | 0o755 (rwxr-xr-x) |
+| 0o027 | 0o640 (rw-r-----) | 0o750 (rwxr-x---) |
+| 0o077 | 0o600 (rw-------) | 0o700 (rwx------) |
+| 0o277 | 0o400 (r--------) | 0o500 (r-x------) |
 
 #### String encoding
 
