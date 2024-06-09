@@ -8,12 +8,7 @@
 		"moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "useUnknownInCatchVariables": false,
     "declaration": true,
-    "noEmitOnError": true,
-    "noUnusedLocals": false,
-    "outDir": "dist"
+    "outDir": "./dist"
   }
 }

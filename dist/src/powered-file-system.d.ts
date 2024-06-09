@@ -76,14 +76,14 @@ export declare class PoweredFileSystem {
     }): Promise<void>;
     read(src: string, options: {
         sync: true;
+        encoding: null;
+        flag?: Flag;
+    }): Buffer;
+    read(src: string, options: {
+        sync: true;
         encoding?: BufferEncoding;
         flag?: Flag;
     }): string;
-    read(src: string, options: {
-        sync: true;
-        encoding?: null;
-        flag?: Flag;
-    }): Buffer;
     read(src: string, options: {
         sync?: false;
         encoding: null;
