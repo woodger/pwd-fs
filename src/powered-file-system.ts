@@ -1,4 +1,4 @@
-import fs, { NoParamCallback } from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { chmod, chown, copy, remove, mkdir } from './recurse-io';
 import { chmodSync, chownSync, copySync, removeSync, mkdirSync } from './recurse-io-sync';
@@ -37,51 +37,42 @@ export class PoweredFileSystem {
     return path.resolve(this.pwd, src);
   }
 
-  test(src: string, options: {
-    sync: true,
-    flag?: Mode
-  }): boolean;
-  
-  test(src: string, options?: {
-    sync?: false,
-    flag?: Mode
-  }): Promise<boolean>;
-  
-  test(src: string, { sync = false, flag = 'e' }: {
-    sync?: boolean,
-    flag?: Mode
-  } = {}) {
+  test<T extends boolean = false>(
+    src: string,
+    options?: {
+      sync?: T;
+      flag?: Mode;
+    }
+  ): T extends true ? boolean : Promise<boolean> {
+    const { sync = false as T, flag = 'e' } = options ?? {};
     const mode = this.constants[flag];
-
     src = path.resolve(this.pwd, src);
 
     if (sync) {
-      return fs.existsSync(src);
+      return fs.existsSync(src) as any;
     }
 
-    return new Promise((resolve) => {
+    return new Promise<boolean>((resolve) => {
       fs.access(src, mode, (err) => {
-        if (err) {
-          return resolve(false);
-        }
-
-        resolve(true);
+        resolve(!err);
       });
-    });
+    }) as any;
   }
 
-  stat(src: string, options: { sync: true }): Stats;
-  
-  stat(src: string, options?: { sync?: false }): Promise<Stats>;
-  
-  stat(src: string, { sync = false }: { sync?: boolean } = {}) {
+  stat<T extends boolean = false>(
+    src: string,
+    options?: {
+      sync?: T;
+    }
+  ): T extends true ? Stats : Promise<Stats> {
+    const { sync = false as T } = options ?? {};
     src = this.resolve(src);
 
     if (sync) {
-      return fs.lstatSync(src);
+      return fs.lstatSync(src) as any;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Stats>((resolve, reject) => {
       fs.lstat(src, (err, stats) => {
         if (err) {
           return reject(err);
@@ -89,18 +80,20 @@ export class PoweredFileSystem {
 
         resolve(stats);
       });
-    });
+    }) as any;
   }
 
-  chmod(src: string, mode: number, options: { sync: true }): void;
-  
-  chmod(src: string, mode: number, options?: { sync?: false }): Promise<void>;
-  
-  chmod(src: string, mode: number, { sync = false }: { sync?: boolean } = {}) {
+  chmod<T extends boolean = false>(
+    src: string,
+    mode: number,
+    options?: { sync?: T }
+  ): T extends true ? void : Promise<void> {
+    const { sync = false as T } = options ?? {};
     src = this.resolve(src);
 
     if (sync) {
-      return chmodSync(src, mode);
+      chmodSync(src, mode);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -111,26 +104,19 @@ export class PoweredFileSystem {
 
         resolve();
       });
-    });
+    }) as any;
   }
 
-  chown(src: string, options: {
-    sync: true,
-    uid?: number,
-    gid?: number
-  }): void;
-
-  chown(src: string, options?: {
-    sync?: false,
-    uid?: number,
-    gid?: number
-  }): Promise<void>;
-
-  chown(src: string, { sync = false, uid = 0, gid = 0 }: { sync?: boolean, uid?: number, gid?: number } = {}) {
+  chown<T extends boolean = false>(
+    src: string,
+    options?: { sync?: T; uid?: number; gid?: number }
+  ): T extends true ? void : Promise<void> {
+    const { sync = false as T, uid = 0, gid = 0 } = options ?? {};
     src = this.resolve(src);
 
     if (sync) {
-      return chownSync(src, uid, gid);
+      chownSync(src, uid, gid);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -141,100 +127,101 @@ export class PoweredFileSystem {
 
         resolve();
       });
-    });
+    }) as any;
   }
 
-  symlink(src: string, use: string, options: { sync: true }): void;
-
-  symlink(src: string, use: string, options?: { sync?: false }): Promise<void>;
-
-  symlink(src: string, use: string, { sync = false }: { sync?: boolean } = {}) {
+  symlink<T extends boolean = false>(
+    src: string,
+    dest: string,
+    options?: { sync?: T }
+  ): T extends true ? void : Promise<void> {
     src = this.resolve(src);
-    use = this.resolve(use);
+    dest = this.resolve(dest);
+
+    const { sync = false as T } = options ?? {};
 
     if (sync) {
-      return fs.symlinkSync(src, use);
+      fs.symlinkSync(src, dest);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
-      fs.symlink(src, use, (err) => {
+      fs.symlink(src, dest, (err) => {
         if (err) {
           return reject(err);
         }
 
         resolve();
       });
-    });
+    }) as any;
   }
 
-  copy(src: string, dir: string, options: {
-    sync: true,
-    umask?: number
-  }): void;
-
-  copy(src: string, dir: string, options?: {
-    sync?: false,
-    umask?: number
-  }): Promise<void>;
-
-  copy(src: string, dir: string, { sync = false, umask = 0o000 }: {
-    sync?: boolean,
-    umask?: number
-  } = {}) {
+  copy<T extends boolean = false>(
+    src: string,
+    dest: string,
+    options?: { sync?: T; umask?: number }
+  ): T extends true ? void : Promise<void> {
     src = this.resolve(src);
-    dir = this.resolve(dir);
-    
+    dest = this.resolve(dest);
+
+    const { sync = false as T, umask = 0o000 } = options ?? {};
+
     if (sync) {
-      return copySync(src, dir, umask);
+      copySync(src, dest, umask);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
-      copy(src, dir, umask, (err) => {
+      copy(src, dest, umask, (err) => {
         if (err) {
           return reject(err);
         }
 
         resolve();
       });
-    });
+    }) as any;
   }
 
-  rename(src: string, use: string, options: { sync: true }): void;
-
-  rename(src: string, use: string, options?: { sync?: false }): Promise<void>;
-
-  rename(src: string, use: string, { sync = false }: { sync?: boolean } = {}) {
+  rename<T extends boolean = false>(
+    src: string,
+    dest: string,
+    options?: { sync?: T }
+  ): T extends true ? void : Promise<void> {
     src = this.resolve(src);
-    use = this.resolve(use);
+    dest = this.resolve(dest);
+
+    const { sync = false as T } = options ?? {};
 
     if (sync) {
-      return fs.renameSync(src, use);
+      fs.renameSync(src, dest);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
-      fs.rename(src, use, (err) => {
+      fs.rename(src, dest, (err) => {
         if (err) {
           return reject(err);
         }
 
         resolve();
       });
-    });
+    }) as any;
   }
 
-  remove(src: string, options: { sync: true }): void;
-
-  remove(src: string, options?: { sync?: false }): Promise<void>;
-
-  remove(src: string, { sync = false }: { sync?: boolean } = {}) {
+  remove<T extends boolean = false>(
+    src: string,
+    options?: { sync?: T }
+  ): T extends true ? void : Promise<void> {
     src = this.resolve(src);
+    const { sync = false as T } = options ?? {};
 
     if (sync) {
       removeSync(src);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
-      const callback: NoParamCallback = (err) => {
+      const callback: fs.NoParamCallback = (err) => {
         if (err) {
           return reject(err);
         }
@@ -243,228 +230,110 @@ export class PoweredFileSystem {
       };
 
       if ('rm' in fs) {
-        return fs.rm(src, { recursive: true }, callback);
+        fs.rm(src, { recursive: true }, callback);
       }
-      
-      remove(src, callback);
-    });
+      else {
+        remove(src, callback);
+      }
+    }) as any;
   }
 
-  read(src: string, options: {
-    sync: true,
-    encoding: null,
-    flag?: Flag
-  }): Buffer;
-
-  read(src: string, options: {
-    sync: true,
-    encoding?: BufferEncoding,
-    flag?: Flag
-  }): string;
-
-  read(src: string, options: {
-    sync?: false,
-    encoding: null,
-    flag?: Flag
-  }): Promise<Buffer>;
-
-  read(src: string, options?: {
-    sync?: false,
-    encoding?: BufferEncoding,
-    flag?: Flag
-  }): Promise<string>;
-
-  read(src: string, { sync = false, encoding = 'utf8', flag = 'r' }: {
-    sync?: boolean,
-    encoding?: BufferEncoding | null,
-    flag?: Flag
-  } = {}) {
-    src = this.resolve(src);
+  read<T extends boolean = false>(
+    src: string,
+    options?: {
+      sync?: T;
+      encoding?: BufferEncoding | null;
+      flag?: Flag;
+    }
+  ): T extends true ? string | Buffer : Promise<string | Buffer> {
+    const { sync = false as T, encoding = 'utf8', flag = 'r' } = options ?? {};
+    const resolved = this.resolve(src);
 
     if (sync) {
-      const content = fs.readFileSync(src, {
-        encoding,
-        flag
-      });
-
-      return encoding === null
-        ? Buffer.from(content)
-        : content;
+      if (encoding === null) {
+        return fs.readFileSync(resolved, { encoding: null, flag }) as any;
+      }
+      else {
+        return fs.readFileSync(resolved, { encoding, flag }) as any;
+      }
     }
 
     return new Promise((resolve, reject) => {
-      fs.readFile(src, {
-        encoding,
-        flag
-      },
-      (err, raw) => {
+      fs.readFile(resolved, { encoding, flag }, (err, raw) => {
         if (err) {
           return reject(err);
         }
-
+        
         resolve(raw);
       });
-    });
+    }) as any;
   }
 
-  write(src: string, data: Buffer, options: {
-    sync: true,
-    encoding: null,
-    umask?: number,
-    flag?: Flag
-  }): void;
-
-  write(src: string, data: string, options: {
-    sync: true,
-    encoding?: BufferEncoding,
-    umask?: number,
-    flag?: Flag
-  }): void;
-
-  write(src: string, data: Buffer, options: {
-    sync?: false,
-    encoding: null,
-    umask?: number,
-    flag?: Flag
-  }): Promise<void>;
-
-  write(src: string, data: string, options?: {
-    sync?: false,
-    encoding?: BufferEncoding,
-    umask?: number,
-    flag?: Flag
-  }): Promise<void>;
-
-  write(src: string, data: Buffer | string, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'w' }: {
-    sync?: boolean,
-    encoding?: BufferEncoding | null,
-    umask?: number,
-    flag?: Flag
-  } = {}) {
+  write<T extends boolean = false>(
+    src: string,
+    data: Buffer | string,
+    options?: {
+      sync?: T;
+      encoding?: BufferEncoding | null;
+      umask?: number;
+      flag?: Flag;
+    }
+  ): T extends true ? void : Promise<void> {
+    const {
+      sync = false as T,
+      encoding = 'utf8',
+      umask = 0o000,
+      flag = 'w',
+    } = options ?? {};
     src = this.resolve(src);
 
     const mode = 0o666 - umask;
 
     if (sync) {
-      return fs.writeFileSync(src, data, {
-        encoding,
-        mode,
-        flag
-      });
+      fs.writeFileSync(src, data, { encoding, mode, flag });
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
-      fs.writeFile(src, data, {
-        encoding,
-        mode,
-        flag
-      },
-      (err) => {
+      fs.writeFile(src, data, { encoding, mode, flag }, (err) => {
         if (err) {
           return reject(err);
         }
 
         resolve();
       });
-    });
+    }) as any;
   }
 
   /**
   * @deprecated The method should not be used
   */
-  append(src: string, data: Buffer, options: {
-    sync: true,
-    encoding: null,
-    umask?: number,
-    flag?: Flag
-  }): void;
-
-  /**
-  * @deprecated The method should not be used
-  */
-  append(src: string, data: string, options: {
-    sync: true,
-    encoding?: BufferEncoding,
-    umask?: number,
-    flag?: Flag
-  }): void;
-
-  /**
-  * @deprecated The method should not be used
-  */
-  append(src: string, data: Buffer, options: {
-    sync?: false,
-    encoding: null,
-    umask?: number,
-    flag?: Flag
-  }): Promise<void>;
-
-  /**
-  * @deprecated The method should not be used
-  */
-  append(src: string, data: string, options?: {
-    sync?: false,
-    encoding?: BufferEncoding,
-    umask?: number,
-    flag?: Flag
-  }): Promise<void>;
-
-  append(src: string, data: Buffer | string, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'a' }: {
-    sync?: boolean,
-    encoding?: BufferEncoding | null,
-    umask?: number,
-    flag?: Flag
-  } = {}) {
-    src = this.resolve(src);
-    const mode = 0o666 - umask;
-
-    if (sync) {
-      return fs.appendFileSync(src, data, {
-        encoding,
-        mode,
-        flag
-      });
+  append<T extends boolean = false>(
+    src: string,
+    data: Buffer | string,
+    options?: {
+      sync?: T;
+      encoding?: BufferEncoding | null;
+      umask?: number;
     }
+  ): T extends true ? void : Promise<void> {
+    const { sync = false as T, encoding = 'utf8', umask = 0o000 } = options ?? {};
 
-    return new Promise<void>((resolve, reject) => {
-      fs.appendFile(src, data, {
-        encoding,
-        mode,
-        flag
-      },
-      (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    });
+    return this.write(src, data, { sync, encoding, umask, flag: 'a' }) as any;
   }
 
-  readdir(dir: string, options: {
-    sync: true,
-    encoding?: BufferEncoding | null
-  }): string[];
-
-  readdir(dir: string, options?: {
-    sync?: false,
-    encoding?: BufferEncoding | null
-  }): Promise<string[]>;
-
-  readdir(dir: string, { sync = false, encoding = 'utf8' }: {
-    sync?: boolean,
-    encoding?: BufferEncoding | null
-  } = {}) {
+  readdir<T extends boolean = false>(
+    dir: string,
+    options?: { sync?: T; encoding?: BufferEncoding | null }
+  ): T extends true ? string[] : Promise<string[]> {
+    const { sync = false as T, encoding = 'utf8' } = options ?? {};
     dir = this.resolve(dir);
 
     if (sync) {
-      return fs.readdirSync(dir, {
-        encoding
-      });
+      return fs.readdirSync(dir, { encoding }) as any;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<string[]>((resolve, reject) => {
       fs.readdir(dir, { encoding }, (err, list) => {
         if (err) {
           return reject(err);
@@ -472,27 +341,19 @@ export class PoweredFileSystem {
 
         resolve(list);
       });
-    });
+    }) as any;
   }
 
-  mkdir(dir: string, options: {
-    sync: true,
-    umask?: number
-  }): void;
-
-  mkdir(dir: string, options?: {
-    sync?: false,
-    umask?: number
-  }): Promise<void>;
-
-  mkdir(dir: string, { umask = 0o000, sync = false }: {
-    umask?: number,
-    sync?: boolean
-  } = {}) {
+  mkdir<T extends boolean = false>(
+    dir: string,
+    options?: { sync?: T; umask?: number }
+  ): T extends true ? void : Promise<void> {
+    const { sync = false as T, umask = 0o000 } = options ?? {};
     dir = this.resolve(dir);
 
     if (sync) {
-      return mkdirSync(dir, umask);
+      mkdirSync(dir, umask);
+      return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -503,6 +364,6 @@ export class PoweredFileSystem {
 
         resolve();
       });
-    });
+    }) as any;
   }
 }

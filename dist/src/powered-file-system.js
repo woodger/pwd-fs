@@ -39,7 +39,8 @@ class PoweredFileSystem {
     resolve(src) {
         return node_path_1.default.resolve(this.pwd, src);
     }
-    test(src, { sync = false, flag = 'e' } = {}) {
+    test(src, options) {
+        const { sync = false, flag = 'e' } = options ?? {};
         const mode = this.constants[flag];
         src = node_path_1.default.resolve(this.pwd, src);
         if (sync) {
@@ -47,14 +48,12 @@ class PoweredFileSystem {
         }
         return new Promise((resolve) => {
             node_fs_1.default.access(src, mode, (err) => {
-                if (err) {
-                    return resolve(false);
-                }
-                resolve(true);
+                resolve(!err);
             });
         });
     }
-    stat(src, { sync = false } = {}) {
+    stat(src, options) {
+        const { sync = false } = options ?? {};
         src = this.resolve(src);
         if (sync) {
             return node_fs_1.default.lstatSync(src);
@@ -68,10 +67,12 @@ class PoweredFileSystem {
             });
         });
     }
-    chmod(src, mode, { sync = false } = {}) {
+    chmod(src, mode, options) {
+        const { sync = false } = options ?? {};
         src = this.resolve(src);
         if (sync) {
-            return (0, recurse_io_sync_1.chmodSync)(src, mode);
+            (0, recurse_io_sync_1.chmodSync)(src, mode);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
             (0, recurse_io_1.chmod)(src, mode, (err) => {
@@ -82,10 +83,12 @@ class PoweredFileSystem {
             });
         });
     }
-    chown(src, { sync = false, uid = 0, gid = 0 } = {}) {
+    chown(src, options) {
+        const { sync = false, uid = 0, gid = 0 } = options ?? {};
         src = this.resolve(src);
         if (sync) {
-            return (0, recurse_io_sync_1.chownSync)(src, uid, gid);
+            (0, recurse_io_sync_1.chownSync)(src, uid, gid);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
             (0, recurse_io_1.chown)(src, uid, gid, (err) => {
@@ -96,14 +99,16 @@ class PoweredFileSystem {
             });
         });
     }
-    symlink(src, use, { sync = false } = {}) {
+    symlink(src, dest, options) {
         src = this.resolve(src);
-        use = this.resolve(use);
+        dest = this.resolve(dest);
+        const { sync = false } = options ?? {};
         if (sync) {
-            return node_fs_1.default.symlinkSync(src, use);
+            node_fs_1.default.symlinkSync(src, dest);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
-            node_fs_1.default.symlink(src, use, (err) => {
+            node_fs_1.default.symlink(src, dest, (err) => {
                 if (err) {
                     return reject(err);
                 }
@@ -111,14 +116,16 @@ class PoweredFileSystem {
             });
         });
     }
-    copy(src, dir, { sync = false, umask = 0o000 } = {}) {
+    copy(src, dest, options) {
         src = this.resolve(src);
-        dir = this.resolve(dir);
+        dest = this.resolve(dest);
+        const { sync = false, umask = 0o000 } = options ?? {};
         if (sync) {
-            return (0, recurse_io_sync_1.copySync)(src, dir, umask);
+            (0, recurse_io_sync_1.copySync)(src, dest, umask);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
-            (0, recurse_io_1.copy)(src, dir, umask, (err) => {
+            (0, recurse_io_1.copy)(src, dest, umask, (err) => {
                 if (err) {
                     return reject(err);
                 }
@@ -126,14 +133,16 @@ class PoweredFileSystem {
             });
         });
     }
-    rename(src, use, { sync = false } = {}) {
+    rename(src, dest, options) {
         src = this.resolve(src);
-        use = this.resolve(use);
+        dest = this.resolve(dest);
+        const { sync = false } = options ?? {};
         if (sync) {
-            return node_fs_1.default.renameSync(src, use);
+            node_fs_1.default.renameSync(src, dest);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
-            node_fs_1.default.rename(src, use, (err) => {
+            node_fs_1.default.rename(src, dest, (err) => {
                 if (err) {
                     return reject(err);
                 }
@@ -141,10 +150,12 @@ class PoweredFileSystem {
             });
         });
     }
-    remove(src, { sync = false } = {}) {
+    remove(src, options) {
         src = this.resolve(src);
+        const { sync = false } = options ?? {};
         if (sync) {
             (0, recurse_io_sync_1.removeSync)(src);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
             const callback = (err) => {
@@ -154,27 +165,26 @@ class PoweredFileSystem {
                 resolve();
             };
             if ('rm' in node_fs_1.default) {
-                return node_fs_1.default.rm(src, { recursive: true }, callback);
+                node_fs_1.default.rm(src, { recursive: true }, callback);
             }
-            (0, recurse_io_1.remove)(src, callback);
+            else {
+                (0, recurse_io_1.remove)(src, callback);
+            }
         });
     }
-    read(src, { sync = false, encoding = 'utf8', flag = 'r' } = {}) {
-        src = this.resolve(src);
+    read(src, options) {
+        const { sync = false, encoding = 'utf8', flag = 'r' } = options ?? {};
+        const resolved = this.resolve(src);
         if (sync) {
-            const content = node_fs_1.default.readFileSync(src, {
-                encoding,
-                flag
-            });
-            return encoding === null
-                ? Buffer.from(content)
-                : content;
+            if (encoding === null) {
+                return node_fs_1.default.readFileSync(resolved, { encoding: null, flag });
+            }
+            else {
+                return node_fs_1.default.readFileSync(resolved, { encoding, flag });
+            }
         }
         return new Promise((resolve, reject) => {
-            node_fs_1.default.readFile(src, {
-                encoding,
-                flag
-            }, (err, raw) => {
+            node_fs_1.default.readFile(resolved, { encoding, flag }, (err, raw) => {
                 if (err) {
                     return reject(err);
                 }
@@ -182,22 +192,16 @@ class PoweredFileSystem {
             });
         });
     }
-    write(src, data, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'w' } = {}) {
+    write(src, data, options) {
+        const { sync = false, encoding = 'utf8', umask = 0o000, flag = 'w', } = options ?? {};
         src = this.resolve(src);
         const mode = 0o666 - umask;
         if (sync) {
-            return node_fs_1.default.writeFileSync(src, data, {
-                encoding,
-                mode,
-                flag
-            });
+            node_fs_1.default.writeFileSync(src, data, { encoding, mode, flag });
+            return undefined;
         }
         return new Promise((resolve, reject) => {
-            node_fs_1.default.writeFile(src, data, {
-                encoding,
-                mode,
-                flag
-            }, (err) => {
+            node_fs_1.default.writeFile(src, data, { encoding, mode, flag }, (err) => {
                 if (err) {
                     return reject(err);
                 }
@@ -205,35 +209,18 @@ class PoweredFileSystem {
             });
         });
     }
-    append(src, data, { sync = false, encoding = 'utf8', umask = 0o000, flag = 'a' } = {}) {
-        src = this.resolve(src);
-        const mode = 0o666 - umask;
-        if (sync) {
-            return node_fs_1.default.appendFileSync(src, data, {
-                encoding,
-                mode,
-                flag
-            });
-        }
-        return new Promise((resolve, reject) => {
-            node_fs_1.default.appendFile(src, data, {
-                encoding,
-                mode,
-                flag
-            }, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        });
+    /**
+    * @deprecated The method should not be used
+    */
+    append(src, data, options) {
+        const { sync = false, encoding = 'utf8', umask = 0o000 } = options ?? {};
+        return this.write(src, data, { sync, encoding, umask, flag: 'a' });
     }
-    readdir(dir, { sync = false, encoding = 'utf8' } = {}) {
+    readdir(dir, options) {
+        const { sync = false, encoding = 'utf8' } = options ?? {};
         dir = this.resolve(dir);
         if (sync) {
-            return node_fs_1.default.readdirSync(dir, {
-                encoding
-            });
+            return node_fs_1.default.readdirSync(dir, { encoding });
         }
         return new Promise((resolve, reject) => {
             node_fs_1.default.readdir(dir, { encoding }, (err, list) => {
@@ -244,10 +231,12 @@ class PoweredFileSystem {
             });
         });
     }
-    mkdir(dir, { umask = 0o000, sync = false } = {}) {
+    mkdir(dir, options) {
+        const { sync = false, umask = 0o000 } = options ?? {};
         dir = this.resolve(dir);
         if (sync) {
-            return (0, recurse_io_sync_1.mkdirSync)(dir, umask);
+            (0, recurse_io_sync_1.mkdirSync)(dir, umask);
+            return undefined;
         }
         return new Promise((resolve, reject) => {
             (0, recurse_io_1.mkdir)(dir, umask, (err) => {
