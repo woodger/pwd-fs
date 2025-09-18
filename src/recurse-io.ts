@@ -1,17 +1,11 @@
 import fs, { NoParamCallback } from 'node:fs';
 import path from 'node:path';
 
-type Files = Array<string>;
-
-const { sep } = path;
-
 export function chmod(src: string, mode: number, callback: NoParamCallback) {
   let reduce = 0;
 
   fs.stat(src, (err, stats) => {
-    if (err) {
-      return callback(err);
-    }
+    if (err) return callback(err);
 
     if (stats.isDirectory()) {
       fs.readdir(src, (err, list) => {
@@ -23,10 +17,10 @@ export function chmod(src: string, mode: number, callback: NoParamCallback) {
           return fs.chmod(src, mode, callback);
         }
 
-        reduce += list.length;
+        reduce = list.length;
 
         for (const loc of list) {
-          chmod(`${src}${sep}${loc}`, mode, (err) => {
+          chmod(path.join(src, loc), mode, (err) => {
             if (err) {
               return callback(err);
             }
@@ -65,15 +59,15 @@ export function chown(src: string, uid: number, gid: number, callback: NoParamCa
         if (err) {
           return callback(err);
         }
-
+        
         if (list.length === 0) {
           return fs.chown(src, uid, gid, callback);
         }
 
-        reduce += list.length;
+        reduce = list.length;
 
         for (const loc of list) {
-          chown(`${src}${sep}${loc}`, uid, gid, (err) => {
+          chown(path.join(src, loc), uid, gid, (err) => {
             if (err) {
               return callback(err);
             }
@@ -92,8 +86,6 @@ export function chown(src: string, uid: number, gid: number, callback: NoParamCa
 }
 
 export function copy(src: string, dir: string, umask: number, callback: NoParamCallback) {
-  let reduce = 0;
-
   fs.stat(src, (err, stat) => {
     if (err) {
       return callback(err);
@@ -105,25 +97,27 @@ export function copy(src: string, dir: string, umask: number, callback: NoParamC
           return callback(err);
         }
 
-        reduce += list.length;
-
-        const paths = src.split(sep);
-        const loc = paths[paths.length - 1];
+        const loc = path.basename(src);
+        const destDir = path.join(dir, loc);
         const mode = 0o777 - umask;
 
-        dir = `${dir}${sep}${loc}`;
-
-        fs.mkdir(dir, { mode }, (err) => {
+        fs.mkdir(destDir, { mode }, (err) => {
           if (err) {
+            if (err.code === 'EEXIST') {
+              err = new Error(`Target already exists: ${destDir}`);
+            }
+
             return callback(err);
           }
 
-          if (reduce === 0) {
+          if (list.length === 0) {
             return callback(null);
           }
 
-          for (const loc of list) {
-            copy(`${src}${sep}${loc}`, dir, umask, (err) => {
+          let reduce = list.length;
+
+          for (const item of list) {
+            copy(path.join(src, item), destDir, umask, (err) => {
               if (err) {
                 return callback(err);
               }
@@ -137,20 +131,16 @@ export function copy(src: string, dir: string, umask: number, callback: NoParamC
       });
     }
     else {
-      const mode = 0o666 - umask;
       const loc = path.basename(src);
+      const dest = path.join(dir, loc);
+      const mode = 0o666 - umask;
 
       const readStream = fs.createReadStream(src);
-      const writeStream = fs.createWriteStream(`${dir}${sep}${loc}`, {
-        mode
-      });
+      const writeStream = fs.createWriteStream(dest, { mode });
 
       readStream.on('error', callback);
       writeStream.on('error', callback);
-
-      writeStream.on('close', () => {
-        callback(null);
-      });
+      writeStream.on('close', () => callback(null));
 
       readStream.pipe(writeStream);
     }
@@ -168,15 +158,15 @@ export function remove(src: string, callback: NoParamCallback) {
         if (err) {
           return callback(err);
         }
-        
-        let reduce = list.length;
 
-        if (reduce === 0) {
+        if (list.length === 0) {
           return fs.rmdir(src, callback);
         }
 
+        let reduce = list.length;
+
         for (const loc of list) {
-          remove(`${src}${sep}${loc}`, (err) => {
+          remove(path.join(src, loc), (err) => {
             if (err) {
               return callback(err);
             }
@@ -201,38 +191,31 @@ export function mkdir(dir: string, umask: number, callback: NoParamCallback) {
     return callback(null);
   }
 
-  const sequence = function* (dir: string, files: Files, mode: number): Generator<void, void, Generator> {
-    const iter = yield;
-
-    for (const item of files) {
-      dir += `${sep}${item}`;
-
-      fs.mkdir(dir, { mode }, (err) => {
-        if (err && err.errno !== -17) {
-          return callback(err);
-        }
-
-        iter.next();
-      });
-
-      yield;
-    }
-
-    callback(null);
-  };
-
-  let use = '';
-
-  if (dir.indexOf(cwd) === 0) {
-    use = cwd;
-    dir = dir.substring(cwd.length);
-  }
-
-  const files = dir.split(sep);
+  let base = '';
   const mode = 0o777 - umask;
 
-  const iter = sequence(use, files, mode);
+  if (dir.startsWith(cwd)) {
+    base = cwd;
+    dir = dir.slice(cwd.length);
+  }
 
-  iter.next();
-  iter.next(iter);
+  const parts = dir.split(path.sep).filter(Boolean);
+
+  function next(index: number) {
+    if (index >= parts.length) {
+      return callback(null);
+    }
+
+    base = path.join(base, parts[index]);
+
+    fs.mkdir(base, { mode }, (err) => {
+      if (err && err.code !== 'EEXIST') {
+        return callback(err);
+      }
+
+      next(index + 1);
+    });
+  }
+
+  next(0);
 }

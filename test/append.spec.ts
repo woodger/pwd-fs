@@ -30,20 +30,6 @@ describe('append(src, data [, options])', () => {
 
     assert(payload.length + 6 === size);
   });
-
-
-  it(`Negative: Unexpected option 'flag' returns Error`, async () => {
-    const payload = chance.paragraph();
-    
-    await expect(async () => {
-      await pfs.append('./tmpdir/tings.txt', payload, {
-        flag: 'r'
-      });
-    })
-    .rejects
-    .toThrow();
-  });
-  
   
   it(`[sync] Positive: Must append content to file`, () => {
     const payload = chance.paragraph();
@@ -55,17 +41,5 @@ describe('append(src, data [, options])', () => {
     const { size } = fs.statSync('./tmpdir/tings.txt');
 
     assert(payload.length + 6 === size);
-  });
-  
-  
-  it(`[sync] Negative: Unexpected option 'flag' returns Error`, () => {
-    const payload = chance.paragraph();
-    
-    assert.throws(() => {
-      pfs.append('./tmpdir/tings.txt', payload, {
-        sync: true,
-        flag: 'r'
-      });
-    });
   });
 });

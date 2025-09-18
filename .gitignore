@@ -1,4 +1,4 @@
-coverage/
 node_modules/
 yarn.lock
 dist/test/
+.history

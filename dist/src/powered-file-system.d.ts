@@ -1,5 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
 import fs from 'node:fs';
 import { bitmask } from './bitmask';
 export type Mode = keyof IConstants;
@@ -18,156 +16,59 @@ export declare class PoweredFileSystem {
     static bitmask: typeof bitmask;
     constructor(pwd?: string);
     private resolve;
-    test(src: string, options: {
-        sync: true;
+    test<T extends boolean = false>(src: string, options?: {
+        sync?: T;
         flag?: Mode;
-    }): boolean;
-    test(src: string, options?: {
-        sync?: false;
-        flag?: Mode;
-    }): Promise<boolean>;
-    stat(src: string, options: {
-        sync: true;
-    }): Stats;
-    stat(src: string, options?: {
-        sync?: false;
-    }): Promise<Stats>;
-    chmod(src: string, mode: number, options: {
-        sync: true;
-    }): void;
-    chmod(src: string, mode: number, options?: {
-        sync?: false;
-    }): Promise<void>;
-    chown(src: string, options: {
-        sync: true;
+    }): T extends true ? boolean : Promise<boolean>;
+    stat<T extends boolean = false>(src: string, options?: {
+        sync?: T;
+    }): T extends true ? Stats : Promise<Stats>;
+    chmod<T extends boolean = false>(src: string, mode: number, options?: {
+        sync?: T;
+    }): T extends true ? void : Promise<void>;
+    chown<T extends boolean = false>(src: string, options?: {
+        sync?: T;
         uid?: number;
         gid?: number;
-    }): void;
-    chown(src: string, options?: {
-        sync?: false;
-        uid?: number;
-        gid?: number;
-    }): Promise<void>;
-    symlink(src: string, use: string, options: {
-        sync: true;
-    }): void;
-    symlink(src: string, use: string, options?: {
-        sync?: false;
-    }): Promise<void>;
-    copy(src: string, dir: string, options: {
-        sync: true;
+    }): T extends true ? void : Promise<void>;
+    symlink<T extends boolean = false>(src: string, dest: string, options?: {
+        sync?: T;
+    }): T extends true ? void : Promise<void>;
+    copy<T extends boolean = false>(src: string, dest: string, options?: {
+        sync?: T;
         umask?: number;
-    }): void;
-    copy(src: string, dir: string, options?: {
-        sync?: false;
-        umask?: number;
-    }): Promise<void>;
-    rename(src: string, use: string, options: {
-        sync: true;
-    }): void;
-    rename(src: string, use: string, options?: {
-        sync?: false;
-    }): Promise<void>;
-    remove(src: string, options: {
-        sync: true;
-    }): void;
-    remove(src: string, options?: {
-        sync?: false;
-    }): Promise<void>;
-    read(src: string, options: {
-        sync: true;
-        encoding: null;
-        flag?: Flag;
-    }): Buffer;
-    read(src: string, options: {
-        sync: true;
-        encoding?: BufferEncoding;
-        flag?: Flag;
-    }): string;
-    read(src: string, options: {
-        sync?: false;
-        encoding: null;
-        flag?: Flag;
-    }): Promise<Buffer>;
-    read(src: string, options?: {
-        sync?: false;
-        encoding?: BufferEncoding;
-        flag?: Flag;
-    }): Promise<string>;
-    write(src: string, data: Buffer, options: {
-        sync: true;
-        encoding: null;
-        umask?: number;
-        flag?: Flag;
-    }): void;
-    write(src: string, data: string, options: {
-        sync: true;
-        encoding?: BufferEncoding;
-        umask?: number;
-        flag?: Flag;
-    }): void;
-    write(src: string, data: Buffer, options: {
-        sync?: false;
-        encoding: null;
-        umask?: number;
-        flag?: Flag;
-    }): Promise<void>;
-    write(src: string, data: string, options?: {
-        sync?: false;
-        encoding?: BufferEncoding;
-        umask?: number;
-        flag?: Flag;
-    }): Promise<void>;
-    /**
-    * @deprecated The method should not be used
-    */
-    append(src: string, data: Buffer, options: {
-        sync: true;
-        encoding: null;
-        umask?: number;
-        flag?: Flag;
-    }): void;
-    /**
-    * @deprecated The method should not be used
-    */
-    append(src: string, data: string, options: {
-        sync: true;
-        encoding?: BufferEncoding;
-        umask?: number;
-        flag?: Flag;
-    }): void;
-    /**
-    * @deprecated The method should not be used
-    */
-    append(src: string, data: Buffer, options: {
-        sync?: false;
-        encoding: null;
-        umask?: number;
-        flag?: Flag;
-    }): Promise<void>;
-    /**
-    * @deprecated The method should not be used
-    */
-    append(src: string, data: string, options?: {
-        sync?: false;
-        encoding?: BufferEncoding;
-        umask?: number;
-        flag?: Flag;
-    }): Promise<void>;
-    readdir(dir: string, options: {
-        sync: true;
+    }): T extends true ? void : Promise<void>;
+    rename<T extends boolean = false>(src: string, dest: string, options?: {
+        sync?: T;
+    }): T extends true ? void : Promise<void>;
+    remove<T extends boolean = false>(src: string, options?: {
+        sync?: T;
+    }): T extends true ? void : Promise<void>;
+    read<T extends boolean = false>(src: string, options?: {
+        sync?: T;
         encoding?: BufferEncoding | null;
-    }): string[];
-    readdir(dir: string, options?: {
-        sync?: false;
+        flag?: Flag;
+    }): T extends true ? string | Buffer : Promise<string | Buffer>;
+    write<T extends boolean = false>(src: string, data: Buffer | string, options?: {
+        sync?: T;
         encoding?: BufferEncoding | null;
-    }): Promise<string[]>;
-    mkdir(dir: string, options: {
-        sync: true;
         umask?: number;
-    }): void;
-    mkdir(dir: string, options?: {
-        sync?: false;
+        flag?: Flag;
+    }): T extends true ? void : Promise<void>;
+    /**
+    * @deprecated The method should not be used
+    */
+    append<T extends boolean = false>(src: string, data: Buffer | string, options?: {
+        sync?: T;
+        encoding?: BufferEncoding | null;
         umask?: number;
-    }): Promise<void>;
+    }): T extends true ? void : Promise<void>;
+    readdir<T extends boolean = false>(dir: string, options?: {
+        sync?: T;
+        encoding?: BufferEncoding | null;
+    }): T extends true ? string[] : Promise<string[]>;
+    mkdir<T extends boolean = false>(dir: string, options?: {
+        sync?: T;
+        umask?: number;
+    }): T extends true ? void : Promise<void>;
 }

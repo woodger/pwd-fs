@@ -19,3 +19,4 @@ const powered_file_system_1 = require("./powered-file-system");
 exports.pfs = new powered_file_system_1.PoweredFileSystem();
 exports.default = powered_file_system_1.PoweredFileSystem;
 __exportStar(require("./powered-file-system"), exports);
+//# sourceMappingURL=index.js.map
