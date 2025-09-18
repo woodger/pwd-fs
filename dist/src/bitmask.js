@@ -12,3 +12,4 @@ function bitmask(mode) {
         return (mode & flag) ? umask + flag : umask;
     }, 0);
 }
+//# sourceMappingURL=bitmask.js.map

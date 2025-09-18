@@ -88,3 +88,4 @@ function mkdirSync(dir, umask) {
         }
     }
 }
+//# sourceMappingURL=recurse-io-sync.js.map

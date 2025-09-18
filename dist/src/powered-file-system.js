@@ -249,3 +249,4 @@ class PoweredFileSystem {
     }
 }
 exports.PoweredFileSystem = PoweredFileSystem;
+//# sourceMappingURL=powered-file-system.js.map
