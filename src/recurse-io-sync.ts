@@ -1,8 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const { sep } = path;
-
 export function chmodSync(src: string, mode: number) {
   const stats = fs.statSync(src);
 
@@ -10,7 +8,7 @@ export function chmodSync(src: string, mode: number) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      chmodSync(`${src}${sep}${loc}`, mode);
+      chmodSync(path.join(src, loc), mode);
     }
   }
 
@@ -32,7 +30,7 @@ export function chownSync(src: string, uid: number, gid: number) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      chownSync(`${src}${sep}${loc}`, uid, gid);
+      chownSync(path.join(src, loc), uid, gid);
     }
   }
 
@@ -45,20 +43,19 @@ export function copySync(src: string, dir: string, umask: number) {
   if (stat.isDirectory()) {
     const list = fs.readdirSync(src);
 
-    const paths = src.split(sep);
-    const loc = paths[paths.length - 1];
+    const loc = path.basename(src);
     const mode = 0o777 - umask;
 
-    dir = `${dir}${sep}${loc}`;
+    dir = path.join(dir, loc);
     fs.mkdirSync(dir, mode);
 
     for (const loc of list) {
-      copySync(`${src}${sep}${loc}`, dir, umask);
+      copySync(path.join(src, loc), dir, umask);
     }
   }
   else {
     const loc = path.basename(src);
-    const use = `${dir}${sep}${loc}`;
+    const use = path.join(dir, loc);
 
     fs.copyFileSync(src, use);
   }
@@ -71,7 +68,7 @@ export function removeSync(src: string) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      removeSync(`${src}${sep}${loc}`);
+      removeSync(path.join(src, loc));
     }
 
     fs.rmdirSync(src);
@@ -91,16 +88,16 @@ export function mkdirSync(dir: string, umask: number) {
     dir = dir.substring(cwd.length);
   }
 
-  const ways = dir.split(sep).slice(1);
+  const ways = dir.split(path.sep).slice(1);
 
   for (const loc of ways) {
-    use += `${sep}${loc}`;
+    use = path.join(use, loc);
 
     try {
       fs.mkdirSync(use, { mode });
     }
     catch (err) {
-      if (err.errno !== -17) {
+      if (err.code !== 'EEXIST') {
         throw err;
       }
     }
