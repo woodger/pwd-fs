@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { fmock, restore } from '../test-utils';
 
-describe('read(src [, options])', () => {
+describe('read(src [, options])', { concurrency: false }, () => {
   const chance = new Chance();
   let sentences = 0;
 

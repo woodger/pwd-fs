@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { fmock, restore } from '../test-utils';
 
-describe('copy(src, dir [, options])', () => {
+describe('copy(src, dir [, options])', { concurrency: false }, () => {
   const chance = new Chance();
 
   beforeEach(() => {

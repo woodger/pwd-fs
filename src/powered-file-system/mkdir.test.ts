@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { PoweredFileSystem } from '../index';
 import { fmock, restore } from '../test-utils';
 
-describe('mkdir(src [, options])', () => {
+describe('mkdir(src [, options])', { concurrency: false }, () => {
   const pfs = new PoweredFileSystem();
   const chance = new Chance();
 

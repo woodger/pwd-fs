@@ -32,7 +32,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./dist && tsc",
     "lint": "eslint src",
     "test": "node ./dist/suite.test.js"
   },

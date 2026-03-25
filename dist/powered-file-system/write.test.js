@@ -10,7 +10,7 @@ const node_test_1 = require("node:test");
 const index_1 = require("../index");
 const test_utils_1 = require("../test-utils");
 const itUnix = process.platform === 'win32' ? node_test_1.it.skip : node_test_1.it;
-(0, node_test_1.describe)('write(src, data[, options])', () => {
+(0, node_test_1.describe)('write(src, data[, options])', { concurrency: false }, () => {
     const chance = new chance_1.default();
     (0, node_test_1.beforeEach)(() => {
         (0, test_utils_1.fmock)({

@@ -7,7 +7,7 @@ import { fmock, restore } from '../test-utils';
 
 const itUnix = process.platform === 'win32' ? it.skip : it;
 
-describe('write(src, data[, options])', () => {
+describe('write(src, data[, options])', { concurrency: false }, () => {
   const chance = new Chance();
 
   beforeEach(() => {

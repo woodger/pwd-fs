@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { Iframe, fmock, restore } from '../test-utils';
 
-describe('readdir(src[, options])', () => {
+describe('readdir(src[, options])', { concurrency: false }, () => {
   const chance = new Chance();
   let counter = 0;
 

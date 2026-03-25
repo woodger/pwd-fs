@@ -13,6 +13,10 @@ function collectTestFiles(dir: string): string[] {
     const stat = fs.statSync(fullPath);
 
     if (stat.isDirectory()) {
+      if (entry === 'src' || entry === 'test') {
+        continue;
+      }
+
       files = files.concat(
         collectTestFiles(fullPath)
       );
@@ -36,7 +40,7 @@ if (!testFiles.length) {
   process.exit(0);
 }
 
-const { status } = spawnSync(process.execPath, ['--test', ...testFiles], {
+const { status } = spawnSync(process.execPath, ['--test', '--test-concurrency=1', ...testFiles], {
   stdio: 'inherit'
 });
 

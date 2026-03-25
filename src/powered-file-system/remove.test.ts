@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { Iframe, fmock, restore } from '../test-utils';
 
-describe('remove(src [, options])', () => {
+describe('remove(src [, options])', { concurrency: false }, () => {
   const chance = new Chance();
 
   beforeEach(() => {
