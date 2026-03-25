@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.read = read;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Reads a file relative to `pwd` and preserves Buffer mode when `encoding` is `null`.
+ */
 function read(src, options) {
     const { sync = false, encoding = 'utf8', flag = 'r' } = options ?? {};
     const resolved = node_path_1.default.resolve(this.pwd, src);

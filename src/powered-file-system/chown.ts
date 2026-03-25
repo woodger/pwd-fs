@@ -4,6 +4,9 @@ import { chown as chownRecursive } from '../recurse-io';
 import { chownSync as chownRecursiveSync } from '../recurse-io-sync';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Resolves the target path and applies recursive ownership changes where supported.
+ */
 export function chown<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

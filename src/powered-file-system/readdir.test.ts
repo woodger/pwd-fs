@@ -5,6 +5,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Verifies directory listing behavior and invalid-target failures.
+ */
 describe('readdir(src[, options])', () => {
   const chance = new Chance();
   let counter = 0;

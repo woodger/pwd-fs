@@ -7,6 +7,9 @@ exports.mkdir = mkdir;
 const node_path_1 = __importDefault(require("node:path"));
 const recurse_io_1 = require("../recurse-io");
 const recurse_io_sync_1 = require("../recurse-io-sync");
+/**
+ * Creates directories relative to the instance root.
+ */
 function mkdir(dir, options) {
     const { sync = false, umask = 0o000 } = options ?? {};
     dir = node_path_1.default.resolve(this.pwd, dir);

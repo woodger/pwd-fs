@@ -10,6 +10,9 @@ const chance_1 = __importDefault(require("chance"));
 const node_test_1 = require("node:test");
 const index_1 = require("../index");
 const test_utils_1 = require("../test-utils");
+/**
+ * Covers symlink creation for file and directory targets.
+ */
 (0, node_test_1.describe)('symlink(src, use [, options])', () => {
     const chance = new chance_1.default();
     let tmpDir = '';

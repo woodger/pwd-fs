@@ -5,6 +5,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Ensures recursive permission updates affect both directories and nested files.
+ */
 describe('chmod(src, mode [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

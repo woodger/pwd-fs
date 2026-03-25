@@ -5,6 +5,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Ensures `stat()` preserves file type reporting for files, directories, and symlinks.
+ */
 describe('stat(src [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

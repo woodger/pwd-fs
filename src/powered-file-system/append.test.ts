@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Covers the deprecated append helper in both async and sync modes.
+ */
 describe('append(src, data [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

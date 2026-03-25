@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * Рекурсивно собирает все файлы с расширением `.test.js`
+ * Recursively collects compiled test files emitted into `dist/`.
  */
 function collectTestFiles(dir: string): string[] {
   let files: string[] = [];
@@ -29,10 +29,10 @@ function collectTestFiles(dir: string): string[] {
   return files;
 }
 
-// Путь к папке с собранными файлами
+// The compiled output directory is the root for the test runner.
 const distDir = path.resolve(__dirname);
 
-// Собираем все тестовые файлы
+// The runner skips itself and forwards the rest to Node's native test harness.
 const testFiles = collectTestFiles(distDir).filter((file) => file !== __filename);
 
 if (!testFiles.length) {

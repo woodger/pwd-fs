@@ -7,6 +7,9 @@ exports.copy = copy;
 const node_path_1 = __importDefault(require("node:path"));
 const recurse_io_1 = require("../recurse-io");
 const recurse_io_sync_1 = require("../recurse-io-sync");
+/**
+ * Resolves source and destination paths before delegating recursive copy work.
+ */
 function copy(src, dest, options) {
     src = node_path_1.default.resolve(this.pwd, src);
     dest = node_path_1.default.resolve(this.pwd, dest);

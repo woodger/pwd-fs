@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const node_assert_1 = __importDefault(require("node:assert"));
 const node_test_1 = require("node:test");
 const index_1 = require("./index");
+/**
+ * Covers normalization of permission masks exposed through the public entrypoint.
+ */
 (0, node_test_1.describe)('static bitmask(mode: number)', () => {
     (0, node_test_1.it)('Positive: Calculate bitmask', () => {
         (0, node_assert_1.default)((0, index_1.bitmask)(33024) === 0o400);

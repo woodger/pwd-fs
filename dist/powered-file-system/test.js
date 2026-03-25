@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.test = test;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Thin wrapper around `fs.access` that resolves paths against the instance root.
+ */
 function test(src, options) {
     const { sync = false, flag = 'e' } = options ?? {};
     const mode = this.constants[flag];

@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Covers file and directory copy behavior, including collision handling.
+ */
 describe('copy(src, dir [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

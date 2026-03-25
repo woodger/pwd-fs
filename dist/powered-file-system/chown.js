@@ -8,6 +8,9 @@ const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const recurse_io_1 = require("../recurse-io");
 const recurse_io_sync_1 = require("../recurse-io-sync");
+/**
+ * Resolves the target path and applies recursive ownership changes where supported.
+ */
 function chown(src, options) {
     const { sync = false, uid = 0, gid = 0 } = options ?? {};
     src = node_path_1.default.resolve(this.pwd, src);

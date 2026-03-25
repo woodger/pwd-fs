@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Verifies move semantics for both files and directories.
+ */
 describe('rename(src, use [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Covers symlink creation for file and directory targets.
+ */
 describe('symlink(src, use [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

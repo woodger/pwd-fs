@@ -10,6 +10,9 @@ const chance_1 = __importDefault(require("chance"));
 const node_test_1 = require("node:test");
 const index_1 = require("../index");
 const test_utils_1 = require("../test-utils");
+/**
+ * Covers file writes, overwrite behavior, and explicit mode handling.
+ */
 const itUnix = process.platform === 'win32' ? node_test_1.it.skip : node_test_1.it;
 (0, node_test_1.describe)('write(src, data[, options])', () => {
     const chance = new chance_1.default();

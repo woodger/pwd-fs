@@ -7,6 +7,9 @@ exports.chmod = chmod;
 const node_path_1 = __importDefault(require("node:path"));
 const recurse_io_1 = require("../recurse-io");
 const recurse_io_sync_1 = require("../recurse-io-sync");
+/**
+ * Resolves the target path and delegates recursive mode updates.
+ */
 function chmod(src, mode, options) {
     const { sync = false } = options ?? {};
     src = node_path_1.default.resolve(this.pwd, src);

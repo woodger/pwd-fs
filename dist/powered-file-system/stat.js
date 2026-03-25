@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.stat = stat;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Returns `lstat` data so symlinks are reported as links instead of followed targets.
+ */
 function stat(src, options) {
     const { sync = false } = options ?? {};
     src = node_path_1.default.resolve(this.pwd, src);

@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.readdir = readdir;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Lists directory entries relative to the current instance root.
+ */
 function readdir(dir, options) {
     const { sync = false, encoding = 'utf8' } = options ?? {};
     dir = node_path_1.default.resolve(this.pwd, dir);

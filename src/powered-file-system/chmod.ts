@@ -3,6 +3,9 @@ import { chmod as chmodRecursive } from '../recurse-io';
 import { chmodSync as chmodRecursiveSync } from '../recurse-io-sync';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Resolves the target path and delegates recursive mode updates.
+ */
 export function chmod<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

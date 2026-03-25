@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Verifies existence and access checks exposed by `test()`.
+ */
 describe('test(src[, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

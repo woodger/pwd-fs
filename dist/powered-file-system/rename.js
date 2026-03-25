@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.rename = rename;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Resolves both paths against the instance root before delegating to Node's rename API.
+ */
 function rename(src, dest, options) {
     src = node_path_1.default.resolve(this.pwd, src);
     dest = node_path_1.default.resolve(this.pwd, dest);

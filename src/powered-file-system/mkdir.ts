@@ -3,6 +3,9 @@ import { mkdir as mkdirRecursive } from '../recurse-io';
 import { mkdirSync as mkdirRecursiveSync } from '../recurse-io-sync';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Creates directories relative to the instance root.
+ */
 export function mkdir<T extends boolean = false>(
   this: PoweredFileSystem,
   dir: string,

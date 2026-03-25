@@ -2,14 +2,23 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+/**
+ * Lightweight in-memory-like description of a temporary file system tree.
+ */
 export interface Iframe {
   [key: string]: any
 }
 
+/**
+ * Creates an isolated temporary directory for a single test case.
+ */
 export function createTmpDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'pwd-fs-'));
 }
 
+/**
+ * Materializes a test fixture tree on disk from a declarative frame description.
+ */
 export function fmock(frame: Iframe) {
   for (const src of Object.keys(frame)) {
     const { dir } = path.parse(src);
@@ -38,6 +47,9 @@ export function fmock(frame: Iframe) {
   }
 }
 
+/**
+ * Removes the temporary fixture tree while resetting restrictive permissions first.
+ */
 export function restore(tmpDir: string) {
   const removeRecursive = (src: string) => {
     if (fs.existsSync(src)) {

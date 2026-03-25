@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Flag, PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Writes a file relative to `pwd` and then reapplies the computed permissions explicitly.
+ */
 export function write<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,
@@ -24,6 +27,7 @@ export function write<T extends boolean = false>(
   const mode = 0o666 & ~umask;
 
   if (sync) {
+    // Apply chmod explicitly so the final mode is deterministic across runtimes.
     fs.writeFileSync(src, data, { encoding, mode, flag });
     fs.chmodSync(src, mode);
     return undefined as any;
@@ -35,6 +39,7 @@ export function write<T extends boolean = false>(
         return reject(err);
       }
 
+      // Align async behavior with the synchronous branch.
       fs.chmod(src, mode, (err) => {
         if (err) {
           return reject(err);

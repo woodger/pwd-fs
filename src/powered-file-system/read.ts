@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Flag, PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Reads a file relative to `pwd` and preserves Buffer mode when `encoding` is `null`.
+ */
 export function read<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

@@ -8,6 +8,9 @@ const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 const recurse_io_1 = require("../recurse-io");
 const recurse_io_sync_1 = require("../recurse-io-sync");
+/**
+ * Removes a path relative to the instance root, preferring native recursive APIs when available.
+ */
 function remove(src, options) {
     src = node_path_1.default.resolve(this.pwd, src);
     const { sync = false } = options ?? {};

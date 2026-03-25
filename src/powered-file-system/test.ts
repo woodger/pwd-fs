@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Mode, PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Thin wrapper around `fs.access` that resolves paths against the instance root.
+ */
 export function test<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

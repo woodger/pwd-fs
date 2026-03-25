@@ -10,6 +10,9 @@ const chance_1 = __importDefault(require("chance"));
 const node_test_1 = require("node:test");
 const index_1 = require("../index");
 const test_utils_1 = require("../test-utils");
+/**
+ * Verifies move semantics for both files and directories.
+ */
 (0, node_test_1.describe)('rename(src, use [, options])', () => {
     const chance = new chance_1.default();
     let tmpDir = '';

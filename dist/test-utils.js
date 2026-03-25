@@ -9,9 +9,15 @@ exports.restore = restore;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_os_1 = __importDefault(require("node:os"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Creates an isolated temporary directory for a single test case.
+ */
 function createTmpDir() {
     return node_fs_1.default.mkdtempSync(node_path_1.default.join(node_os_1.default.tmpdir(), 'pwd-fs-'));
 }
+/**
+ * Materializes a test fixture tree on disk from a declarative frame description.
+ */
 function fmock(frame) {
     for (const src of Object.keys(frame)) {
         const { dir } = node_path_1.default.parse(src);
@@ -33,6 +39,9 @@ function fmock(frame) {
         }
     }
 }
+/**
+ * Removes the temporary fixture tree while resetting restrictive permissions first.
+ */
 function restore(tmpDir) {
     const removeRecursive = (src) => {
         if (node_fs_1.default.existsSync(src)) {

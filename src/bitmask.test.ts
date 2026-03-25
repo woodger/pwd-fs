@@ -2,6 +2,9 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { bitmask } from './index';
 
+/**
+ * Covers normalization of permission masks exposed through the public entrypoint.
+ */
 describe('static bitmask(mode: number)', () => {
   it('Positive: Calculate bitmask', () => {
     assert(bitmask(33024) === 0o400);

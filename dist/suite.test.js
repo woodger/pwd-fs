@@ -7,7 +7,7 @@ const node_child_process_1 = require("node:child_process");
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
 /**
- * Рекурсивно собирает все файлы с расширением `.test.js`
+ * Recursively collects compiled test files emitted into `dist/`.
  */
 function collectTestFiles(dir) {
     let files = [];
@@ -26,9 +26,9 @@ function collectTestFiles(dir) {
     }
     return files;
 }
-// Путь к папке с собранными файлами
+// The compiled output directory is the root for the test runner.
 const distDir = node_path_1.default.resolve(__dirname);
-// Собираем все тестовые файлы
+// The runner skips itself and forwards the rest to Node's native test harness.
 const testFiles = collectTestFiles(distDir).filter((file) => file !== __filename);
 if (!testFiles.length) {
     console.warn("⚠️  No test files found in dist/");

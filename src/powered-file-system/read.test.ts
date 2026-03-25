@@ -5,6 +5,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Covers text and binary reads together with failure cases.
+ */
 describe('read(src [, options])', () => {
   const chance = new Chance();
   let sentences = 0;

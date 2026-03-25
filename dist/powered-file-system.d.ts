@@ -1,5 +1,8 @@
 import fs from 'node:fs';
 import { bitmask } from './bitmask';
+/**
+ * Public API entrypoint for the path-aware file system wrapper.
+ */
 export type Mode = keyof IConstants;
 export type Flag = Mode | 'a';
 export type Stats = fs.Stats;

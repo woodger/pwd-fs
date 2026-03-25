@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Lists directory entries relative to the current instance root.
+ */
 export function readdir<T extends boolean = false>(
   this: PoweredFileSystem,
   dir: string,

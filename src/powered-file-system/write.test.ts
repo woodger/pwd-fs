@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Covers file writes, overwrite behavior, and explicit mode handling.
+ */
 const itUnix = process.platform === 'win32' ? it.skip : it;
 
 describe('write(src, data[, options])', () => {

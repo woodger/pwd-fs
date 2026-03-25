@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Resolves both paths against the instance root before delegating to Node's rename API.
+ */
 export function rename<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

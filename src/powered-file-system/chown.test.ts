@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Validates ownership changes while preserving path validation semantics.
+ */
 describe('chown(src, [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

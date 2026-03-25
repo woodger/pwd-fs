@@ -7,6 +7,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { PoweredFileSystem } from '../index';
 import { createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Verifies recursive directory creation for absolute and instance-relative roots.
+ */
 describe('mkdir(src [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

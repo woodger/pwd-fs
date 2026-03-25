@@ -4,6 +4,9 @@ import { remove as removeRecursive } from '../recurse-io';
 import { removeSync as removeRecursiveSync } from '../recurse-io-sync';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Removes a path relative to the instance root, preferring native recursive APIs when available.
+ */
 export function remove<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

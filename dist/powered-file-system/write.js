@@ -6,11 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.write = write;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Writes a file relative to `pwd` and then reapplies the computed permissions explicitly.
+ */
 function write(src, data, options) {
     const { sync = false, encoding = 'utf8', umask = 0o000, flag = 'w', } = options ?? {};
     src = node_path_1.default.resolve(this.pwd, src);
     const mode = 0o666 & ~umask;
     if (sync) {
+        // Apply chmod explicitly so the final mode is deterministic across runtimes.
         node_fs_1.default.writeFileSync(src, data, { encoding, mode, flag });
         node_fs_1.default.chmodSync(src, mode);
         return undefined;
@@ -20,6 +24,7 @@ function write(src, data, options) {
             if (err) {
                 return reject(err);
             }
+            // Align async behavior with the synchronous branch.
             node_fs_1.default.chmod(src, mode, (err) => {
                 if (err) {
                     return reject(err);

@@ -15,6 +15,9 @@ import { symlink } from './powered-file-system/symlink';
 import { test } from './powered-file-system/test';
 import { write } from './powered-file-system/write';
 
+/**
+ * Public API entrypoint for the path-aware file system wrapper.
+ */
 export type Mode = keyof IConstants;
 export type Flag = Mode | 'a';
 export type Stats = fs.Stats;

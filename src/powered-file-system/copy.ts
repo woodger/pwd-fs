@@ -3,6 +3,9 @@ import { copy as copyRecursive } from '../recurse-io';
 import { copySync as copyRecursiveSync } from '../recurse-io-sync';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Resolves source and destination paths before delegating recursive copy work.
+ */
 export function copy<T extends boolean = false>(
   this: PoweredFileSystem,
   src: string,

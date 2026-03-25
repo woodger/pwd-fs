@@ -6,6 +6,9 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
 
+/**
+ * Covers recursive removal, including the symlink edge case.
+ */
 describe('remove(src [, options])', () => {
   const chance = new Chance();
   let tmpDir = '';

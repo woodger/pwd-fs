@@ -2,6 +2,9 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { PoweredFileSystem } from './index';
 
+/**
+ * Verifies constructor path resolution semantics for the main API surface.
+ */
 describe('#constructor: new PoweredFileSystem(pwd?)', () => {
   it('Positive: An empty path must match the context of the cwd', () => {
     const { pwd } = new PoweredFileSystem();
