@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "3.3.5",
+  "version": "3.4.0",
   "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
