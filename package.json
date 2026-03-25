@@ -47,7 +47,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "rimraf ./dist && tsc",
+    "build": "node -e \"require('node:fs').rmSync('./dist', { recursive: true, force: true })\" && tsc",
     "lint": "eslint src",
     "test": "node ./dist/suite.test.js"
   },
@@ -58,7 +58,6 @@
     "chance": "^1.1.13",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
-    "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.57.2"
   }
