@@ -16,8 +16,7 @@ describe('static bitmask(mode: number)', () => {
 
   it(`Negative: Throw an exception if the argument is 'null' type`, () => {
     assert.throws(() => {
-      // @ts-ignore
-      bitmask(null);
+      bitmask(null as unknown as number);
     });
   });
 });

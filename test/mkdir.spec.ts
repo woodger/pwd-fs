@@ -118,4 +118,22 @@ describe('mkdir(src [, options])', () => {
       });
     });
   });
+
+
+  it('[sync] Positive: Absolute pwd should create the target directory itself', () => {
+    const guid = chance.guid();
+    const target = `/tmp/${guid}`;
+    const pfs = new PoweredFileSystem(target);
+
+    try {
+      pfs.mkdir('.', {
+        sync: true
+      });
+
+      assert(fs.existsSync(target));
+    }
+    finally {
+      fs.rmSync(target, { recursive: true, force: true });
+    }
+  });
 });

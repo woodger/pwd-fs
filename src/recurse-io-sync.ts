@@ -44,10 +44,10 @@ export function copySync(src: string, dir: string, umask: number) {
     const list = fs.readdirSync(src);
 
     const loc = path.basename(src);
-    const mode = 0o777 - umask;
+    const mode = 0o777 & ~umask;
 
     dir = path.join(dir, loc);
-    fs.mkdirSync(dir, mode);
+    fs.mkdirSync(dir, { mode });
 
     for (const loc of list) {
       copySync(path.join(src, loc), dir, umask);
@@ -58,11 +58,17 @@ export function copySync(src: string, dir: string, umask: number) {
     const use = path.join(dir, loc);
 
     fs.copyFileSync(src, use);
+    fs.chmodSync(use, 0o666 & ~umask);
   }
 }
 
 export function removeSync(src: string) {
-  const stats = fs.statSync(src);
+  const stats = fs.lstatSync(src);
+
+  if (stats.isSymbolicLink()) {
+    fs.unlinkSync(src);
+    return;
+  }
 
   if (stats.isDirectory()) {
     const list = fs.readdirSync(src);
@@ -79,27 +85,6 @@ export function removeSync(src: string) {
 }
 
 export function mkdirSync(dir: string, umask: number) {
-  const mode = 0o777 - umask;
-  const cwd = process.cwd();
-  let use = '';
-
-  if (dir.indexOf(cwd) === 0) {
-    use = cwd;
-    dir = dir.substring(cwd.length);
-  }
-
-  const ways = dir.split(path.sep).slice(1);
-
-  for (const loc of ways) {
-    use = path.join(use, loc);
-
-    try {
-      fs.mkdirSync(use, { mode });
-    }
-    catch (err) {
-      if (err.code !== 'EEXIST') {
-        throw err;
-      }
-    }
-  }
+  const mode = 0o777 & ~umask;
+  fs.mkdirSync(dir, { recursive: true, mode });
 }

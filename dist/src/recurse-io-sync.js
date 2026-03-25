@@ -41,9 +41,9 @@ function copySync(src, dir, umask) {
     if (stat.isDirectory()) {
         const list = node_fs_1.default.readdirSync(src);
         const loc = node_path_1.default.basename(src);
-        const mode = 0o777 - umask;
+        const mode = 0o777 & ~umask;
         dir = node_path_1.default.join(dir, loc);
-        node_fs_1.default.mkdirSync(dir, mode);
+        node_fs_1.default.mkdirSync(dir, { mode });
         for (const loc of list) {
             copySync(node_path_1.default.join(src, loc), dir, umask);
         }
@@ -52,10 +52,15 @@ function copySync(src, dir, umask) {
         const loc = node_path_1.default.basename(src);
         const use = node_path_1.default.join(dir, loc);
         node_fs_1.default.copyFileSync(src, use);
+        node_fs_1.default.chmodSync(use, 0o666 & ~umask);
     }
 }
 function removeSync(src) {
-    const stats = node_fs_1.default.statSync(src);
+    const stats = node_fs_1.default.lstatSync(src);
+    if (stats.isSymbolicLink()) {
+        node_fs_1.default.unlinkSync(src);
+        return;
+    }
     if (stats.isDirectory()) {
         const list = node_fs_1.default.readdirSync(src);
         for (const loc of list) {
@@ -68,24 +73,7 @@ function removeSync(src) {
     }
 }
 function mkdirSync(dir, umask) {
-    const mode = 0o777 - umask;
-    const cwd = process.cwd();
-    let use = '';
-    if (dir.indexOf(cwd) === 0) {
-        use = cwd;
-        dir = dir.substring(cwd.length);
-    }
-    const ways = dir.split(node_path_1.default.sep).slice(1);
-    for (const loc of ways) {
-        use = node_path_1.default.join(use, loc);
-        try {
-            node_fs_1.default.mkdirSync(use, { mode });
-        }
-        catch (err) {
-            if (err.code !== 'EEXIST') {
-                throw err;
-            }
-        }
-    }
+    const mode = 0o777 & ~umask;
+    node_fs_1.default.mkdirSync(dir, { recursive: true, mode });
 }
 //# sourceMappingURL=recurse-io-sync.js.map

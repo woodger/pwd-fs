@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import Chance  from 'chance';
-import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
 import { pfs } from '../src';
 

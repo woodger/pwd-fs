@@ -49,7 +49,13 @@ export class PoweredFileSystem {
     src = path.resolve(this.pwd, src);
 
     if (sync) {
-      return fs.existsSync(src) as any;
+      try {
+        fs.accessSync(src, mode);
+        return true as any;
+      }
+      catch {
+        return false as any;
+      }
     }
 
     return new Promise<boolean>((resolve) => {
@@ -287,10 +293,11 @@ export class PoweredFileSystem {
     } = options ?? {};
     src = this.resolve(src);
 
-    const mode = 0o666 - umask;
+    const mode = 0o666 & ~umask;
 
     if (sync) {
       fs.writeFileSync(src, data, { encoding, mode, flag });
+      fs.chmodSync(src, mode);
       return undefined as any;
     }
 
@@ -300,7 +307,13 @@ export class PoweredFileSystem {
           return reject(err);
         }
 
-        resolve();
+        fs.chmod(src, mode, (err) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve();
+        });
       });
     }) as any;
   }

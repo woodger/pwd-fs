@@ -44,7 +44,13 @@ class PoweredFileSystem {
         const mode = this.constants[flag];
         src = node_path_1.default.resolve(this.pwd, src);
         if (sync) {
-            return node_fs_1.default.existsSync(src);
+            try {
+                node_fs_1.default.accessSync(src, mode);
+                return true;
+            }
+            catch {
+                return false;
+            }
         }
         return new Promise((resolve) => {
             node_fs_1.default.access(src, mode, (err) => {
@@ -195,9 +201,10 @@ class PoweredFileSystem {
     write(src, data, options) {
         const { sync = false, encoding = 'utf8', umask = 0o000, flag = 'w', } = options ?? {};
         src = this.resolve(src);
-        const mode = 0o666 - umask;
+        const mode = 0o666 & ~umask;
         if (sync) {
             node_fs_1.default.writeFileSync(src, data, { encoding, mode, flag });
+            node_fs_1.default.chmodSync(src, mode);
             return undefined;
         }
         return new Promise((resolve, reject) => {
@@ -205,7 +212,12 @@ class PoweredFileSystem {
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                node_fs_1.default.chmod(src, mode, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
             });
         });
     }

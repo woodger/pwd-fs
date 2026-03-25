@@ -99,7 +99,7 @@ export function copy(src: string, dir: string, umask: number, callback: NoParamC
 
         const loc = path.basename(src);
         const destDir = path.join(dir, loc);
-        const mode = 0o777 - umask;
+        const mode = 0o777 & ~umask;
 
         fs.mkdir(destDir, { mode }, (err) => {
           if (err) {
@@ -133,14 +133,16 @@ export function copy(src: string, dir: string, umask: number, callback: NoParamC
     else {
       const loc = path.basename(src);
       const dest = path.join(dir, loc);
-      const mode = 0o666 - umask;
+      const mode = 0o666 & ~umask;
 
       const readStream = fs.createReadStream(src);
       const writeStream = fs.createWriteStream(dest, { mode });
 
       readStream.on('error', callback);
       writeStream.on('error', callback);
-      writeStream.on('close', () => callback(null));
+      writeStream.on('close', () => {
+        fs.chmod(dest, mode, callback);
+      });
 
       readStream.pipe(writeStream);
     }
@@ -148,9 +150,13 @@ export function copy(src: string, dir: string, umask: number, callback: NoParamC
 }
 
 export function remove(src: string, callback: NoParamCallback) {
-  fs.stat(src, (err, stat) => {
+  fs.lstat(src, (err, stat) => {
     if (err) {
       return callback(err);
+    }
+
+    if (stat.isSymbolicLink()) {
+      return fs.unlink(src, callback);
     }
 
     if (stat.isDirectory()) {
@@ -185,37 +191,13 @@ export function remove(src: string, callback: NoParamCallback) {
 }
 
 export function mkdir(dir: string, umask: number, callback: NoParamCallback) {
-  const cwd = process.cwd();
+  const mode = 0o777 & ~umask;
 
-  if (dir === cwd) {
-    return callback(null);
-  }
-
-  let base = '';
-  const mode = 0o777 - umask;
-
-  if (dir.startsWith(cwd)) {
-    base = cwd;
-    dir = dir.slice(cwd.length);
-  }
-
-  const parts = dir.split(path.sep).filter(Boolean);
-
-  function next(index: number) {
-    if (index >= parts.length) {
-      return callback(null);
+  fs.mkdir(dir, { recursive: true, mode }, (err) => {
+    if (err && err.code !== 'EEXIST') {
+      return callback(err);
     }
 
-    base = path.join(base, parts[index]);
-
-    fs.mkdir(base, { mode }, (err) => {
-      if (err && err.code !== 'EEXIST') {
-        return callback(err);
-      }
-
-      next(index + 1);
-    });
-  }
-
-  next(0);
+    callback(null);
+  });
 }

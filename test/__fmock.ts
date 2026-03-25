@@ -32,9 +32,12 @@ export function restore(tmpDir: string) {
       fs.readdirSync(src).forEach((item) => {
         const curl = `${src}/${item}`;
 
-        fs.lstatSync(curl).isDirectory()
-          ? removeRecursive(curl)
-          : fs.unlinkSync(curl);
+        if (fs.lstatSync(curl).isDirectory()) {
+          removeRecursive(curl);
+        }
+        else {
+          fs.unlinkSync(curl);
+        }
       });
 
       fs.rmdirSync(src);

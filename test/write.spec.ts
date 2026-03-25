@@ -101,4 +101,18 @@ describe('write(src, data[, options])', () => {
       });
     });
   });
+
+
+  it('[sync] Positive: Umask should be applied with bit masking', () => {
+    const guid = chance.guid();
+
+    pfs.write(`./tmpdir/${guid}.txt`, 'x', {
+      sync: true,
+      umask: 0o111
+    });
+
+    const mode = fs.statSync(`./tmpdir/${guid}.txt`).mode & 0o777;
+
+    assert(mode === 0o666);
+  });
 });

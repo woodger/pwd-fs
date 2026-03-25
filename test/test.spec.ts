@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
 import Chance  from 'chance';
 import { fmock, restore } from './__fmock';
 import { pfs } from '../src';
@@ -76,5 +77,17 @@ describe('test(src[, options])', () => {
     });
 
     assert(exist === false);
+  });
+
+
+  it(`[sync] Positive: Should respect access flag checks`, () => {
+    fs.chmodSync('./tmpdir/tings.txt', 0o222);
+
+    const readable = pfs.test('./tmpdir/tings.txt', {
+      sync: true,
+      flag: 'r'
+    });
+
+    assert(readable === false);
   });
 });

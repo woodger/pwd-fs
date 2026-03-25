@@ -16,9 +16,14 @@ describe('remove(src [, options])', () => {
         type: 'file',
         data: chance.string()
       },
+      './tmpdir/digest/': { type: 'directory' },
       './tmpdir/flexapp': {
         type: 'symlink',
         target: `${cwd}/tmpdir/tings.txt`
+      },
+      './tmpdir/digest-link': {
+        type: 'symlink',
+        target: `${cwd}/tmpdir/digest`
       }
     };
     
@@ -74,5 +79,15 @@ describe('remove(src [, options])', () => {
         sync: true
       });
     });
+  });
+
+
+  it('[sync] Positive: Removing a symlink to a directory should remove only the link', () => {
+    pfs.remove('./tmpdir/digest-link', {
+      sync: true
+    });
+
+    assert(fs.existsSync('./tmpdir/digest-link') === false);
+    assert(fs.existsSync('./tmpdir/digest'));
   });
 });

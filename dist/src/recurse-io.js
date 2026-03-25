@@ -91,7 +91,7 @@ function copy(src, dir, umask, callback) {
                 }
                 const loc = node_path_1.default.basename(src);
                 const destDir = node_path_1.default.join(dir, loc);
-                const mode = 0o777 - umask;
+                const mode = 0o777 & ~umask;
                 node_fs_1.default.mkdir(destDir, { mode }, (err) => {
                     if (err) {
                         if (err.code === 'EEXIST') {
@@ -119,20 +119,25 @@ function copy(src, dir, umask, callback) {
         else {
             const loc = node_path_1.default.basename(src);
             const dest = node_path_1.default.join(dir, loc);
-            const mode = 0o666 - umask;
+            const mode = 0o666 & ~umask;
             const readStream = node_fs_1.default.createReadStream(src);
             const writeStream = node_fs_1.default.createWriteStream(dest, { mode });
             readStream.on('error', callback);
             writeStream.on('error', callback);
-            writeStream.on('close', () => callback(null));
+            writeStream.on('close', () => {
+                node_fs_1.default.chmod(dest, mode, callback);
+            });
             readStream.pipe(writeStream);
         }
     });
 }
 function remove(src, callback) {
-    node_fs_1.default.stat(src, (err, stat) => {
+    node_fs_1.default.lstat(src, (err, stat) => {
         if (err) {
             return callback(err);
+        }
+        if (stat.isSymbolicLink()) {
+            return node_fs_1.default.unlink(src, callback);
         }
         if (stat.isDirectory()) {
             node_fs_1.default.readdir(src, (err, list) => {
@@ -161,29 +166,12 @@ function remove(src, callback) {
     });
 }
 function mkdir(dir, umask, callback) {
-    const cwd = process.cwd();
-    if (dir === cwd) {
-        return callback(null);
-    }
-    let base = '';
-    const mode = 0o777 - umask;
-    if (dir.startsWith(cwd)) {
-        base = cwd;
-        dir = dir.slice(cwd.length);
-    }
-    const parts = dir.split(node_path_1.default.sep).filter(Boolean);
-    function next(index) {
-        if (index >= parts.length) {
-            return callback(null);
+    const mode = 0o777 & ~umask;
+    node_fs_1.default.mkdir(dir, { recursive: true, mode }, (err) => {
+        if (err && err.code !== 'EEXIST') {
+            return callback(err);
         }
-        base = node_path_1.default.join(base, parts[index]);
-        node_fs_1.default.mkdir(base, { mode }, (err) => {
-            if (err && err.code !== 'EEXIST') {
-                return callback(err);
-            }
-            next(index + 1);
-        });
-    }
-    next(0);
+        callback(null);
+    });
 }
 //# sourceMappingURL=recurse-io.js.map
