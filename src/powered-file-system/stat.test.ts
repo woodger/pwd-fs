@@ -1,46 +1,48 @@
 import assert from 'node:assert';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { fmock, restore } from '../test-utils';
+import { createTmpDir, fmock, restore } from '../test-utils';
 
-describe('stat(src [, options])', { concurrency: false }, () => {
+describe('stat(src [, options])', () => {
   const chance = new Chance();
+  let tmpDir = '';
 
   beforeEach(() => {
-    const cwd = process.cwd();
-
+    tmpDir = createTmpDir();
+    
     fmock({
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
       },
-      './tmpdir/digest/': { type: 'directory' },
-      './tmpdir/flexapp': {
+      [path.join(tmpDir, 'digest')]: { type: 'directory' },
+      [path.join(tmpDir, 'flexapp')]: {
         type: 'symlink',
-        target: `${cwd}/tmpdir/tings.txt`
+        target: path.join(tmpDir, 'tings.txt')
       }
     });
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
 
   it('Positive: Must return information a file', async () => {
-    const stats = await pfs.stat('./tmpdir/tings.txt');
+    const stats = await pfs.stat(path.join(tmpDir, 'tings.txt'));
 
     assert(stats.isFile());
   });
 
   it('Positive: Must return information a directory', async () => {
-    const stats = await pfs.stat('./tmpdir/digest');
+    const stats = await pfs.stat(path.join(tmpDir, 'digest'));
 
     assert(stats.isDirectory());
   });
 
   it('Positive: Must return information a symlink', async () => {
-    const stats = await pfs.stat('./tmpdir/flexapp');
+    const stats = await pfs.stat(path.join(tmpDir, 'flexapp'));
 
     assert(stats.isSymbolicLink());
   });
@@ -49,12 +51,12 @@ describe('stat(src [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     await assert.rejects(async () => {
-      await pfs.stat(`./tmpdir/${guid}`);
+      await pfs.stat(path.join(tmpDir, guid));
     });
   });
 
   it('[sync] Positive: Must return information a file', () => {
-    const stats = pfs.stat('./tmpdir/tings.txt', {
+    const stats = pfs.stat(path.join(tmpDir, 'tings.txt'), {
       sync: true
     });
 
@@ -62,7 +64,7 @@ describe('stat(src [, options])', { concurrency: false }, () => {
   });
 
   it('[sync] Positive: Must return information a directory in ', () => {
-    const stats = pfs.stat('./tmpdir/digest', {
+    const stats = pfs.stat(path.join(tmpDir, 'digest'), {
       sync: true
     });
 
@@ -70,7 +72,7 @@ describe('stat(src [, options])', { concurrency: false }, () => {
   });
 
   it('[sync] Positive: Must return information a symlink', () => {
-    const stats = pfs.stat('./tmpdir/flexapp', {
+    const stats = pfs.stat(path.join(tmpDir, 'flexapp'), {
       sync: true
     });
 
@@ -81,7 +83,7 @@ describe('stat(src [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     assert.throws(() => {
-      pfs.stat(`./tmpdir/${guid}`, {
+      pfs.stat(path.join(tmpDir, guid), {
         sync: true
       });
     });

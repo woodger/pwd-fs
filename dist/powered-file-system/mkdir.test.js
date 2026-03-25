@@ -11,78 +11,87 @@ const chance_1 = __importDefault(require("chance"));
 const node_test_1 = require("node:test");
 const index_1 = require("../index");
 const test_utils_1 = require("../test-utils");
-(0, node_test_1.describe)('mkdir(src [, options])', { concurrency: false }, () => {
-    const pfs = new index_1.PoweredFileSystem();
+(0, node_test_1.describe)('mkdir(src [, options])', () => {
     const chance = new chance_1.default();
+    let tmpDir = '';
+    let pfs = new index_1.PoweredFileSystem();
     (0, node_test_1.beforeEach)(() => {
+        tmpDir = (0, test_utils_1.createTmpDir)();
+        pfs = new index_1.PoweredFileSystem();
         (0, test_utils_1.fmock)({
-            './tmpdir/tings.txt': {
+            [node_path_1.default.join(tmpDir, 'tings.txt')]: {
                 type: 'file',
                 data: chance.string()
             }
         });
     });
     (0, node_test_1.afterEach)(() => {
-        (0, test_utils_1.restore)('./tmpdir');
+        (0, test_utils_1.restore)(tmpDir);
     });
     (0, node_test_1.it)('Positive: Create directories in the working directory', async () => {
         const guid = chance.guid();
-        await pfs.mkdir(`./tmpdir/${guid}`);
-        const exist = node_fs_1.default.existsSync(`./tmpdir/${guid}`);
+        const target = node_path_1.default.join(tmpDir, guid);
+        await pfs.mkdir(target);
+        const exist = node_fs_1.default.existsSync(target);
         (0, node_assert_1.default)(exist);
     });
     (0, node_test_1.it)('Positive: Make current directory', async () => {
         const guid = chance.guid();
-        const nextPfs = new index_1.PoweredFileSystem(`./tmpdir/${guid}`);
+        const target = node_path_1.default.join(tmpDir, guid);
+        const nextPfs = new index_1.PoweredFileSystem(target);
         await nextPfs.mkdir('.');
-        const exist = node_fs_1.default.existsSync(`./tmpdir/${guid}`);
+        const exist = node_fs_1.default.existsSync(target);
         (0, node_assert_1.default)(exist);
     });
     (0, node_test_1.it)('Positive: Should work fine with the existing directory', async () => {
         const guid = chance.guid();
+        const target = node_path_1.default.join(tmpDir, guid);
         for (let i = 2; i; i--) {
-            await pfs.mkdir(`./tmpdir/${guid}`);
+            await pfs.mkdir(target);
         }
-        const exist = node_fs_1.default.existsSync(`./tmpdir/${guid}`);
+        const exist = node_fs_1.default.existsSync(target);
         (0, node_assert_1.default)(exist);
     });
     (0, node_test_1.it)('Negative: Throw an exception if trying to create a directory in file', async () => {
         const guid = chance.guid();
         await node_assert_1.default.rejects(async () => {
-            await pfs.mkdir(`./tmpdir/tings.txt/${guid}`);
+            await pfs.mkdir(node_path_1.default.join(tmpDir, 'tings.txt', guid));
         });
     });
     (0, node_test_1.it)('[sync] Positive: Create directories in the working directory', () => {
         const guid = chance.guid();
-        pfs.mkdir(`./tmpdir/${guid}`, {
+        const target = node_path_1.default.join(tmpDir, guid);
+        pfs.mkdir(target, {
             sync: true
         });
-        const exist = node_fs_1.default.existsSync(`./tmpdir/${guid}`);
+        const exist = node_fs_1.default.existsSync(target);
         (0, node_assert_1.default)(exist);
     });
     (0, node_test_1.it)('[sync] Positive: Make current directory', () => {
         const guid = chance.guid();
-        const nextPfs = new index_1.PoweredFileSystem(`./tmpdir/${guid}`);
+        const target = node_path_1.default.join(tmpDir, guid);
+        const nextPfs = new index_1.PoweredFileSystem(target);
         nextPfs.mkdir('.', {
             sync: true
         });
-        const exist = node_fs_1.default.existsSync(`./tmpdir/${guid}`);
+        const exist = node_fs_1.default.existsSync(target);
         (0, node_assert_1.default)(exist);
     });
     (0, node_test_1.it)('[sync] Positive: Should work fine with the existing directory', () => {
         const guid = chance.guid();
+        const target = node_path_1.default.join(tmpDir, guid);
         for (let i = 2; i; i--) {
-            pfs.mkdir(`./tmpdir/${guid}`, {
+            pfs.mkdir(target, {
                 sync: true
             });
         }
-        const exist = node_fs_1.default.existsSync(`./tmpdir/${guid}`);
+        const exist = node_fs_1.default.existsSync(target);
         (0, node_assert_1.default)(exist);
     });
     (0, node_test_1.it)('[sync] Negative: Throw an exception if trying to create a directory in file', () => {
         const guid = chance.guid();
         node_assert_1.default.throws(() => {
-            pfs.mkdir(`./tmpdir/tings.txt/${guid}`, {
+            pfs.mkdir(node_path_1.default.join(tmpDir, 'tings.txt', guid), {
                 sync: true
             });
         });

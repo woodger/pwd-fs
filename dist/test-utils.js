@@ -3,17 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTmpDir = createTmpDir;
 exports.fmock = fmock;
 exports.restore = restore;
 const node_fs_1 = __importDefault(require("node:fs"));
+const node_os_1 = __importDefault(require("node:os"));
 const node_path_1 = __importDefault(require("node:path"));
+function createTmpDir() {
+    return node_fs_1.default.mkdtempSync(node_path_1.default.join(node_os_1.default.tmpdir(), 'pwd-fs-'));
+}
 function fmock(frame) {
-    const roots = new Set(Object.keys(frame)
-        .map((src) => node_path_1.default.normalize(src).split(node_path_1.default.sep).filter(Boolean)[0])
-        .filter(Boolean));
-    for (const root of roots) {
-        restore(root);
-    }
     for (const src of Object.keys(frame)) {
         const { dir } = node_path_1.default.parse(src);
         const value = frame[src];

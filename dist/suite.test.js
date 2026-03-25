@@ -34,7 +34,7 @@ if (!testFiles.length) {
     console.warn("⚠️  No test files found in dist/");
     process.exit(0);
 }
-const { status } = (0, node_child_process_1.spawnSync)(process.execPath, ['--test', '--test-concurrency=1', ...testFiles], {
+const { status } = (0, node_child_process_1.spawnSync)(process.execPath, ['--test', ...testFiles], {
     stdio: 'inherit'
 });
 process.exitCode = status ?? 1;

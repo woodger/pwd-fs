@@ -1,43 +1,46 @@
 import assert from 'node:assert';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { Iframe, fmock, restore } from '../test-utils';
+import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
 
-describe('readdir(src[, options])', { concurrency: false }, () => {
+describe('readdir(src[, options])', () => {
   const chance = new Chance();
   let counter = 0;
+  let tmpDir = '';
 
   beforeEach(() => {
+    tmpDir = createTmpDir();
     const frame: Iframe = {
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
       }
     };
 
     counter = chance.natural({ max: 7 });
-
+    
     for (let i = 0; i < counter; i++) {
-      frame[`./tmpdir/${i}`] = { type: 'directory' };
+      frame[path.join(tmpDir, String(i))] = { type: 'directory' };
     }
 
     fmock(frame);
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
 
   it('Positive: Must return a directory listing', async () => {
-    const { length } = await pfs.readdir('./tmpdir');
+    const { length } = await pfs.readdir(tmpDir);
 
     assert(counter + 1 === length);
   });
 
   it('Negative: Throw if resource is not directory', async () => {
     await assert.rejects(async () => {
-      await pfs.readdir('./tmpdir/tings.txt');
+      await pfs.readdir(path.join(tmpDir, 'tings.txt'));
     });
   });
 
@@ -45,12 +48,12 @@ describe('readdir(src[, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     await assert.rejects(async () => {
-      await pfs.readdir(`./tmpdir/${guid}`);
+      await pfs.readdir(path.join(tmpDir, guid));
     });
   });
 
   it('[sync] Positive: Must return a directory listing', () => {
-    const { length } = pfs.readdir('./tmpdir', {
+    const { length } = pfs.readdir(tmpDir, {
       sync: true
     });
 
@@ -59,7 +62,7 @@ describe('readdir(src[, options])', { concurrency: false }, () => {
 
   it('Negative: Throw if resource is not directory', () => {
     assert.throws(() => {
-      pfs.readdir('./tmpdir/tings.txt', {
+      pfs.readdir(path.join(tmpDir, 'tings.txt'), {
         sync: true
       });
     });
@@ -69,7 +72,7 @@ describe('readdir(src[, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     assert.throws(() => {
-      pfs.readdir(`./tmpdir/${guid}`, {
+      pfs.readdir(path.join(tmpDir, guid), {
         sync: true
       });
     });

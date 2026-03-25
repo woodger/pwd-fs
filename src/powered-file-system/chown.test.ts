@@ -1,80 +1,88 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { fmock, restore } from '../test-utils';
+import { createTmpDir, fmock, restore } from '../test-utils';
 
-describe('chown(src, [, options])', { concurrency: false }, () => {
+describe('chown(src, [, options])', () => {
   const chance = new Chance();
+  let tmpDir = '';
 
   beforeEach(() => {
+    tmpDir = createTmpDir();
+
     fmock({
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
       },
-      './tmpdir/digest/': { type: 'directory' }
+      [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
 
   it('Positive: Changes the permissions of a file', async () => {
-    const { uid, gid } = fs.statSync('./tmpdir/tings.txt');
-    await pfs.chown('./tmpdir/tings.txt', { uid, gid });
+    const filePath = path.join(tmpDir, 'tings.txt');
+    const { uid, gid } = fs.statSync(filePath);
+    await pfs.chown(filePath, { uid, gid });
 
-    assert(fs.existsSync('./tmpdir/tings.txt'));
+    assert(fs.existsSync(filePath));
   });
 
   it('Positive: Changes the permissions of a directory', async () => {
-    const { uid, gid } = fs.statSync('./tmpdir/digest');
-    await pfs.chown('./tmpdir/digest', { uid, gid });
+    const dirPath = path.join(tmpDir, 'digest');
+    const { uid, gid } = fs.statSync(dirPath);
+    await pfs.chown(dirPath, { uid, gid });
 
-    assert(fs.existsSync('./tmpdir/digest'));
+    assert(fs.existsSync(dirPath));
   });
 
   it('Negative: To a non-existent resource to return an Error', async () => {
     const guid = chance.guid();
-    const { uid, gid } = fs.statSync('./tmpdir/tings.txt');
+    const { uid, gid } = fs.statSync(path.join(tmpDir, 'tings.txt'));
 
     await assert.rejects(async () => {
-      await pfs.chown(`./tmpdir/${guid}`, { uid, gid });
+      await pfs.chown(path.join(tmpDir, guid), { uid, gid });
     });
   });
 
   it('[sync] Positive: Changes the permissions of a file', () => {
-    const { uid, gid } = fs.statSync('./tmpdir/tings.txt');
+    const filePath = path.join(tmpDir, 'tings.txt');
+    const { uid, gid } = fs.statSync(filePath);
 
-    pfs.chown('./tmpdir/tings.txt', {
+    pfs.chown(filePath, {
       sync: true,
       uid,
       gid
     });
 
-    assert(fs.existsSync('./tmpdir/tings.txt'));
+    assert(fs.existsSync(filePath));
   });
 
   it('[sync] Positive: Changes the permissions of a directory', () => {
-    const { uid, gid } = fs.statSync('./tmpdir/digest');
+    const dirPath = path.join(tmpDir, 'digest');
+    const { uid, gid } = fs.statSync(dirPath);
 
-    pfs.chown('./tmpdir/digest', {
+    pfs.chown(dirPath, {
       sync: true,
       uid,
       gid
     });
 
-    assert(fs.existsSync('./tmpdir/digest'));
+    assert(fs.existsSync(dirPath));
   });
 
   it('[sync] Negative: To a non-existent resource to return an Error', () => {
     const guid = chance.guid();
-    const { uid, gid } = fs.statSync('./tmpdir/tings.txt');
+    const { uid, gid } = fs.statSync(path.join(tmpDir, 'tings.txt'));
 
     assert.throws(() => {
-      pfs.chown(`./tmpdir/${guid}`, {
+      pfs.chown(path.join(tmpDir, guid), {
         sync: true,
         uid,
         gid

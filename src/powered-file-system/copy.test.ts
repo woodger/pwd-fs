@@ -1,71 +1,75 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { fmock, restore } from '../test-utils';
+import { createTmpDir, fmock, restore } from '../test-utils';
 
-describe('copy(src, dir [, options])', { concurrency: false }, () => {
+describe('copy(src, dir [, options])', () => {
   const chance = new Chance();
+  let tmpDir = '';
 
   beforeEach(() => {
+    tmpDir = createTmpDir();
+
     fmock({
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
       },
-      './tmpdir/digest/': { type: 'directory' }
+      [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
 
   it('Positive: Copying a item file', async () => {
-    await pfs.copy('./tmpdir/tings.txt', './tmpdir/digest');
-    const exist = fs.existsSync('./tmpdir/digest/tings.txt');
+    await pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'));
+    const exist = fs.existsSync(path.join(tmpDir, 'digest', 'tings.txt'));
 
     assert(exist);
   });
 
   it('Positive: Recursive copying a directory', async () => {
-    await pfs.copy('./src', './tmpdir');
-    const exist = fs.existsSync('./tmpdir/src');
+    await pfs.copy(path.resolve('./src'), tmpDir);
+    const exist = fs.existsSync(path.join(tmpDir, 'src'));
 
     assert(exist);
   });
 
   it('Negative: Throw if not exists resource', async () => {
     const guid = chance.guid();
-
+    
     await assert.rejects(async () => {
-      await pfs.copy(`./${guid}`, '.');
+      await pfs.copy(path.join(tmpDir, guid), tmpDir);
     });
   });
 
   it('Negative: An attempt to copy to an existing resource should return an Error', async () => {
     await assert.rejects(async () => {
-      await pfs.copy('./tmpdir', '.');
+      await pfs.copy(tmpDir, path.dirname(tmpDir));
     });
   });
 
   it('[sync] Positive: Copying a file', () => {
-    pfs.copy('./tmpdir/tings.txt', './tmpdir/digest', {
+    pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
       sync: true
     });
 
-    const exist = fs.existsSync('./tmpdir/digest/tings.txt');
+    const exist = fs.existsSync(path.join(tmpDir, 'digest', 'tings.txt'));
 
     assert(exist);
   });
 
   it('[sync] Positive: Recursive copying a directory', () => {
-    pfs.copy('./src', './tmpdir', {
+    pfs.copy(path.resolve('./src'), tmpDir, {
       sync: true
     });
 
-    const exist = fs.existsSync('./tmpdir/src');
+    const exist = fs.existsSync(path.join(tmpDir, 'src'));
 
     assert(exist);
   });
@@ -74,7 +78,7 @@ describe('copy(src, dir [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     assert.throws(() => {
-      pfs.copy(`./${guid}`, '.', {
+      pfs.copy(path.join(tmpDir, guid), tmpDir, {
         sync: true
       });
     });
@@ -82,7 +86,7 @@ describe('copy(src, dir [, options])', { concurrency: false }, () => {
 
   it('[sync] Negative: An attempt to copy to an existing resource should return an Error', () => {
     assert.throws(() => {
-      pfs.copy('./tmpdir', '.', {
+      pfs.copy(tmpDir, path.dirname(tmpDir), {
         sync: true
       });
     });

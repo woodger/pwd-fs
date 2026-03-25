@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { bitmask } from './index';
 
-describe('static bitmask(mode: number)', { concurrency: false }, () => {
+describe('static bitmask(mode: number)', () => {
   it('Positive: Calculate bitmask', () => {
     assert(bitmask(33024) === 0o400);
     assert(bitmask(33152) === 0o600);

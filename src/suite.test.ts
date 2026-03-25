@@ -40,7 +40,7 @@ if (!testFiles.length) {
   process.exit(0);
 }
 
-const { status } = spawnSync(process.execPath, ['--test', '--test-concurrency=1', ...testFiles], {
+const { status } = spawnSync(process.execPath, ['--test', ...testFiles], {
   stdio: 'inherit'
 });
 

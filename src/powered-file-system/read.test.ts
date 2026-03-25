@@ -1,19 +1,22 @@
 import assert from 'node:assert';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { fmock, restore } from '../test-utils';
+import { createTmpDir, fmock, restore } from '../test-utils';
 
-describe('read(src [, options])', { concurrency: false }, () => {
+describe('read(src [, options])', () => {
   const chance = new Chance();
   let sentences = 0;
+  let tmpDir = '';
 
   beforeEach(() => {
+    tmpDir = createTmpDir();
     const tingsContent = chance.paragraph();
     sentences = tingsContent.length;
-
+    
     fmock({
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: tingsContent
       }
@@ -21,17 +24,17 @@ describe('read(src [, options])', { concurrency: false }, () => {
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
-
+  
   it('Positive: Must read content of file; String type by default', async () => {
-    const { length } = await pfs.read('./tmpdir/tings.txt');
+    const { length } = await pfs.read(path.join(tmpDir, 'tings.txt'));
 
     assert(length === sentences);
   });
 
   it('Positive: Must read Buffer content of file when encoding is null', async () => {
-    const buffer = await pfs.read('./tmpdir/tings.txt', {
+    const buffer = await pfs.read(path.join(tmpDir, 'tings.txt'), {
       encoding: null
     });
 
@@ -40,7 +43,7 @@ describe('read(src [, options])', { concurrency: false }, () => {
 
   it('Negative: Throw if resource is not file', async () => {
     await assert.rejects(async () => {
-      await pfs.read('./tmpdir');
+      await pfs.read(tmpDir);
     });
   });
 
@@ -48,12 +51,12 @@ describe('read(src [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     await assert.rejects(async () => {
-      await pfs.read(`./tmpdir/${guid}`);
+      await pfs.read(path.join(tmpDir, guid));
     });
   });
 
   it('[sync] Positive: Must read content of file; String type by default', () => {
-    const { length } = pfs.read('./tmpdir/tings.txt', {
+    const { length } = pfs.read(path.join(tmpDir, 'tings.txt'), {
       sync: true
     });
 
@@ -61,7 +64,7 @@ describe('read(src [, options])', { concurrency: false }, () => {
   });
 
   it('[sync] Positive: Must read Buffer content of file when encoding is null', () => {
-    const buf = pfs.read('./tmpdir/tings.txt', {
+    const buf = pfs.read(path.join(tmpDir, 'tings.txt'), {
       sync: true,
       encoding: null
     });
@@ -73,7 +76,7 @@ describe('read(src [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     assert.throws(() => {
-      pfs.read(`./tmpdir/${guid}`, {
+      pfs.read(path.join(tmpDir, guid), {
         sync: true
       });
     });

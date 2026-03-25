@@ -4,26 +4,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_assert_1 = __importDefault(require("node:assert"));
+const node_path_1 = __importDefault(require("node:path"));
 const chance_1 = __importDefault(require("chance"));
 const node_test_1 = require("node:test");
 const index_1 = require("../index");
 const test_utils_1 = require("../test-utils");
-(0, node_test_1.describe)('chmod(src, mode [, options])', { concurrency: false }, () => {
+(0, node_test_1.describe)('chmod(src, mode [, options])', () => {
     const chance = new chance_1.default();
+    let tmpDir = '';
     (0, node_test_1.beforeEach)(() => {
+        tmpDir = (0, test_utils_1.createTmpDir)();
         (0, test_utils_1.fmock)({
-            './tmpdir/tings.txt': {
+            [node_path_1.default.join(tmpDir, 'tings.txt')]: {
                 type: 'file',
                 data: chance.string()
             }
         });
     });
     (0, node_test_1.afterEach)(() => {
-        (0, test_utils_1.restore)('./tmpdir');
+        (0, test_utils_1.restore)(tmpDir);
     });
     (0, node_test_1.it)('Positive: Changes directory and file permissions', async () => {
-        await index_1.pfs.chmod('./tmpdir', 0o444);
-        const writable = index_1.pfs.test('./tmpdir/tings.txt', {
+        await index_1.pfs.chmod(tmpDir, 0o444);
+        const writable = index_1.pfs.test(node_path_1.default.join(tmpDir, 'tings.txt'), {
             sync: true,
             flag: 'w'
         });
@@ -35,20 +38,20 @@ const test_utils_1 = require("../test-utils");
         });
     });
     (0, node_test_1.it)('[sync] Positive: Changes permissions of directory', () => {
-        index_1.pfs.chmod('./tmpdir', 0o444, {
+        index_1.pfs.chmod(tmpDir, 0o444, {
             sync: true
         });
-        const writable = index_1.pfs.test('./tmpdir/tings.txt', {
+        const writable = index_1.pfs.test(node_path_1.default.join(tmpDir, 'tings.txt'), {
             sync: true,
             flag: 'w'
         });
         (0, node_assert_1.default)(writable === false);
     });
     (0, node_test_1.it)('[sync] Positive: Changes file permissions', () => {
-        index_1.pfs.chmod('./tmpdir/tings.txt', 0o444, {
+        index_1.pfs.chmod(node_path_1.default.join(tmpDir, 'tings.txt'), 0o444, {
             sync: true
         });
-        const writable = index_1.pfs.test('./tmpdir/tings.txt', {
+        const writable = index_1.pfs.test(node_path_1.default.join(tmpDir, 'tings.txt'), {
             sync: true,
             flag: 'w'
         });

@@ -1,48 +1,50 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { Iframe, fmock, restore } from '../test-utils';
+import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
 
-describe('remove(src [, options])', { concurrency: false }, () => {
+describe('remove(src [, options])', () => {
   const chance = new Chance();
-
+  let tmpDir = '';
+  
   beforeEach(() => {
-    const cwd = process.cwd();
-
+    tmpDir = createTmpDir();
+    
     const frame: Iframe = {
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
       },
-      './tmpdir/digest/': { type: 'directory' },
-      './tmpdir/flexapp': {
+      [path.join(tmpDir, 'digest')]: { type: 'directory' },
+      [path.join(tmpDir, 'flexapp')]: {
         type: 'symlink',
-        target: `${cwd}/tmpdir/tings.txt`
+        target: path.join(tmpDir, 'tings.txt')
       },
-      './tmpdir/digest-link': {
+      [path.join(tmpDir, 'digest-link')]: {
         type: 'symlink',
-        target: `${cwd}/tmpdir/digest`
+        target: path.join(tmpDir, 'digest')
       }
     };
 
     const counter = chance.natural({ max: 7 });
-
+    
     for (let i = 0; i < counter; i++) {
-      frame[`./tmpdir/${i}`] = { type: 'directory' };
+      frame[path.join(tmpDir, String(i))] = { type: 'directory' };
     }
 
     fmock(frame);
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
 
   it('Positive: Removal a directory with a file', async () => {
-    await pfs.remove('./tmpdir');
-    const exist = fs.existsSync('./tmpdir');
+    await pfs.remove(tmpDir);
+    const exist = fs.existsSync(tmpDir);
 
     assert(exist === false);
   });
@@ -51,16 +53,16 @@ describe('remove(src [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     await assert.rejects(async () => {
-      await pfs.remove(`./${guid}`);
+      await pfs.remove(path.join(tmpDir, guid));
     });
-  });
+  }); 
 
   it('[sync] Positive: Removal a directory with a file', () => {
-    pfs.remove('./tmpdir', {
+    pfs.remove(tmpDir, {
       sync: true
     });
 
-    const exist = fs.existsSync('./tmpdir');
+    const exist = fs.existsSync(tmpDir);
 
     assert(exist === false);
   });
@@ -69,18 +71,18 @@ describe('remove(src [, options])', { concurrency: false }, () => {
     const guid = chance.guid();
 
     assert.throws(() => {
-      pfs.remove(`./tmpdir/${guid}`, {
+      pfs.remove(path.join(tmpDir, guid), {
         sync: true
       });
     });
   });
 
   it('[sync] Positive: Removing a symlink to a directory should remove only the link', () => {
-    pfs.remove('./tmpdir/digest-link', {
+    pfs.remove(path.join(tmpDir, 'digest-link'), {
       sync: true
     });
 
-    assert(fs.existsSync('./tmpdir/digest-link') === false);
-    assert(fs.existsSync('./tmpdir/digest'));
+    assert(fs.existsSync(path.join(tmpDir, 'digest-link')) === false);
+    assert(fs.existsSync(path.join(tmpDir, 'digest')));
   });
 });

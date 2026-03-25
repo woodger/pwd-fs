@@ -1,15 +1,19 @@
 import assert from 'node:assert';
+import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { fmock, restore } from '../test-utils';
+import { createTmpDir, fmock, restore } from '../test-utils';
 
-describe('chmod(src, mode [, options])', { concurrency: false }, () => {
+describe('chmod(src, mode [, options])', () => {
   const chance = new Chance();
+  let tmpDir = '';
 
   beforeEach(() => {
+    tmpDir = createTmpDir();
+
     fmock({
-      './tmpdir/tings.txt': {
+      [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
       }
@@ -17,13 +21,13 @@ describe('chmod(src, mode [, options])', { concurrency: false }, () => {
   });
 
   afterEach(() => {
-    restore('./tmpdir');
+    restore(tmpDir);
   });
 
   it('Positive: Changes directory and file permissions', async () => {
-    await pfs.chmod('./tmpdir', 0o444);
+    await pfs.chmod(tmpDir, 0o444);
 
-    const writable = pfs.test('./tmpdir/tings.txt', {
+    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
       sync: true,
       flag: 'w'
     });
@@ -38,11 +42,11 @@ describe('chmod(src, mode [, options])', { concurrency: false }, () => {
   });
 
   it('[sync] Positive: Changes permissions of directory', () => {
-    pfs.chmod('./tmpdir', 0o444, {
+    pfs.chmod(tmpDir, 0o444, {
       sync: true
     });
 
-    const writable = pfs.test('./tmpdir/tings.txt', {
+    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
       sync: true,
       flag: 'w'
     });
@@ -51,11 +55,11 @@ describe('chmod(src, mode [, options])', { concurrency: false }, () => {
   });
 
   it('[sync] Positive: Changes file permissions', () => {
-    pfs.chmod('./tmpdir/tings.txt', 0o444, {
+    pfs.chmod(path.join(tmpDir, 'tings.txt'), 0o444, {
       sync: true
     });
 
-    const writable = pfs.test('./tmpdir/tings.txt', {
+    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
       sync: true,
       flag: 'w'
     });

@@ -1,21 +1,16 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 export interface Iframe {
   [key: string]: any
 }
 
+export function createTmpDir() {
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'pwd-fs-'));
+}
+
 export function fmock(frame: Iframe) {
-  const roots = new Set(
-    Object.keys(frame)
-      .map((src) => path.normalize(src).split(path.sep).filter(Boolean)[0])
-      .filter(Boolean)
-  );
-
-  for (const root of roots) {
-    restore(root);
-  }
-
   for (const src of Object.keys(frame)) {
     const { dir } = path.parse(src);
     const value = frame[src];
