@@ -1,7 +1,7 @@
 {
   "name": "pwd-fs",
-  "version": "3.3.1",
-  "description": "Extend the file system the capabilities of declaring the present working directory and recursive execution",
+  "version": "3.3.3",
+  "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
     "test",
@@ -24,15 +24,30 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:woodger/pwd-fs.git"
+    "url": "https://github.com/woodger/pwd-fs.git"
+  },
+  "homepage": "https://github.com/woodger/pwd-fs#readme",
+  "bugs": {
+    "url": "https://github.com/woodger/pwd-fs/issues"
   },
   "engines": {
     "node": ">=13.2.0"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "readme.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
+    "build": "rimraf ./dist && tsc",
     "lint": "eslint src",
     "test": "node ./dist/suite.test.js"
   },
@@ -43,6 +58,7 @@
     "chance": "^1.1.13",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
+    "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.57.2"
   }

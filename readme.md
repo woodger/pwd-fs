@@ -34,17 +34,9 @@ npm install pwd-fs
 ## Quick Start
 
 ```ts
-import { pfs, PoweredFileSystem } from 'pwd-fs';
+import { pfs } from 'pwd-fs';
 
-await pfs.mkdir('./tmp/project');
-await pfs.write('./tmp/project/readme.txt', 'Hello');
-
-const content = await pfs.read('./tmp/project/readme.txt');
-console.log(content); // Hello
-
-const scoped = new PoweredFileSystem('./tmp/project');
-const exists = await scoped.test('./readme.txt');
-console.log(exists); // true
+await pfs.mkdir('./own/project'); // recursively create the directory
 ```
 
 ## Common Recipes
