@@ -1,0 +1,44 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const node_assert_1 = __importDefault(require("node:assert"));
+const node_path_1 = __importDefault(require("node:path"));
+const chance_1 = __importDefault(require("chance"));
+const node_test_1 = require("node:test");
+const index_1 = require("../index");
+const test_utils_1 = require("../test-utils");
+/**
+ * Verifies symbolic link target resolution without dereferencing it.
+ */
+(0, node_test_1.describe)('readlink(src [, options])', () => {
+    const chance = new chance_1.default();
+    let tmpDir = '';
+    (0, node_test_1.beforeEach)(() => {
+        tmpDir = (0, test_utils_1.createTmpDir)();
+        (0, test_utils_1.fmock)({
+            [node_path_1.default.join(tmpDir, 'tings.txt')]: {
+                type: 'file',
+                data: chance.string()
+            },
+            [node_path_1.default.join(tmpDir, 'flexapp')]: {
+                type: 'symlink',
+                target: node_path_1.default.join(tmpDir, 'tings.txt')
+            }
+        });
+    });
+    (0, node_test_1.afterEach)(() => {
+        (0, test_utils_1.restore)(tmpDir);
+    });
+    (0, node_test_1.it)('Positive: Reads the stored symlink target', async () => {
+        const target = await index_1.pfs.readlink(node_path_1.default.join(tmpDir, 'flexapp'));
+        (0, node_assert_1.default)(target === node_path_1.default.join(tmpDir, 'tings.txt'));
+    });
+    (0, node_test_1.it)('[sync] Positive: Reads the stored symlink target', () => {
+        const target = index_1.pfs.readlink(node_path_1.default.join(tmpDir, 'flexapp'), {
+            sync: true
+        });
+        (0, node_assert_1.default)(target === node_path_1.default.join(tmpDir, 'tings.txt'));
+    });
+});

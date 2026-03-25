@@ -57,6 +57,35 @@ describe('copy(src, dir [, options])', () => {
     });
   });
 
+  it('Positive: Overwrite should replace an existing target file', async () => {
+    fs.writeFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'old');
+
+    await pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
+      overwrite: true
+    });
+
+    const content = fs.readFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'utf8');
+
+    assert(content !== 'old');
+  });
+
+  it('Positive: Filter should skip matching entries', async () => {
+    const destRoot = createTmpDir();
+
+    try {
+      await pfs.copy(tmpDir, destRoot, {
+        overwrite: true,
+        filter: (src) => path.basename(src) !== 'tings.txt'
+      });
+
+      assert(fs.existsSync(path.join(destRoot, path.basename(tmpDir), 'digest')));
+      assert(fs.existsSync(path.join(destRoot, path.basename(tmpDir), 'tings.txt')) === false);
+    }
+    finally {
+      restore(destRoot);
+    }
+  });
+
   it('[sync] Positive: Copying a file', () => {
     pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
       sync: true
@@ -93,5 +122,36 @@ describe('copy(src, dir [, options])', () => {
         sync: true
       });
     });
+  });
+
+  it('[sync] Positive: Overwrite should replace an existing target file', () => {
+    fs.writeFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'old');
+
+    pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
+      sync: true,
+      overwrite: true
+    });
+
+    const content = fs.readFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'utf8');
+
+    assert(content !== 'old');
+  });
+
+  it('[sync] Positive: Filter should skip matching entries', () => {
+    const destRoot = createTmpDir();
+
+    try {
+      pfs.copy(tmpDir, destRoot, {
+        sync: true,
+        overwrite: true,
+        filter: (src) => path.basename(src) !== 'tings.txt'
+      });
+
+      assert(fs.existsSync(path.join(destRoot, path.basename(tmpDir), 'digest')));
+      assert(fs.existsSync(path.join(destRoot, path.basename(tmpDir), 'tings.txt')) === false);
+    }
+    finally {
+      restore(destRoot);
+    }
   });
 });

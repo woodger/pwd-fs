@@ -50,6 +50,28 @@ const test_utils_1 = require("../test-utils");
             await index_1.pfs.copy(tmpDir, node_path_1.default.dirname(tmpDir));
         });
     });
+    (0, node_test_1.it)('Positive: Overwrite should replace an existing target file', async () => {
+        node_fs_1.default.writeFileSync(node_path_1.default.join(tmpDir, 'digest', 'tings.txt'), 'old');
+        await index_1.pfs.copy(node_path_1.default.join(tmpDir, 'tings.txt'), node_path_1.default.join(tmpDir, 'digest'), {
+            overwrite: true
+        });
+        const content = node_fs_1.default.readFileSync(node_path_1.default.join(tmpDir, 'digest', 'tings.txt'), 'utf8');
+        (0, node_assert_1.default)(content !== 'old');
+    });
+    (0, node_test_1.it)('Positive: Filter should skip matching entries', async () => {
+        const destRoot = (0, test_utils_1.createTmpDir)();
+        try {
+            await index_1.pfs.copy(tmpDir, destRoot, {
+                overwrite: true,
+                filter: (src) => node_path_1.default.basename(src) !== 'tings.txt'
+            });
+            (0, node_assert_1.default)(node_fs_1.default.existsSync(node_path_1.default.join(destRoot, node_path_1.default.basename(tmpDir), 'digest')));
+            (0, node_assert_1.default)(node_fs_1.default.existsSync(node_path_1.default.join(destRoot, node_path_1.default.basename(tmpDir), 'tings.txt')) === false);
+        }
+        finally {
+            (0, test_utils_1.restore)(destRoot);
+        }
+    });
     (0, node_test_1.it)('[sync] Positive: Copying a file', () => {
         index_1.pfs.copy(node_path_1.default.join(tmpDir, 'tings.txt'), node_path_1.default.join(tmpDir, 'digest'), {
             sync: true
@@ -78,5 +100,29 @@ const test_utils_1 = require("../test-utils");
                 sync: true
             });
         });
+    });
+    (0, node_test_1.it)('[sync] Positive: Overwrite should replace an existing target file', () => {
+        node_fs_1.default.writeFileSync(node_path_1.default.join(tmpDir, 'digest', 'tings.txt'), 'old');
+        index_1.pfs.copy(node_path_1.default.join(tmpDir, 'tings.txt'), node_path_1.default.join(tmpDir, 'digest'), {
+            sync: true,
+            overwrite: true
+        });
+        const content = node_fs_1.default.readFileSync(node_path_1.default.join(tmpDir, 'digest', 'tings.txt'), 'utf8');
+        (0, node_assert_1.default)(content !== 'old');
+    });
+    (0, node_test_1.it)('[sync] Positive: Filter should skip matching entries', () => {
+        const destRoot = (0, test_utils_1.createTmpDir)();
+        try {
+            index_1.pfs.copy(tmpDir, destRoot, {
+                sync: true,
+                overwrite: true,
+                filter: (src) => node_path_1.default.basename(src) !== 'tings.txt'
+            });
+            (0, node_assert_1.default)(node_fs_1.default.existsSync(node_path_1.default.join(destRoot, node_path_1.default.basename(tmpDir), 'digest')));
+            (0, node_assert_1.default)(node_fs_1.default.existsSync(node_path_1.default.join(destRoot, node_path_1.default.basename(tmpDir), 'tings.txt')) === false);
+        }
+        finally {
+            (0, test_utils_1.restore)(destRoot);
+        }
     });
 });

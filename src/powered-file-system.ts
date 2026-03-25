@@ -5,9 +5,12 @@ import { append } from './powered-file-system/append';
 import { chmod } from './powered-file-system/chmod';
 import { chown } from './powered-file-system/chown';
 import { copy } from './powered-file-system/copy';
+import { emptyDir } from './powered-file-system/empty-dir';
 import { mkdir } from './powered-file-system/mkdir';
 import { read } from './powered-file-system/read';
+import { readlink } from './powered-file-system/readlink';
 import { readdir } from './powered-file-system/readdir';
+import { realpath } from './powered-file-system/realpath';
 import { remove } from './powered-file-system/remove';
 import { rename } from './powered-file-system/rename';
 import { stat } from './powered-file-system/stat';
@@ -21,6 +24,7 @@ import { write } from './powered-file-system/write';
 export type Mode = keyof IConstants;
 export type Flag = Extract<fs.OpenMode, string>;
 export type Stats = fs.Stats;
+export type CopyFilter = (src: string, dest: string) => boolean;
 
 export * from './bitmask';
 
@@ -125,7 +129,7 @@ export class PoweredFileSystem {
   copy<T extends boolean = false>(
     src: string,
     dest: string,
-    options?: { sync?: T; umask?: number }
+    options?: { sync?: T; umask?: number; overwrite?: boolean; filter?: CopyFilter }
   ): T extends true ? void : Promise<void> {
     return copy.call(this, src, dest, options);
   }
@@ -149,6 +153,16 @@ export class PoweredFileSystem {
     options?: { sync?: T }
   ): T extends true ? void : Promise<void> {
     return remove.call(this, src, options);
+  }
+
+  /**
+   * Removes all directory entries while preserving the directory itself.
+   */
+  emptyDir<T extends boolean = false>(
+    src: string,
+    options?: { sync?: T }
+  ): T extends true ? void : Promise<void> {
+    return emptyDir.call(this, src, options);
   }
 
   /**
@@ -204,6 +218,26 @@ export class PoweredFileSystem {
     options?: { sync?: T; encoding?: BufferEncoding | null }
   ): T extends true ? string[] : Promise<string[]> {
     return readdir.call(this, dir, options);
+  }
+
+  /**
+   * Resolves the target of a symbolic link.
+   */
+  readlink<T extends boolean = false>(
+    src: string,
+    options?: { sync?: T; encoding?: BufferEncoding }
+  ): T extends true ? string : Promise<string> {
+    return readlink.call(this, src, options);
+  }
+
+  /**
+   * Resolves a path to its canonical absolute location.
+   */
+  realpath<T extends boolean = false>(
+    src: string,
+    options?: { sync?: T; encoding?: BufferEncoding }
+  ): T extends true ? string : Promise<string> {
+    return realpath.call(this, src, options);
   }
 
   /**

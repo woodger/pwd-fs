@@ -31,6 +31,42 @@ It is especially useful for:
 npm install pwd-fs
 ```
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Common Recipes](#common-recipes)
+- [Compatibility](#compatibility)
+- [Exports](#exports)
+- [API](#api)
+- [`new PoweredFileSystem(pwd?)`](#new-poweredfilesystempwd)
+- [`pfs.pwd`](#pfspwd)
+- [`pfs.constants`](#pfsconstants)
+- [`PoweredFileSystem.bitmask(mode)`](#poweredfilesystembitmaskmode)
+- [`pfs.test(src, options?)`](#pfstestsrc-options)
+- [`pfs.stat(src, options?)`](#pfsstatsrc-options)
+- [`pfs.chmod(src, mode, options?)`](#pfschmodsrc-mode-options)
+- [`pfs.chown(src, options?)`](#pfschownsrc-options)
+- [`pfs.symlink(src, dest, options?)`](#pfssymlinksrc-dest-options)
+- [`pfs.copy(src, dest, options?)`](#pfscopysrc-dest-options)
+- [`pfs.rename(src, dest, options?)`](#pfsrenamesrc-dest-options)
+- [`pfs.remove(src, options?)`](#pfsremovesrc-options)
+- [`pfs.emptyDir(src, options?)`](#pfsemptydirsrc-options)
+- [`pfs.read(src, options?)`](#pfsreadsrc-options)
+- [`pfs.write(src, data, options?)`](#pfswritesrc-data-options)
+- [`pfs.append(src, data, options?)`](#pfsappendsrc-data-options)
+- [`pfs.readdir(dir, options?)`](#pfsreaddirdir-options)
+- [`pfs.readlink(src, options?)`](#pfsreadlinksrc-options)
+- [`pfs.realpath(src, options?)`](#pfsrealpathsrc-options)
+- [`pfs.mkdir(dir, options?)`](#pfsmkdirdir-options)
+- [Sync Mode](#sync-mode)
+- [Error Behavior](#error-behavior)
+- [Umask Behavior](#umask-behavior)
+- [Notes](#notes)
+- [Platform Caveats](#platform-caveats)
+- [When To Use Native `fs`](#when-to-use-native-fs)
+- [Development](#development)
+- [License](#license)
+
 ## Quick Start
 
 ```ts
@@ -64,6 +100,19 @@ Result:
 - source: `./assets`
 - destination directory: `./dist`
 - created output: `./dist/assets`
+
+### Empty a directory but keep it
+
+```ts
+await pfs.emptyDir('./cache');
+```
+
+### Resolve a symlink target
+
+```ts
+const target = await pfs.readlink('./current');
+const resolved = await pfs.realpath('./current');
+```
 
 ### Append to a file
 
@@ -232,7 +281,12 @@ Copies `src` into the destination directory.
 copy<T extends boolean = false>(
   src: string,
   dest: string,
-  options?: { sync?: T; umask?: number }
+  options?: {
+    sync?: T;
+    umask?: number;
+    overwrite?: boolean;
+    filter?: (src: string, dest: string) => boolean;
+  }
 ): T extends true ? void : Promise<void>
 ```
 
@@ -241,12 +295,21 @@ Behavior:
 - copying a file creates `dest/<basename(src)>`
 - copying a directory creates `dest/<basename(src)>` recursively
 - the target must not already exist
+- `overwrite: true` replaces an existing target entry with the same basename
+- `filter()` can skip specific source entries during the copy
 
 ```ts
 await pfs.copy('./assets', './dist');
 ```
 
 This creates `./dist/assets`, not a direct rename to `./dist`.
+
+```ts
+await pfs.copy('./assets', './dist', {
+  overwrite: true,
+  filter: (src) => !src.endsWith('.map')
+});
+```
 
 ### `pfs.rename(src, dest, options?)`
 
@@ -275,6 +338,21 @@ Behavior:
 
 - directories are removed recursively
 - symbolic links are unlinked without deleting the target
+
+### `pfs.emptyDir(src, options?)`
+
+Removes all entries inside a directory while preserving the directory itself.
+
+```ts
+emptyDir<T extends boolean = false>(
+  src: string,
+  options?: { sync?: T }
+): T extends true ? void : Promise<void>
+```
+
+```ts
+await pfs.emptyDir('./tmp');
+```
 
 ### `pfs.read(src, options?)`
 
@@ -363,6 +441,28 @@ readdir<T extends boolean = false>(
 
 - default `encoding`: `'utf8'`
 
+### `pfs.readlink(src, options?)`
+
+Reads the stored target path from a symbolic link.
+
+```ts
+readlink<T extends boolean = false>(
+  src: string,
+  options?: { sync?: T; encoding?: BufferEncoding }
+): T extends true ? string : Promise<string>
+```
+
+### `pfs.realpath(src, options?)`
+
+Resolves a path to its canonical absolute location.
+
+```ts
+realpath<T extends boolean = false>(
+  src: string,
+  options?: { sync?: T; encoding?: BufferEncoding }
+): T extends true ? string : Promise<string>
+```
+
 ### `pfs.mkdir(dir, options?)`
 
 Creates a directory tree recursively.
@@ -400,11 +500,13 @@ Typical cases:
 - `test()` is the exception:
   it returns `false` for inaccessible or missing paths instead of rejecting or throwing
 - `read()`, `stat()`, `readdir()`, `chmod()`, `chown()`, `rename()`, and `remove()` fail for missing paths
+- `readlink()` and `realpath()` fail for missing paths
 - `read()` fails when the target is a directory
 - `readdir()` fails when the target is not a directory
+- `emptyDir()` fails when the target is not a directory
 - `write()` fails when the target path points to a directory
 - `copy()` fails when the source does not exist
-- `copy()` also fails when the destination already contains an entry with the same basename as the source
+- `copy()` also fails when the destination already contains an entry with the same basename as the source, unless `overwrite: true` is used
 - `symlink()` fails when the destination already exists
 - `mkdir()` accepts an existing directory, but fails when a path segment is a file
 

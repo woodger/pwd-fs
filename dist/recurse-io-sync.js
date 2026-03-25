@@ -7,6 +7,7 @@ exports.chmodSync = chmodSync;
 exports.chownSync = chownSync;
 exports.copySync = copySync;
 exports.removeSync = removeSync;
+exports.emptyDirSync = emptyDirSync;
 exports.mkdirSync = mkdirSync;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
@@ -45,23 +46,33 @@ function chownSync(src, uid, gid) {
 /**
  * Synchronously copies a file system node into the target directory.
  */
-function copySync(src, dir, umask) {
+function copySync(src, dir, options) {
     const stat = node_fs_1.default.statSync(src);
+    const loc = node_path_1.default.basename(src);
+    const dest = node_path_1.default.join(dir, loc);
+    if (dest === src) {
+        throw new Error(`Source and destination are identical: ${src}`);
+    }
+    if (options.filter && options.filter(src, dest) === false) {
+        return;
+    }
     if (stat.isDirectory()) {
         const list = node_fs_1.default.readdirSync(src);
-        const loc = node_path_1.default.basename(src);
-        const mode = 0o777 & ~umask;
-        dir = node_path_1.default.join(dir, loc);
-        node_fs_1.default.mkdirSync(dir, { mode });
+        const mode = 0o777 & ~options.umask;
+        if (options.overwrite && node_fs_1.default.existsSync(dest)) {
+            removeSync(dest);
+        }
+        node_fs_1.default.mkdirSync(dest, { mode });
         for (const loc of list) {
-            copySync(node_path_1.default.join(src, loc), dir, umask);
+            copySync(node_path_1.default.join(src, loc), dest, options);
         }
     }
     else {
-        const loc = node_path_1.default.basename(src);
-        const use = node_path_1.default.join(dir, loc);
-        node_fs_1.default.copyFileSync(src, use);
-        node_fs_1.default.chmodSync(use, 0o666 & ~umask);
+        if (options.overwrite && node_fs_1.default.existsSync(dest)) {
+            removeSync(dest);
+        }
+        node_fs_1.default.copyFileSync(src, dest);
+        node_fs_1.default.chmodSync(dest, 0o666 & ~options.umask);
     }
 }
 /**
@@ -82,6 +93,15 @@ function removeSync(src) {
     }
     else {
         node_fs_1.default.unlinkSync(src);
+    }
+}
+/**
+ * Synchronously removes all entries inside a directory while preserving it.
+ */
+function emptyDirSync(src) {
+    const list = node_fs_1.default.readdirSync(src);
+    for (const loc of list) {
+        removeSync(node_path_1.default.join(src, loc));
     }
 }
 /**

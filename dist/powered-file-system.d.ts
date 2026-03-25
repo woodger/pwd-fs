@@ -6,6 +6,7 @@ import { bitmask } from './bitmask';
 export type Mode = keyof IConstants;
 export type Flag = Extract<fs.OpenMode, string>;
 export type Stats = fs.Stats;
+export type CopyFilter = (src: string, dest: string) => boolean;
 export * from './bitmask';
 export interface IConstants {
     e: number;
@@ -72,6 +73,8 @@ export declare class PoweredFileSystem {
     copy<T extends boolean = false>(src: string, dest: string, options?: {
         sync?: T;
         umask?: number;
+        overwrite?: boolean;
+        filter?: CopyFilter;
     }): T extends true ? void : Promise<void>;
     /**
      * Renames or moves a file system node.
@@ -83,6 +86,12 @@ export declare class PoweredFileSystem {
      * Removes a file system node recursively.
      */
     remove<T extends boolean = false>(src: string, options?: {
+        sync?: T;
+    }): T extends true ? void : Promise<void>;
+    /**
+     * Removes all directory entries while preserving the directory itself.
+     */
+    emptyDir<T extends boolean = false>(src: string, options?: {
         sync?: T;
     }): T extends true ? void : Promise<void>;
     /**
@@ -117,6 +126,20 @@ export declare class PoweredFileSystem {
         sync?: T;
         encoding?: BufferEncoding | null;
     }): T extends true ? string[] : Promise<string[]>;
+    /**
+     * Resolves the target of a symbolic link.
+     */
+    readlink<T extends boolean = false>(src: string, options?: {
+        sync?: T;
+        encoding?: BufferEncoding;
+    }): T extends true ? string : Promise<string>;
+    /**
+     * Resolves a path to its canonical absolute location.
+     */
+    realpath<T extends boolean = false>(src: string, options?: {
+        sync?: T;
+        encoding?: BufferEncoding;
+    }): T extends true ? string : Promise<string>;
     /**
      * Creates a directory tree relative to the current instance root.
      */

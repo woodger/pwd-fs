@@ -25,9 +25,12 @@ const append_1 = require("./powered-file-system/append");
 const chmod_1 = require("./powered-file-system/chmod");
 const chown_1 = require("./powered-file-system/chown");
 const copy_1 = require("./powered-file-system/copy");
+const empty_dir_1 = require("./powered-file-system/empty-dir");
 const mkdir_1 = require("./powered-file-system/mkdir");
 const read_1 = require("./powered-file-system/read");
+const readlink_1 = require("./powered-file-system/readlink");
 const readdir_1 = require("./powered-file-system/readdir");
+const realpath_1 = require("./powered-file-system/realpath");
 const remove_1 = require("./powered-file-system/remove");
 const rename_1 = require("./powered-file-system/rename");
 const stat_1 = require("./powered-file-system/stat");
@@ -111,6 +114,12 @@ class PoweredFileSystem {
         return remove_1.remove.call(this, src, options);
     }
     /**
+     * Removes all directory entries while preserving the directory itself.
+     */
+    emptyDir(src, options) {
+        return empty_dir_1.emptyDir.call(this, src, options);
+    }
+    /**
      * Reads a file relative to the current instance root.
      */
     read(src, options) {
@@ -133,6 +142,18 @@ class PoweredFileSystem {
      */
     readdir(dir, options) {
         return readdir_1.readdir.call(this, dir, options);
+    }
+    /**
+     * Resolves the target of a symbolic link.
+     */
+    readlink(src, options) {
+        return readlink_1.readlink.call(this, src, options);
+    }
+    /**
+     * Resolves a path to its canonical absolute location.
+     */
+    realpath(src, options) {
+        return realpath_1.realpath.call(this, src, options);
     }
     /**
      * Creates a directory tree relative to the current instance root.

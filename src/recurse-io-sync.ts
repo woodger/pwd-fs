@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type { ICopyOptions } from './recurse-io';
 
 /**
  * Synchronous counterpart of the recursive chmod implementation.
@@ -46,28 +47,40 @@ export function chownSync(src: string, uid: number, gid: number) {
 /**
  * Synchronously copies a file system node into the target directory.
  */
-export function copySync(src: string, dir: string, umask: number) {
+export function copySync(src: string, dir: string, options: ICopyOptions) {
   const stat = fs.statSync(src);
+  const loc = path.basename(src);
+  const dest = path.join(dir, loc);
+
+  if (dest === src) {
+    throw new Error(`Source and destination are identical: ${src}`);
+  }
+
+  if (options.filter && options.filter(src, dest) === false) {
+    return;
+  }
 
   if (stat.isDirectory()) {
     const list = fs.readdirSync(src);
+    const mode = 0o777 & ~options.umask;
 
-    const loc = path.basename(src);
-    const mode = 0o777 & ~umask;
+    if (options.overwrite && fs.existsSync(dest)) {
+      removeSync(dest);
+    }
 
-    dir = path.join(dir, loc);
-    fs.mkdirSync(dir, { mode });
+    fs.mkdirSync(dest, { mode });
 
     for (const loc of list) {
-      copySync(path.join(src, loc), dir, umask);
+      copySync(path.join(src, loc), dest, options);
     }
   }
   else {
-    const loc = path.basename(src);
-    const use = path.join(dir, loc);
+    if (options.overwrite && fs.existsSync(dest)) {
+      removeSync(dest);
+    }
 
-    fs.copyFileSync(src, use);
-    fs.chmodSync(use, 0o666 & ~umask);
+    fs.copyFileSync(src, dest);
+    fs.chmodSync(dest, 0o666 & ~options.umask);
   }
 }
 
@@ -93,6 +106,17 @@ export function removeSync(src: string) {
   }
   else {
     fs.unlinkSync(src);
+  }
+}
+
+/**
+ * Synchronously removes all entries inside a directory while preserving it.
+ */
+export function emptyDirSync(src: string) {
+  const list = fs.readdirSync(src);
+
+  for (const loc of list) {
+    removeSync(path.join(src, loc));
   }
 }
 
