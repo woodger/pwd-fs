@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "3.3.4",
+  "version": "3.3.5",
   "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
@@ -47,7 +47,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "node -e \"require('node:fs').rmSync('./dist', { recursive: true, force: true })\" && tsc",
+    "build": "tsc",
     "lint": "eslint src",
     "test": "node ./dist/suite.test.js"
   },
