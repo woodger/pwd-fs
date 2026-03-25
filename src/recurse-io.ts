@@ -1,6 +1,9 @@
 import fs, { NoParamCallback } from 'node:fs';
 import path from 'node:path';
 
+/**
+ * Applies chmod depth-first so directories are updated after their contents.
+ */
 export function chmod(src: string, mode: number, callback: NoParamCallback) {
   let reduce = 0;
 
@@ -38,6 +41,9 @@ export function chmod(src: string, mode: number, callback: NoParamCallback) {
   });
 }
 
+/**
+ * Applies ownership recursively while preserving current values when uid/gid are omitted.
+ */
 export function chown(src: string, uid: number, gid: number, callback: NoParamCallback) {
   let reduce = 0;
 
@@ -85,6 +91,9 @@ export function chown(src: string, uid: number, gid: number, callback: NoParamCa
   });
 }
 
+/**
+ * Copies a file system node into the target directory, creating directories as needed.
+ */
 export function copy(src: string, dir: string, umask: number, callback: NoParamCallback) {
   fs.stat(src, (err, stat) => {
     if (err) {
@@ -149,6 +158,9 @@ export function copy(src: string, dir: string, umask: number, callback: NoParamC
   });
 }
 
+/**
+ * Removes files, directories, and symlinks without following symbolic links.
+ */
 export function remove(src: string, callback: NoParamCallback) {
   fs.lstat(src, (err, stat) => {
     if (err) {
@@ -190,6 +202,9 @@ export function remove(src: string, callback: NoParamCallback) {
   });
 }
 
+/**
+ * Creates a directory tree with the permissions derived from the provided umask.
+ */
 export function mkdir(dir: string, umask: number, callback: NoParamCallback) {
   const mode = 0o777 & ~umask;
 

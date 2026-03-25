@@ -10,6 +10,9 @@ exports.removeSync = removeSync;
 exports.mkdirSync = mkdirSync;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Synchronous counterpart of the recursive chmod implementation.
+ */
 function chmodSync(src, mode) {
     const stats = node_fs_1.default.statSync(src);
     if (stats.isDirectory()) {
@@ -20,6 +23,9 @@ function chmodSync(src, mode) {
     }
     node_fs_1.default.chmodSync(src, mode);
 }
+/**
+ * Synchronous counterpart of the recursive chown implementation.
+ */
 function chownSync(src, uid, gid) {
     const stats = node_fs_1.default.statSync(src);
     if (uid === 0) {
@@ -36,6 +42,9 @@ function chownSync(src, uid, gid) {
     }
     node_fs_1.default.chownSync(src, uid, gid);
 }
+/**
+ * Synchronously copies a file system node into the target directory.
+ */
 function copySync(src, dir, umask) {
     const stat = node_fs_1.default.statSync(src);
     if (stat.isDirectory()) {
@@ -55,6 +64,9 @@ function copySync(src, dir, umask) {
         node_fs_1.default.chmodSync(use, 0o666 & ~umask);
     }
 }
+/**
+ * Synchronously removes files, directories, and symlinks without following links.
+ */
 function removeSync(src) {
     const stats = node_fs_1.default.lstatSync(src);
     if (stats.isSymbolicLink()) {
@@ -72,6 +84,9 @@ function removeSync(src) {
         node_fs_1.default.unlinkSync(src);
     }
 }
+/**
+ * Synchronously creates a directory tree using permissions derived from umask.
+ */
 function mkdirSync(dir, umask) {
     const mode = 0o777 & ~umask;
     node_fs_1.default.mkdirSync(dir, { recursive: true, mode });

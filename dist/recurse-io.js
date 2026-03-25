@@ -10,6 +10,9 @@ exports.remove = remove;
 exports.mkdir = mkdir;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Applies chmod depth-first so directories are updated after their contents.
+ */
 function chmod(src, mode, callback) {
     let reduce = 0;
     node_fs_1.default.stat(src, (err, stats) => {
@@ -41,6 +44,9 @@ function chmod(src, mode, callback) {
         }
     });
 }
+/**
+ * Applies ownership recursively while preserving current values when uid/gid are omitted.
+ */
 function chown(src, uid, gid, callback) {
     let reduce = 0;
     node_fs_1.default.stat(src, (err, stats) => {
@@ -79,6 +85,9 @@ function chown(src, uid, gid, callback) {
         }
     });
 }
+/**
+ * Copies a file system node into the target directory, creating directories as needed.
+ */
 function copy(src, dir, umask, callback) {
     node_fs_1.default.stat(src, (err, stat) => {
         if (err) {
@@ -131,6 +140,9 @@ function copy(src, dir, umask, callback) {
         }
     });
 }
+/**
+ * Removes files, directories, and symlinks without following symbolic links.
+ */
 function remove(src, callback) {
     node_fs_1.default.lstat(src, (err, stat) => {
         if (err) {
@@ -165,6 +177,9 @@ function remove(src, callback) {
         }
     });
 }
+/**
+ * Creates a directory tree with the permissions derived from the provided umask.
+ */
 function mkdir(dir, umask, callback) {
     const mode = 0o777 & ~umask;
     node_fs_1.default.mkdir(dir, { recursive: true, mode }, (err) => {

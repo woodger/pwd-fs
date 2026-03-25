@@ -27,6 +27,7 @@ export function remove<T extends boolean = false>(
     };
 
     if ('rm' in fs) {
+      // Prefer the native recursive removal when the runtime supports it.
       fs.rm(src, { recursive: true }, callback);
     }
     else {

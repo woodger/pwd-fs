@@ -23,6 +23,7 @@ function remove(src, options) {
             resolve();
         };
         if ('rm' in node_fs_1.default) {
+            // Prefer the native recursive removal when the runtime supports it.
             node_fs_1.default.rm(src, { recursive: true }, callback);
         }
         else {

@@ -14,6 +14,7 @@ export function chown<T extends boolean = false>(
 
   if (sync) {
     if (process.platform === 'win32') {
+      // Windows does not expose POSIX ownership changes; keep existence checks consistent.
       fs.lstatSync(src);
       return undefined as any;
     }
@@ -24,6 +25,7 @@ export function chown<T extends boolean = false>(
 
   if (process.platform === 'win32') {
     return new Promise<void>((resolve, reject) => {
+      // Match Unix behavior by validating the path even when ownership cannot be changed.
       fs.lstat(src, (err) => {
         if (err) {
           return reject(err);

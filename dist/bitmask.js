@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.bitmask = bitmask;
+/**
+ * Normalizes a permission mask to the standard rwxrwxrwx bit set.
+ */
 function bitmask(mode) {
     if (typeof mode !== 'number') {
         throw new TypeError(`Expected 'number', got '${typeof mode}'`);

@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.symlink = symlink;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+/**
+ * Windows requires an explicit link type. Non-Windows platforms infer it.
+ */
 function resolveSymlinkType(src) {
     if (process.platform !== 'win32') {
         return undefined;

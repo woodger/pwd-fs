@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { PoweredFileSystem } from '../powered-file-system';
 
+/**
+ * Windows requires an explicit link type. Non-Windows platforms infer it.
+ */
 function resolveSymlinkType(src: string): fs.symlink.Type | undefined {
   if (process.platform !== 'win32') {
     return undefined;

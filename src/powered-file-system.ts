@@ -28,9 +28,18 @@ export interface IConstants {
   x: number
 }
 
+/**
+ * Path-aware wrapper around Node's file system APIs.
+ *
+ * All relative paths are resolved against `pwd`, which makes the instance
+ * suitable for sandboxed or virtual working-directory workflows.
+ */
 export class PoweredFileSystem {
   readonly pwd: string;
 
+  /**
+   * Access mode aliases used by `test()`.
+   */
   readonly constants: IConstants = {
     e: fs.constants.F_OK,
     r: fs.constants.R_OK,
@@ -38,12 +47,21 @@ export class PoweredFileSystem {
     x: fs.constants.X_OK
   };
 
+  /**
+   * Exposes permission mask normalization as a static helper.
+   */
   static bitmask = bitmask;
 
+  /**
+   * @param pwd Base directory used to resolve all relative paths.
+   */
   constructor(pwd?: string) {
     this.pwd = pwd ? path.resolve(pwd) : process.cwd();
   }
 
+  /**
+   * Checks whether the given path is accessible with the requested mode.
+   */
   test<T extends boolean = false>(
     src: string,
     options?: {
@@ -54,6 +72,9 @@ export class PoweredFileSystem {
     return test.call(this, src, options);
   }
 
+  /**
+   * Returns `lstat` information for a path.
+   */
   stat<T extends boolean = false>(
     src: string,
     options?: {
@@ -63,6 +84,9 @@ export class PoweredFileSystem {
     return stat.call(this, src, options);
   }
 
+  /**
+   * Applies a mode recursively to a file or directory tree.
+   */
   chmod<T extends boolean = false>(
     src: string,
     mode: number,
@@ -71,6 +95,9 @@ export class PoweredFileSystem {
     return chmod.call(this, src, mode, options);
   }
 
+  /**
+   * Applies ownership recursively to a file or directory tree.
+   */
   chown<T extends boolean = false>(
     src: string,
     options?: { sync?: T; uid?: number; gid?: number }
@@ -78,6 +105,9 @@ export class PoweredFileSystem {
     return chown.call(this, src, options);
   }
 
+  /**
+   * Creates a symbolic link from `dest` to `src`.
+   */
   symlink<T extends boolean = false>(
     src: string,
     dest: string,
@@ -86,6 +116,9 @@ export class PoweredFileSystem {
     return symlink.call(this, src, dest, options);
   }
 
+  /**
+   * Copies `src` into the destination directory.
+   */
   copy<T extends boolean = false>(
     src: string,
     dest: string,
@@ -94,6 +127,9 @@ export class PoweredFileSystem {
     return copy.call(this, src, dest, options);
   }
 
+  /**
+   * Renames or moves a file system node.
+   */
   rename<T extends boolean = false>(
     src: string,
     dest: string,
@@ -102,6 +138,9 @@ export class PoweredFileSystem {
     return rename.call(this, src, dest, options);
   }
 
+  /**
+   * Removes a file system node recursively.
+   */
   remove<T extends boolean = false>(
     src: string,
     options?: { sync?: T }
@@ -109,6 +148,9 @@ export class PoweredFileSystem {
     return remove.call(this, src, options);
   }
 
+  /**
+   * Reads a file relative to the current instance root.
+   */
   read<T extends boolean = false>(
     src: string,
     options?: {
@@ -120,6 +162,9 @@ export class PoweredFileSystem {
     return read.call(this, src, options);
   }
 
+  /**
+   * Writes a file and applies the resulting permissions explicitly.
+   */
   write<T extends boolean = false>(
     src: string,
     data: Buffer | string,
@@ -134,8 +179,8 @@ export class PoweredFileSystem {
   }
 
   /**
-  * @deprecated The method should not be used
-  */
+   * @deprecated Use `write(..., { flag: 'a' })` instead.
+   */
   append<T extends boolean = false>(
     src: string,
     data: Buffer | string,
@@ -148,6 +193,9 @@ export class PoweredFileSystem {
     return append.call(this, src, data, options);
   }
 
+  /**
+   * Lists directory entries relative to the current instance root.
+   */
   readdir<T extends boolean = false>(
     dir: string,
     options?: { sync?: T; encoding?: BufferEncoding | null }
@@ -155,6 +203,9 @@ export class PoweredFileSystem {
     return readdir.call(this, dir, options);
   }
 
+  /**
+   * Creates a directory tree relative to the current instance root.
+   */
   mkdir<T extends boolean = false>(
     dir: string,
     options?: { sync?: T; umask?: number }

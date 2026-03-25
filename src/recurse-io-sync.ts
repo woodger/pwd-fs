@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+/**
+ * Synchronous counterpart of the recursive chmod implementation.
+ */
 export function chmodSync(src: string, mode: number) {
   const stats = fs.statSync(src);
 
@@ -15,6 +18,9 @@ export function chmodSync(src: string, mode: number) {
   fs.chmodSync(src, mode);
 }
 
+/**
+ * Synchronous counterpart of the recursive chown implementation.
+ */
 export function chownSync(src: string, uid: number, gid: number) {
   const stats = fs.statSync(src);
 
@@ -37,6 +43,9 @@ export function chownSync(src: string, uid: number, gid: number) {
   fs.chownSync(src, uid, gid);
 }
 
+/**
+ * Synchronously copies a file system node into the target directory.
+ */
 export function copySync(src: string, dir: string, umask: number) {
   const stat = fs.statSync(src);
 
@@ -62,6 +71,9 @@ export function copySync(src: string, dir: string, umask: number) {
   }
 }
 
+/**
+ * Synchronously removes files, directories, and symlinks without following links.
+ */
 export function removeSync(src: string) {
   const stats = fs.lstatSync(src);
 
@@ -84,6 +96,9 @@ export function removeSync(src: string) {
   }
 }
 
+/**
+ * Synchronously creates a directory tree using permissions derived from umask.
+ */
 export function mkdirSync(dir: string, umask: number) {
   const mode = 0o777 & ~umask;
   fs.mkdirSync(dir, { recursive: true, mode });

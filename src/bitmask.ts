@@ -1,3 +1,6 @@
+/**
+ * Normalizes a permission mask to the standard rwxrwxrwx bit set.
+ */
 export function bitmask(mode: number): number {
   if (typeof mode !== 'number') {
     throw new TypeError(`Expected 'number', got '${typeof mode}'`);

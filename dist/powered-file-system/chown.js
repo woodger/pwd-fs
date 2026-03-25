@@ -13,6 +13,7 @@ function chown(src, options) {
     src = node_path_1.default.resolve(this.pwd, src);
     if (sync) {
         if (process.platform === 'win32') {
+            // Windows does not expose POSIX ownership changes; keep existence checks consistent.
             node_fs_1.default.lstatSync(src);
             return undefined;
         }
@@ -21,6 +22,7 @@ function chown(src, options) {
     }
     if (process.platform === 'win32') {
         return new Promise((resolve, reject) => {
+            // Match Unix behavior by validating the path even when ownership cannot be changed.
             node_fs_1.default.lstat(src, (err) => {
                 if (err) {
                     return reject(err);
