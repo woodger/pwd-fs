@@ -5,6 +5,8 @@ import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
 import { pfs } from '../src';
 
+const itUnix = process.platform === 'win32' ? it.skip : it;
+
 describe('write(src, data[, options])', () => {
   const chance = new Chance();
 
@@ -103,7 +105,7 @@ describe('write(src, data[, options])', () => {
   });
 
 
-  it('[sync] Positive: Umask should be applied with bit masking', () => {
+  itUnix('[sync] Positive: Umask should be applied with bit masking', () => {
     const guid = chance.guid();
 
     pfs.write(`./tmpdir/${guid}.txt`, 'x', {

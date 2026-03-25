@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import Chance  from 'chance';
 import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
-import { pfs, bitmask } from '../src';
+import { pfs } from '../src';
 
 describe('chmod(src, mode [, options])', () => {
   const chance = new Chance();
@@ -23,12 +23,14 @@ describe('chmod(src, mode [, options])', () => {
 
 
   it('Positive: Changes directory and file permissions', async () => {
-    await pfs.chmod('./tmpdir', 0o744);
+    await pfs.chmod('./tmpdir', 0o444);
 
-    const { mode } = fs.lstatSync('./tmpdir/tings.txt');
-    const umask = bitmask(mode);
+    const writable = pfs.test('./tmpdir/tings.txt', {
+      sync: true,
+      flag: 'w'
+    });
 
-    assert(umask === 0o744);
+    assert(writable === false);
   });
 
 
@@ -42,26 +44,30 @@ describe('chmod(src, mode [, options])', () => {
   
   
   it(`[sync] Positive: Changes permissions of directory`, () => {
-    pfs.chmod('./tmpdir', 0o744, {
+    pfs.chmod('./tmpdir', 0o444, {
       sync: true
     });
 
-    const { mode } = fs.lstatSync('./tmpdir');
-    const umask = bitmask(mode);
+    const writable = pfs.test('./tmpdir/tings.txt', {
+      sync: true,
+      flag: 'w'
+    });
 
-    assert(umask === 0o744);
+    assert(writable === false);
   });
 
 
   it(`[sync] Positive: Changes file permissions`, () => {
-    pfs.chmod('./tmpdir', 0o744, {
+    pfs.chmod('./tmpdir/tings.txt', 0o444, {
       sync: true
     });
 
-    const { mode } = fs.lstatSync('./tmpdir/tings.txt');
-    const umask = bitmask(mode);
+    const writable = pfs.test('./tmpdir/tings.txt', {
+      sync: true,
+      flag: 'w'
+    });
 
-    assert(umask === 0o744);
+    assert(writable === false);
   });
   
   

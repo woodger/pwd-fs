@@ -1,5 +1,7 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import Chance  from 'chance';
 import { expect } from 'expect';
 import { fmock, restore } from './__fmock';
@@ -122,7 +124,7 @@ describe('mkdir(src [, options])', () => {
 
   it('[sync] Positive: Absolute pwd should create the target directory itself', () => {
     const guid = chance.guid();
-    const target = `/tmp/${guid}`;
+    const target = path.join(os.tmpdir(), guid);
     const pfs = new PoweredFileSystem(target);
 
     try {

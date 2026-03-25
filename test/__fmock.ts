@@ -21,7 +21,14 @@ export function fmock(frame: Iframe) {
     }
     
     if (value.type === 'symlink') {
-      fs.symlinkSync(value.target, src);
+      let type: fs.symlink.Type | undefined;
+
+      if (process.platform === 'win32') {
+        const stats = fs.lstatSync(value.target);
+        type = stats.isDirectory() ? 'junction' : 'file';
+      }
+
+      fs.symlinkSync(value.target, src, type);
     }
   }
 }
@@ -30,7 +37,7 @@ export function restore(tmpDir: string) {
   const removeRecursive = (src: string) => {
     if (fs.existsSync(src)) {
       fs.readdirSync(src).forEach((item) => {
-        const curl = `${src}/${item}`;
+        const curl = path.join(src, item);
 
         if (fs.lstatSync(curl).isDirectory()) {
           removeRecursive(curl);

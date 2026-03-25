@@ -16,6 +16,7 @@ export declare class PoweredFileSystem {
     static bitmask: typeof bitmask;
     constructor(pwd?: string);
     private resolve;
+    private resolveSymlinkType;
     test<T extends boolean = false>(src: string, options?: {
         sync?: T;
         flag?: Mode;

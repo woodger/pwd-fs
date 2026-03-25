@@ -37,6 +37,15 @@ export class PoweredFileSystem {
     return path.resolve(this.pwd, src);
   }
 
+  private resolveSymlinkType(src: string): fs.symlink.Type | undefined {
+    if (process.platform !== 'win32') {
+      return undefined;
+    }
+
+    const stats = fs.lstatSync(src);
+    return stats.isDirectory() ? 'junction' : 'file';
+  }
+
   test<T extends boolean = false>(
     src: string,
     options?: {
@@ -121,8 +130,25 @@ export class PoweredFileSystem {
     src = this.resolve(src);
 
     if (sync) {
+      if (process.platform === 'win32') {
+        fs.lstatSync(src);
+        return undefined as any;
+      }
+
       chownSync(src, uid, gid);
       return undefined as any;
+    }
+
+    if (process.platform === 'win32') {
+      return new Promise<void>((resolve, reject) => {
+        fs.lstat(src, (err) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve();
+        });
+      }) as any;
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -147,18 +173,38 @@ export class PoweredFileSystem {
     const { sync = false as T } = options ?? {};
 
     if (sync) {
-      fs.symlinkSync(src, dest);
+      const type = this.resolveSymlinkType(src);
+      fs.symlinkSync(src, dest, type);
       return undefined as any;
     }
 
     return new Promise<void>((resolve, reject) => {
-      fs.symlink(src, dest, (err) => {
-        if (err) {
-          return reject(err);
-        }
+      if (process.platform === 'win32') {
+        fs.lstat(src, (err, stats) => {
+          if (err) {
+            return reject(err);
+          }
 
-        resolve();
-      });
+          const type: fs.symlink.Type = stats.isDirectory() ? 'junction' : 'file';
+
+          fs.symlink(src, dest, type, (err) => {
+            if (err) {
+              return reject(err);
+            }
+
+            resolve();
+          });
+        });
+      }
+      else {
+        fs.symlink(src, dest, (err) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve();
+        });
+      }
     }) as any;
   }
 

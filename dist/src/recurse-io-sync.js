@@ -76,4 +76,3 @@ function mkdirSync(dir, umask) {
     const mode = 0o777 & ~umask;
     node_fs_1.default.mkdirSync(dir, { recursive: true, mode });
 }
-//# sourceMappingURL=recurse-io-sync.js.map

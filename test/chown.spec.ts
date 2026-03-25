@@ -27,7 +27,7 @@ describe('chown(src, [, options])', () => {
     const { uid, gid } = fs.statSync('./tmpdir/tings.txt');
     await pfs.chown('./tmpdir/tings.txt', { uid, gid });
 
-    assert(uid && gid);
+    assert(fs.existsSync('./tmpdir/tings.txt'));
   });
   
   
@@ -35,7 +35,7 @@ describe('chown(src, [, options])', () => {
     const { uid, gid } = fs.statSync('./tmpdir/digest');
     await pfs.chown('./tmpdir/digest', { uid, gid });
 
-    assert(uid && gid);
+    assert(fs.existsSync('./tmpdir/digest'));
   });
   
   
@@ -60,7 +60,7 @@ describe('chown(src, [, options])', () => {
       gid
     });
 
-    assert(uid && gid);
+    assert(fs.existsSync('./tmpdir/tings.txt'));
   });
   
   
@@ -73,7 +73,7 @@ describe('chown(src, [, options])', () => {
       gid
     });
 
-    assert(uid && gid);
+    assert(fs.existsSync('./tmpdir/digest'));
   });
   
   

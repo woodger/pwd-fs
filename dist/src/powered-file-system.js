@@ -39,6 +39,13 @@ class PoweredFileSystem {
     resolve(src) {
         return node_path_1.default.resolve(this.pwd, src);
     }
+    resolveSymlinkType(src) {
+        if (process.platform !== 'win32') {
+            return undefined;
+        }
+        const stats = node_fs_1.default.lstatSync(src);
+        return stats.isDirectory() ? 'junction' : 'file';
+    }
     test(src, options) {
         const { sync = false, flag = 'e' } = options ?? {};
         const mode = this.constants[flag];
@@ -93,8 +100,22 @@ class PoweredFileSystem {
         const { sync = false, uid = 0, gid = 0 } = options ?? {};
         src = this.resolve(src);
         if (sync) {
+            if (process.platform === 'win32') {
+                node_fs_1.default.lstatSync(src);
+                return undefined;
+            }
             (0, recurse_io_sync_1.chownSync)(src, uid, gid);
             return undefined;
+        }
+        if (process.platform === 'win32') {
+            return new Promise((resolve, reject) => {
+                node_fs_1.default.lstat(src, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            });
         }
         return new Promise((resolve, reject) => {
             (0, recurse_io_1.chown)(src, uid, gid, (err) => {
@@ -110,16 +131,33 @@ class PoweredFileSystem {
         dest = this.resolve(dest);
         const { sync = false } = options ?? {};
         if (sync) {
-            node_fs_1.default.symlinkSync(src, dest);
+            const type = this.resolveSymlinkType(src);
+            node_fs_1.default.symlinkSync(src, dest, type);
             return undefined;
         }
         return new Promise((resolve, reject) => {
-            node_fs_1.default.symlink(src, dest, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
+            if (process.platform === 'win32') {
+                node_fs_1.default.lstat(src, (err, stats) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    const type = stats.isDirectory() ? 'junction' : 'file';
+                    node_fs_1.default.symlink(src, dest, type, (err) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve();
+                    });
+                });
+            }
+            else {
+                node_fs_1.default.symlink(src, dest, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }
         });
     }
     copy(src, dest, options) {
@@ -261,4 +299,3 @@ class PoweredFileSystem {
     }
 }
 exports.PoweredFileSystem = PoweredFileSystem;
-//# sourceMappingURL=powered-file-system.js.map

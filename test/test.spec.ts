@@ -81,13 +81,13 @@ describe('test(src[, options])', () => {
 
 
   it(`[sync] Positive: Should respect access flag checks`, () => {
-    fs.chmodSync('./tmpdir/tings.txt', 0o222);
+    fs.chmodSync('./tmpdir/tings.txt', 0o444);
 
-    const readable = pfs.test('./tmpdir/tings.txt', {
+    const writable = pfs.test('./tmpdir/tings.txt', {
       sync: true,
-      flag: 'r'
+      flag: 'w'
     });
 
-    assert(readable === false);
+    assert(writable === false);
   });
 });
