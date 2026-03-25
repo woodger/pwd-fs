@@ -9,13 +9,12 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.ts', 'test/**/*.ts'],
+    files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        ...globals.node,
-        ...globals.mocha
+        ...globals.node
       }
     },
     rules: {
