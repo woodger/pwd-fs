@@ -20,9 +20,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PoweredFileSystem = void 0;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
-const recurse_io_1 = require("./recurse-io");
-const recurse_io_sync_1 = require("./recurse-io-sync");
 const bitmask_1 = require("./bitmask");
+const append_1 = require("./powered-file-system/append");
+const chmod_1 = require("./powered-file-system/chmod");
+const chown_1 = require("./powered-file-system/chown");
+const copy_1 = require("./powered-file-system/copy");
+const mkdir_1 = require("./powered-file-system/mkdir");
+const read_1 = require("./powered-file-system/read");
+const readdir_1 = require("./powered-file-system/readdir");
+const remove_1 = require("./powered-file-system/remove");
+const rename_1 = require("./powered-file-system/rename");
+const stat_1 = require("./powered-file-system/stat");
+const symlink_1 = require("./powered-file-system/symlink");
+const test_1 = require("./powered-file-system/test");
+const write_1 = require("./powered-file-system/write");
 __exportStar(require("./bitmask"), exports);
 class PoweredFileSystem {
     pwd;
@@ -36,266 +47,47 @@ class PoweredFileSystem {
     constructor(pwd) {
         this.pwd = pwd ? node_path_1.default.resolve(pwd) : process.cwd();
     }
-    resolve(src) {
-        return node_path_1.default.resolve(this.pwd, src);
-    }
-    resolveSymlinkType(src) {
-        if (process.platform !== 'win32') {
-            return undefined;
-        }
-        const stats = node_fs_1.default.lstatSync(src);
-        return stats.isDirectory() ? 'junction' : 'file';
-    }
     test(src, options) {
-        const { sync = false, flag = 'e' } = options ?? {};
-        const mode = this.constants[flag];
-        src = node_path_1.default.resolve(this.pwd, src);
-        if (sync) {
-            try {
-                node_fs_1.default.accessSync(src, mode);
-                return true;
-            }
-            catch {
-                return false;
-            }
-        }
-        return new Promise((resolve) => {
-            node_fs_1.default.access(src, mode, (err) => {
-                resolve(!err);
-            });
-        });
+        return test_1.test.call(this, src, options);
     }
     stat(src, options) {
-        const { sync = false } = options ?? {};
-        src = this.resolve(src);
-        if (sync) {
-            return node_fs_1.default.lstatSync(src);
-        }
-        return new Promise((resolve, reject) => {
-            node_fs_1.default.lstat(src, (err, stats) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(stats);
-            });
-        });
+        return stat_1.stat.call(this, src, options);
     }
     chmod(src, mode, options) {
-        const { sync = false } = options ?? {};
-        src = this.resolve(src);
-        if (sync) {
-            (0, recurse_io_sync_1.chmodSync)(src, mode);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            (0, recurse_io_1.chmod)(src, mode, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        });
+        return chmod_1.chmod.call(this, src, mode, options);
     }
     chown(src, options) {
-        const { sync = false, uid = 0, gid = 0 } = options ?? {};
-        src = this.resolve(src);
-        if (sync) {
-            if (process.platform === 'win32') {
-                node_fs_1.default.lstatSync(src);
-                return undefined;
-            }
-            (0, recurse_io_sync_1.chownSync)(src, uid, gid);
-            return undefined;
-        }
-        if (process.platform === 'win32') {
-            return new Promise((resolve, reject) => {
-                node_fs_1.default.lstat(src, (err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            });
-        }
-        return new Promise((resolve, reject) => {
-            (0, recurse_io_1.chown)(src, uid, gid, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        });
+        return chown_1.chown.call(this, src, options);
     }
     symlink(src, dest, options) {
-        src = this.resolve(src);
-        dest = this.resolve(dest);
-        const { sync = false } = options ?? {};
-        if (sync) {
-            const type = this.resolveSymlinkType(src);
-            node_fs_1.default.symlinkSync(src, dest, type);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            if (process.platform === 'win32') {
-                node_fs_1.default.lstat(src, (err, stats) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    const type = stats.isDirectory() ? 'junction' : 'file';
-                    node_fs_1.default.symlink(src, dest, type, (err) => {
-                        if (err) {
-                            return reject(err);
-                        }
-                        resolve();
-                    });
-                });
-            }
-            else {
-                node_fs_1.default.symlink(src, dest, (err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }
-        });
+        return symlink_1.symlink.call(this, src, dest, options);
     }
     copy(src, dest, options) {
-        src = this.resolve(src);
-        dest = this.resolve(dest);
-        const { sync = false, umask = 0o000 } = options ?? {};
-        if (sync) {
-            (0, recurse_io_sync_1.copySync)(src, dest, umask);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            (0, recurse_io_1.copy)(src, dest, umask, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        });
+        return copy_1.copy.call(this, src, dest, options);
     }
     rename(src, dest, options) {
-        src = this.resolve(src);
-        dest = this.resolve(dest);
-        const { sync = false } = options ?? {};
-        if (sync) {
-            node_fs_1.default.renameSync(src, dest);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            node_fs_1.default.rename(src, dest, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        });
+        return rename_1.rename.call(this, src, dest, options);
     }
     remove(src, options) {
-        src = this.resolve(src);
-        const { sync = false } = options ?? {};
-        if (sync) {
-            (0, recurse_io_sync_1.removeSync)(src);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            const callback = (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            };
-            if ('rm' in node_fs_1.default) {
-                node_fs_1.default.rm(src, { recursive: true }, callback);
-            }
-            else {
-                (0, recurse_io_1.remove)(src, callback);
-            }
-        });
+        return remove_1.remove.call(this, src, options);
     }
     read(src, options) {
-        const { sync = false, encoding = 'utf8', flag = 'r' } = options ?? {};
-        const resolved = this.resolve(src);
-        if (sync) {
-            if (encoding === null) {
-                return node_fs_1.default.readFileSync(resolved, { encoding: null, flag });
-            }
-            else {
-                return node_fs_1.default.readFileSync(resolved, { encoding, flag });
-            }
-        }
-        return new Promise((resolve, reject) => {
-            node_fs_1.default.readFile(resolved, { encoding, flag }, (err, raw) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(raw);
-            });
-        });
+        return read_1.read.call(this, src, options);
     }
     write(src, data, options) {
-        const { sync = false, encoding = 'utf8', umask = 0o000, flag = 'w', } = options ?? {};
-        src = this.resolve(src);
-        const mode = 0o666 & ~umask;
-        if (sync) {
-            node_fs_1.default.writeFileSync(src, data, { encoding, mode, flag });
-            node_fs_1.default.chmodSync(src, mode);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            node_fs_1.default.writeFile(src, data, { encoding, mode, flag }, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                node_fs_1.default.chmod(src, mode, (err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            });
-        });
+        return write_1.write.call(this, src, data, options);
     }
     /**
     * @deprecated The method should not be used
     */
     append(src, data, options) {
-        const { sync = false, encoding = 'utf8', umask = 0o000 } = options ?? {};
-        return this.write(src, data, { sync, encoding, umask, flag: 'a' });
+        return append_1.append.call(this, src, data, options);
     }
     readdir(dir, options) {
-        const { sync = false, encoding = 'utf8' } = options ?? {};
-        dir = this.resolve(dir);
-        if (sync) {
-            return node_fs_1.default.readdirSync(dir, { encoding });
-        }
-        return new Promise((resolve, reject) => {
-            node_fs_1.default.readdir(dir, { encoding }, (err, list) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(list);
-            });
-        });
+        return readdir_1.readdir.call(this, dir, options);
     }
     mkdir(dir, options) {
-        const { sync = false, umask = 0o000 } = options ?? {};
-        dir = this.resolve(dir);
-        if (sync) {
-            (0, recurse_io_sync_1.mkdirSync)(dir, umask);
-            return undefined;
-        }
-        return new Promise((resolve, reject) => {
-            (0, recurse_io_1.mkdir)(dir, umask, (err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        });
+        return mkdir_1.mkdir.call(this, dir, options);
     }
 }
 exports.PoweredFileSystem = PoweredFileSystem;

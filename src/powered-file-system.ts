@@ -1,8 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { chmod, chown, copy, remove, mkdir } from './recurse-io';
-import { chmodSync, chownSync, copySync, removeSync, mkdirSync } from './recurse-io-sync';
 import { bitmask } from './bitmask';
+import { append } from './powered-file-system/append';
+import { chmod } from './powered-file-system/chmod';
+import { chown } from './powered-file-system/chown';
+import { copy } from './powered-file-system/copy';
+import { mkdir } from './powered-file-system/mkdir';
+import { read } from './powered-file-system/read';
+import { readdir } from './powered-file-system/readdir';
+import { remove } from './powered-file-system/remove';
+import { rename } from './powered-file-system/rename';
+import { stat } from './powered-file-system/stat';
+import { symlink } from './powered-file-system/symlink';
+import { test } from './powered-file-system/test';
+import { write } from './powered-file-system/write';
 
 export type Mode = keyof IConstants;
 export type Flag = Mode | 'a';
@@ -32,19 +43,6 @@ export class PoweredFileSystem {
   constructor(pwd?: string) {
     this.pwd = pwd ? path.resolve(pwd) : process.cwd();
   }
-  
-  private resolve(src: string) {
-    return path.resolve(this.pwd, src);
-  }
-
-  private resolveSymlinkType(src: string): fs.symlink.Type | undefined {
-    if (process.platform !== 'win32') {
-      return undefined;
-    }
-
-    const stats = fs.lstatSync(src);
-    return stats.isDirectory() ? 'junction' : 'file';
-  }
 
   test<T extends boolean = false>(
     src: string,
@@ -53,25 +51,7 @@ export class PoweredFileSystem {
       flag?: Mode;
     }
   ): T extends true ? boolean : Promise<boolean> {
-    const { sync = false as T, flag = 'e' } = options ?? {};
-    const mode = this.constants[flag];
-    src = path.resolve(this.pwd, src);
-
-    if (sync) {
-      try {
-        fs.accessSync(src, mode);
-        return true as any;
-      }
-      catch {
-        return false as any;
-      }
-    }
-
-    return new Promise<boolean>((resolve) => {
-      fs.access(src, mode, (err) => {
-        resolve(!err);
-      });
-    }) as any;
+    return test.call(this, src, options);
   }
 
   stat<T extends boolean = false>(
@@ -80,22 +60,7 @@ export class PoweredFileSystem {
       sync?: T;
     }
   ): T extends true ? Stats : Promise<Stats> {
-    const { sync = false as T } = options ?? {};
-    src = this.resolve(src);
-
-    if (sync) {
-      return fs.lstatSync(src) as any;
-    }
-
-    return new Promise<Stats>((resolve, reject) => {
-      fs.lstat(src, (err, stats) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve(stats);
-      });
-    }) as any;
+    return stat.call(this, src, options);
   }
 
   chmod<T extends boolean = false>(
@@ -103,63 +68,14 @@ export class PoweredFileSystem {
     mode: number,
     options?: { sync?: T }
   ): T extends true ? void : Promise<void> {
-    const { sync = false as T } = options ?? {};
-    src = this.resolve(src);
-
-    if (sync) {
-      chmodSync(src, mode);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      chmod(src, mode, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    }) as any;
+    return chmod.call(this, src, mode, options);
   }
 
   chown<T extends boolean = false>(
     src: string,
     options?: { sync?: T; uid?: number; gid?: number }
   ): T extends true ? void : Promise<void> {
-    const { sync = false as T, uid = 0, gid = 0 } = options ?? {};
-    src = this.resolve(src);
-
-    if (sync) {
-      if (process.platform === 'win32') {
-        fs.lstatSync(src);
-        return undefined as any;
-      }
-
-      chownSync(src, uid, gid);
-      return undefined as any;
-    }
-
-    if (process.platform === 'win32') {
-      return new Promise<void>((resolve, reject) => {
-        fs.lstat(src, (err) => {
-          if (err) {
-            return reject(err);
-          }
-
-          resolve();
-        });
-      }) as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      chown(src, uid, gid, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    }) as any;
+    return chown.call(this, src, options);
   }
 
   symlink<T extends boolean = false>(
@@ -167,45 +83,7 @@ export class PoweredFileSystem {
     dest: string,
     options?: { sync?: T }
   ): T extends true ? void : Promise<void> {
-    src = this.resolve(src);
-    dest = this.resolve(dest);
-
-    const { sync = false as T } = options ?? {};
-
-    if (sync) {
-      const type = this.resolveSymlinkType(src);
-      fs.symlinkSync(src, dest, type);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      if (process.platform === 'win32') {
-        fs.lstat(src, (err, stats) => {
-          if (err) {
-            return reject(err);
-          }
-
-          const type: fs.symlink.Type = stats.isDirectory() ? 'junction' : 'file';
-
-          fs.symlink(src, dest, type, (err) => {
-            if (err) {
-              return reject(err);
-            }
-
-            resolve();
-          });
-        });
-      }
-      else {
-        fs.symlink(src, dest, (err) => {
-          if (err) {
-            return reject(err);
-          }
-
-          resolve();
-        });
-      }
-    }) as any;
+    return symlink.call(this, src, dest, options);
   }
 
   copy<T extends boolean = false>(
@@ -213,25 +91,7 @@ export class PoweredFileSystem {
     dest: string,
     options?: { sync?: T; umask?: number }
   ): T extends true ? void : Promise<void> {
-    src = this.resolve(src);
-    dest = this.resolve(dest);
-
-    const { sync = false as T, umask = 0o000 } = options ?? {};
-
-    if (sync) {
-      copySync(src, dest, umask);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      copy(src, dest, umask, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    }) as any;
+    return copy.call(this, src, dest, options);
   }
 
   rename<T extends boolean = false>(
@@ -239,55 +99,14 @@ export class PoweredFileSystem {
     dest: string,
     options?: { sync?: T }
   ): T extends true ? void : Promise<void> {
-    src = this.resolve(src);
-    dest = this.resolve(dest);
-
-    const { sync = false as T } = options ?? {};
-
-    if (sync) {
-      fs.renameSync(src, dest);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      fs.rename(src, dest, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    }) as any;
+    return rename.call(this, src, dest, options);
   }
 
   remove<T extends boolean = false>(
     src: string,
     options?: { sync?: T }
   ): T extends true ? void : Promise<void> {
-    src = this.resolve(src);
-    const { sync = false as T } = options ?? {};
-
-    if (sync) {
-      removeSync(src);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      const callback: fs.NoParamCallback = (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      };
-
-      if ('rm' in fs) {
-        fs.rm(src, { recursive: true }, callback);
-      }
-      else {
-        remove(src, callback);
-      }
-    }) as any;
+    return remove.call(this, src, options);
   }
 
   read<T extends boolean = false>(
@@ -298,27 +117,7 @@ export class PoweredFileSystem {
       flag?: Flag;
     }
   ): T extends true ? string | Buffer : Promise<string | Buffer> {
-    const { sync = false as T, encoding = 'utf8', flag = 'r' } = options ?? {};
-    const resolved = this.resolve(src);
-
-    if (sync) {
-      if (encoding === null) {
-        return fs.readFileSync(resolved, { encoding: null, flag }) as any;
-      }
-      else {
-        return fs.readFileSync(resolved, { encoding, flag }) as any;
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      fs.readFile(resolved, { encoding, flag }, (err, raw) => {
-        if (err) {
-          return reject(err);
-        }
-        
-        resolve(raw);
-      });
-    }) as any;
+    return read.call(this, src, options);
   }
 
   write<T extends boolean = false>(
@@ -331,37 +130,7 @@ export class PoweredFileSystem {
       flag?: Flag;
     }
   ): T extends true ? void : Promise<void> {
-    const {
-      sync = false as T,
-      encoding = 'utf8',
-      umask = 0o000,
-      flag = 'w',
-    } = options ?? {};
-    src = this.resolve(src);
-
-    const mode = 0o666 & ~umask;
-
-    if (sync) {
-      fs.writeFileSync(src, data, { encoding, mode, flag });
-      fs.chmodSync(src, mode);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      fs.writeFile(src, data, { encoding, mode, flag }, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        fs.chmod(src, mode, (err) => {
-          if (err) {
-            return reject(err);
-          }
-
-          resolve();
-        });
-      });
-    }) as any;
+    return write.call(this, src, data, options);
   }
 
   /**
@@ -376,53 +145,20 @@ export class PoweredFileSystem {
       umask?: number;
     }
   ): T extends true ? void : Promise<void> {
-    const { sync = false as T, encoding = 'utf8', umask = 0o000 } = options ?? {};
-
-    return this.write(src, data, { sync, encoding, umask, flag: 'a' }) as any;
+    return append.call(this, src, data, options);
   }
 
   readdir<T extends boolean = false>(
     dir: string,
     options?: { sync?: T; encoding?: BufferEncoding | null }
   ): T extends true ? string[] : Promise<string[]> {
-    const { sync = false as T, encoding = 'utf8' } = options ?? {};
-    dir = this.resolve(dir);
-
-    if (sync) {
-      return fs.readdirSync(dir, { encoding }) as any;
-    }
-
-    return new Promise<string[]>((resolve, reject) => {
-      fs.readdir(dir, { encoding }, (err, list) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve(list);
-      });
-    }) as any;
+    return readdir.call(this, dir, options);
   }
 
   mkdir<T extends boolean = false>(
     dir: string,
     options?: { sync?: T; umask?: number }
   ): T extends true ? void : Promise<void> {
-    const { sync = false as T, umask = 0o000 } = options ?? {};
-    dir = this.resolve(dir);
-
-    if (sync) {
-      mkdirSync(dir, umask);
-      return undefined as any;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      mkdir(dir, umask, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    }) as any;
+    return mkdir.call(this, dir, options);
   }
 }
