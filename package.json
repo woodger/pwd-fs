@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "3.5.2",
+  "version": "3.5.3",
   "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
@@ -54,6 +54,6 @@
     "eslint": "^9.35.0",
     "globals": "^17.6.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.2"
+    "typescript-eslint": "^8.55.0"
   }
 }
