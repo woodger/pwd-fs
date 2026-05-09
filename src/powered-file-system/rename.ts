@@ -1,27 +1,52 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
 /**
- * Resolves both paths against the instance root before delegating to Node's rename API.
+ * Resolves both paths against the instance base path before delegating to Node's rename API.
  */
-export function rename<T extends boolean = false>(
+export function rename(
   this: PoweredFileSystem,
   src: string,
   dest: string,
-  options?: { sync?: T }
-): T extends true ? void : Promise<void> {
-  src = path.resolve(this.pwd, src);
-  dest = path.resolve(this.pwd, dest);
-
-  const { sync = false as T } = options ?? {};
+  options: SyncOption
+): void;
+export function rename(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: AsyncOption
+): Promise<void>;
+export function rename(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: MaybeSyncOption
+): void | Promise<void>;
+export function rename(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: MaybeSyncOption
+): void | Promise<void> {
+  const { sync = false } = options ?? {};
 
   if (sync) {
+    src = this.resolve(src);
+    dest = this.resolve(dest);
     fs.renameSync(src, dest);
-    return undefined as any;
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
+    try {
+      src = this.resolve(src);
+      dest = this.resolve(dest);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     fs.rename(src, dest, (err) => {
       if (err) {
         return reject(err);
@@ -29,5 +54,5 @@ export function rename<T extends boolean = false>(
 
       resolve();
     });
-  }) as any;
+  });
 }

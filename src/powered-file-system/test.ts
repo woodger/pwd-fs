@@ -1,35 +1,54 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import type { Mode, PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, Mode, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
 /**
- * Thin wrapper around `fs.access` that resolves paths against the instance root.
+ * Thin wrapper around `fs.access` that resolves paths against the instance base path.
  */
-export function test<T extends boolean = false>(
+export function test(
   this: PoweredFileSystem,
   src: string,
-  options?: {
-    sync?: T;
-    flag?: Mode;
-  }
-): T extends true ? boolean : Promise<boolean> {
-  const { sync = false as T, flag = 'e' } = options ?? {};
+  options: SyncOption & { flag?: Mode }
+): boolean;
+export function test(
+  this: PoweredFileSystem,
+  src: string,
+  options?: AsyncOption & { flag?: Mode }
+): Promise<boolean>;
+export function test(
+  this: PoweredFileSystem,
+  src: string,
+  options?: MaybeSyncOption & { flag?: Mode }
+): boolean | Promise<boolean>;
+export function test(
+  this: PoweredFileSystem,
+  src: string,
+  options?: MaybeSyncOption & { flag?: Mode }
+): boolean | Promise<boolean> {
+  const { sync = false, flag = 'e' } = options ?? {};
   const mode = this.constants[flag];
-  src = path.resolve(this.pwd, src);
 
   if (sync) {
     try {
+      src = this.resolve(src);
       fs.accessSync(src, mode);
-      return true as any;
+      return true;
     }
     catch {
-      return false as any;
+      return false;
     }
   }
 
   return new Promise<boolean>((resolve) => {
+    try {
+      src = this.resolve(src);
+    }
+    catch {
+      resolve(false);
+      return;
+    }
+
     fs.access(src, mode, (err) => {
       resolve(!err);
     });
-  }) as any;
+  });
 }

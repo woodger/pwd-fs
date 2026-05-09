@@ -4,11 +4,24 @@
       "ES2022"
     ],
     "target": "es2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "rootDir": "./src",
+    "types": [
+      "node"
+    ],
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
     "declaration": true,
     "outDir": "./dist"
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }

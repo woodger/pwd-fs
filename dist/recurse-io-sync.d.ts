@@ -6,7 +6,7 @@ export declare function chmodSync(src: string, mode: number): void;
 /**
  * Synchronous counterpart of the recursive chown implementation.
  */
-export declare function chownSync(src: string, uid: number, gid: number): void;
+export declare function chownSync(src: string, uid: number | undefined, gid: number | undefined): void;
 /**
  * Synchronously copies a file system node into the target directory.
  */

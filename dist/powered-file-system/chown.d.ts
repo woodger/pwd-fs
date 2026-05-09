@@ -1,9 +1,12 @@
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 /**
  * Resolves the target path and applies recursive ownership changes where supported.
  */
-export declare function chown<T extends boolean = false>(this: PoweredFileSystem, src: string, options?: {
-    sync?: T;
+type ChownOptions = {
     uid?: number;
     gid?: number;
-}): T extends true ? void : Promise<void>;
+};
+export declare function chown(this: PoweredFileSystem, src: string, options: SyncOption & ChownOptions): void;
+export declare function chown(this: PoweredFileSystem, src: string, options?: AsyncOption & ChownOptions): Promise<void>;
+export declare function chown(this: PoweredFileSystem, src: string, options?: MaybeSyncOption & ChownOptions): void | Promise<void>;
+export {};

@@ -1,19 +1,42 @@
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+
+type AppendOptions = {
+  encoding?: BufferEncoding | null;
+  umask?: number;
+};
 
 /**
  * Backward-compatible append wrapper implemented on top of `write()`.
  */
-export function append<T extends boolean = false>(
+export function append(
   this: PoweredFileSystem,
   src: string,
   data: Buffer | string,
-  options?: {
-    sync?: T;
-    encoding?: BufferEncoding | null;
-    umask?: number;
-  }
-): T extends true ? void : Promise<void> {
-  const { sync = false as T, encoding = 'utf8', umask = 0o000 } = options ?? {};
+  options: SyncOption & AppendOptions
+): void;
+export function append(
+  this: PoweredFileSystem,
+  src: string,
+  data: Buffer | string,
+  options?: AsyncOption & AppendOptions
+): Promise<void>;
+export function append(
+  this: PoweredFileSystem,
+  src: string,
+  data: Buffer | string,
+  options?: MaybeSyncOption & AppendOptions
+): void | Promise<void>;
+export function append(
+  this: PoweredFileSystem,
+  src: string,
+  data: Buffer | string,
+  options?: MaybeSyncOption & AppendOptions
+): void | Promise<void> {
+  const { sync = false, encoding = 'utf8', umask = 0o000 } = options ?? {};
 
-  return this.write(src, data, { sync, encoding, umask, flag: 'a' }) as any;
+  if (sync) {
+    return this.write(src, data, { sync: true, encoding, umask, flag: 'a' });
+  }
+
+  return this.write(src, data, { encoding, umask, flag: 'a' });
 }

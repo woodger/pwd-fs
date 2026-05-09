@@ -1,25 +1,50 @@
-import path from 'node:path';
 import { mkdir as mkdirRecursive } from '../recurse-io';
 import { mkdirSync as mkdirRecursiveSync } from '../recurse-io-sync';
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+
+type MkdirOptions = {
+  umask?: number;
+};
 
 /**
- * Creates directories relative to the instance root.
+ * Creates directories relative to the instance base path.
  */
-export function mkdir<T extends boolean = false>(
+export function mkdir(
   this: PoweredFileSystem,
   dir: string,
-  options?: { sync?: T; umask?: number }
-): T extends true ? void : Promise<void> {
-  const { sync = false as T, umask = 0o000 } = options ?? {};
-  dir = path.resolve(this.pwd, dir);
+  options: SyncOption & MkdirOptions
+): void;
+export function mkdir(
+  this: PoweredFileSystem,
+  dir: string,
+  options?: AsyncOption & MkdirOptions
+): Promise<void>;
+export function mkdir(
+  this: PoweredFileSystem,
+  dir: string,
+  options?: MaybeSyncOption & MkdirOptions
+): void | Promise<void>;
+export function mkdir(
+  this: PoweredFileSystem,
+  dir: string,
+  options?: MaybeSyncOption & MkdirOptions
+): void | Promise<void> {
+  const { sync = false, umask = 0o000 } = options ?? {};
 
   if (sync) {
-    mkdirRecursiveSync(dir, umask);
-    return undefined as any;
+    mkdirRecursiveSync(this.resolve(dir), umask);
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
+    try {
+      dir = this.resolve(dir);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     mkdirRecursive(dir, umask, (err) => {
       if (err) {
         return reject(err);
@@ -27,5 +52,5 @@ export function mkdir<T extends boolean = false>(
 
       resolve();
     });
-  }) as any;
+  });
 }

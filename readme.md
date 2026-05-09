@@ -12,11 +12,11 @@ It provides:
 - matching synchronous variants via `{ sync: true }`
 - recursive helpers for copy, remove, chmod, chown, and mkdir
 
-All relative paths are resolved against `pfs.pwd`.
+Relative paths are resolved against `pfs.pwd`. Absolute paths are used as-is, so `pfs.pwd` is a convenience base path, not a sandbox.
 
 ## Why Use It
 
-Use `pwd-fs` when you want file system operations to be scoped to a specific working directory without manually calling `path.resolve()` before every operation.
+Use `pwd-fs` when you want file system operations to be rooted at a specific working directory without manually calling `path.resolve()` before every operation.
 
 It is especially useful for:
 
@@ -40,6 +40,7 @@ npm install pwd-fs
 - [API](#api)
 - [`new PoweredFileSystem(pwd?)`](#new-poweredfilesystempwd)
 - [`pfs.pwd`](#pfspwd)
+- [`pfs.resolve(src)`](#pfsresolvesrc)
 - [`pfs.constants`](#pfsconstants)
 - [`PoweredFileSystem.bitmask(mode)`](#poweredfilesystembitmaskmode)
 - [`pfs.test(src, options?)`](#pfstestsrc-options)
@@ -77,7 +78,7 @@ await pfs.mkdir('./own/project'); // recursively create the directory
 
 ## Common Recipes
 
-### Work inside a scoped directory
+### Work inside a project directory
 
 ```ts
 import { PoweredFileSystem } from 'pwd-fs';
@@ -137,7 +138,7 @@ if (await pfs.test('./tmp')) {
 
 ## Compatibility
 
-- package `engines`: Node.js `>=13.2.0`
+- package `engines`: Node.js `>=18`
 - module format: CommonJS package output with TypeScript declarations
 - platform notes:
   - `chown()` is effectively a no-op on Windows apart from path validation
@@ -158,7 +159,7 @@ import PoweredFileSystem, { pfs, bitmask } from 'pwd-fs';
 
 ### `new PoweredFileSystem(pwd?)`
 
-Creates a new instance rooted at `pwd`.
+Creates a new instance with `pwd` as the base directory for relative paths.
 
 - `pwd?: string`
 - default: `process.cwd()`
@@ -171,7 +172,22 @@ const pfs = new PoweredFileSystem('./workspace');
 
 ### `pfs.pwd`
 
-Absolute base directory used to resolve all relative paths.
+Absolute base directory used to resolve relative paths.
+
+### `pfs.resolve(src)`
+
+Resolves `src` against `pfs.pwd`.
+
+```ts
+const pfs = new PoweredFileSystem('/workspace/project');
+const file = pfs.resolve('./src/index.ts');
+```
+
+Absolute paths are preserved:
+
+```ts
+pfs.resolve('/tmp/outside.txt'); // '/tmp/outside.txt'
+```
 
 ### `pfs.constants`
 
@@ -506,7 +522,8 @@ Typical cases:
 - `emptyDir()` fails when the target is not a directory
 - `write()` fails when the target path points to a directory
 - `copy()` fails when the source does not exist
-- `copy()` also fails when the destination already contains an entry with the same basename as the source, unless `overwrite: true` is used
+- `copy()` fails when the destination already contains an entry with the same basename as the source, unless `overwrite: true` is used
+- `copy()` fails when a directory is copied into itself
 - `symlink()` fails when the destination already exists
 - `mkdir()` accepts an existing directory, but fails when a path segment is a file
 
@@ -535,7 +552,8 @@ Effective permissions:
 
 ## Notes
 
-- Relative paths are always resolved against `pfs.pwd`
+- Relative paths are resolved against `pfs.pwd`
+- Absolute paths are not constrained by `pfs.pwd`
 - `stat()` returns `lstat()` data
 - `remove()` does not follow symbolic links
 - `append()` is kept for backward compatibility and is deprecated
@@ -562,9 +580,10 @@ Prefer native `node:fs` APIs directly when you need:
 ## Development
 
 ```bash
-npm install
-npm run build
-npm test
+yarn install --frozen-lockfile
+yarn lint
+yarn build
+yarn test
 ```
 
 ## License

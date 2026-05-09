@@ -1,6 +1,5 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
 /**
  * Windows requires an explicit link type. Non-Windows platforms infer it.
@@ -14,24 +13,50 @@ function resolveSymlinkType(src: string): fs.symlink.Type | undefined {
   return stats.isDirectory() ? 'junction' : 'file';
 }
 
-export function symlink<T extends boolean = false>(
+export function symlink(
   this: PoweredFileSystem,
   src: string,
   dest: string,
-  options?: { sync?: T }
-): T extends true ? void : Promise<void> {
-  src = path.resolve(this.pwd, src);
-  dest = path.resolve(this.pwd, dest);
-
-  const { sync = false as T } = options ?? {};
+  options: SyncOption
+): void;
+export function symlink(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: AsyncOption
+): Promise<void>;
+export function symlink(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: MaybeSyncOption
+): void | Promise<void>;
+export function symlink(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: MaybeSyncOption
+): void | Promise<void> {
+  const { sync = false } = options ?? {};
 
   if (sync) {
+    src = this.resolve(src);
+    dest = this.resolve(dest);
     const type = resolveSymlinkType(src);
     fs.symlinkSync(src, dest, type);
-    return undefined as any;
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
+    try {
+      src = this.resolve(src);
+      dest = this.resolve(dest);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     if (process.platform === 'win32') {
       fs.lstat(src, (err, stats) => {
         if (err) {
@@ -58,5 +83,5 @@ export function symlink<T extends boolean = false>(
         resolve();
       });
     }
-  }) as any;
+  });
 }

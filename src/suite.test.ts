@@ -36,7 +36,7 @@ const distDir = path.resolve(__dirname);
 const testFiles = collectTestFiles(distDir).filter((file) => file !== __filename);
 
 if (!testFiles.length) {
-  console.warn("⚠️  No test files found in dist/");
+  console.warn("No test files found in dist/");
   process.exit(0);
 }
 

@@ -1,8 +1,13 @@
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 /**
  * Resolves a path to its canonical absolute location.
  */
-export declare function realpath<T extends boolean = false>(this: PoweredFileSystem, src: string, options?: {
-    sync?: T;
+export declare function realpath(this: PoweredFileSystem, src: string, options: SyncOption & {
     encoding?: BufferEncoding;
-}): T extends true ? string : Promise<string>;
+}): string;
+export declare function realpath(this: PoweredFileSystem, src: string, options?: AsyncOption & {
+    encoding?: BufferEncoding;
+}): Promise<string>;
+export declare function realpath(this: PoweredFileSystem, src: string, options?: MaybeSyncOption & {
+    encoding?: BufferEncoding;
+}): string | Promise<string>;

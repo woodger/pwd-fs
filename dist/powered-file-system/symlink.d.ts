@@ -1,4 +1,4 @@
-import type { PoweredFileSystem } from '../powered-file-system';
-export declare function symlink<T extends boolean = false>(this: PoweredFileSystem, src: string, dest: string, options?: {
-    sync?: T;
-}): T extends true ? void : Promise<void>;
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+export declare function symlink(this: PoweredFileSystem, src: string, dest: string, options: SyncOption): void;
+export declare function symlink(this: PoweredFileSystem, src: string, dest: string, options?: AsyncOption): Promise<void>;
+export declare function symlink(this: PoweredFileSystem, src: string, dest: string, options?: MaybeSyncOption): void | Promise<void>;

@@ -5,16 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.test = test;
 const node_fs_1 = __importDefault(require("node:fs"));
-const node_path_1 = __importDefault(require("node:path"));
-/**
- * Thin wrapper around `fs.access` that resolves paths against the instance root.
- */
 function test(src, options) {
     const { sync = false, flag = 'e' } = options ?? {};
     const mode = this.constants[flag];
-    src = node_path_1.default.resolve(this.pwd, src);
     if (sync) {
         try {
+            src = this.resolve(src);
             node_fs_1.default.accessSync(src, mode);
             return true;
         }
@@ -23,6 +19,13 @@ function test(src, options) {
         }
     }
     return new Promise((resolve) => {
+        try {
+            src = this.resolve(src);
+        }
+        catch {
+            resolve(false);
+            return;
+        }
         node_fs_1.default.access(src, mode, (err) => {
             resolve(!err);
         });

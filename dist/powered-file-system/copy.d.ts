@@ -1,10 +1,13 @@
-import type { CopyFilter, PoweredFileSystem } from '../powered-file-system';
-/**
- * Resolves source and destination paths before delegating recursive copy work.
- */
-export declare function copy<T extends boolean = false>(this: PoweredFileSystem, src: string, dest: string, options?: {
-    sync?: T;
+import type { AsyncOption, CopyFilter, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+type CopyOptions = {
     umask?: number;
     overwrite?: boolean;
     filter?: CopyFilter;
-}): T extends true ? void : Promise<void>;
+};
+/**
+ * Resolves source and destination paths before delegating recursive copy work.
+ */
+export declare function copy(this: PoweredFileSystem, src: string, dest: string, options: SyncOption & CopyOptions): void;
+export declare function copy(this: PoweredFileSystem, src: string, dest: string, options?: AsyncOption & CopyOptions): Promise<void>;
+export declare function copy(this: PoweredFileSystem, src: string, dest: string, options?: MaybeSyncOption & CopyOptions): void | Promise<void>;
+export {};

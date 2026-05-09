@@ -1,7 +1,7 @@
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 /**
- * Resolves both paths against the instance root before delegating to Node's rename API.
+ * Resolves both paths against the instance base path before delegating to Node's rename API.
  */
-export declare function rename<T extends boolean = false>(this: PoweredFileSystem, src: string, dest: string, options?: {
-    sync?: T;
-}): T extends true ? void : Promise<void>;
+export declare function rename(this: PoweredFileSystem, src: string, dest: string, options: SyncOption): void;
+export declare function rename(this: PoweredFileSystem, src: string, dest: string, options?: AsyncOption): Promise<void>;
+export declare function rename(this: PoweredFileSystem, src: string, dest: string, options?: MaybeSyncOption): void | Promise<void>;

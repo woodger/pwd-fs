@@ -1,34 +1,63 @@
-import path from 'node:path';
 import { copy as copyRecursive } from '../recurse-io';
 import { copySync as copyRecursiveSync } from '../recurse-io-sync';
-import type { CopyFilter, PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, CopyFilter, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+
+type CopyOptions = {
+  umask?: number;
+  overwrite?: boolean;
+  filter?: CopyFilter;
+};
 
 /**
  * Resolves source and destination paths before delegating recursive copy work.
  */
-export function copy<T extends boolean = false>(
+export function copy(
   this: PoweredFileSystem,
   src: string,
   dest: string,
-  options?: { sync?: T; umask?: number; overwrite?: boolean; filter?: CopyFilter }
-): T extends true ? void : Promise<void> {
-  src = path.resolve(this.pwd, src);
-  dest = path.resolve(this.pwd, dest);
-
+  options: SyncOption & CopyOptions
+): void;
+export function copy(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: AsyncOption & CopyOptions
+): Promise<void>;
+export function copy(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: MaybeSyncOption & CopyOptions
+): void | Promise<void>;
+export function copy(
+  this: PoweredFileSystem,
+  src: string,
+  dest: string,
+  options?: MaybeSyncOption & CopyOptions
+): void | Promise<void> {
   const {
-    sync = false as T,
+    sync = false,
     umask = 0o000,
     overwrite = false,
     filter
   } = options ?? {};
-  const copyOptions = { umask, overwrite, filter };
+  const copyOptions = filter ? { umask, overwrite, filter } : { umask, overwrite };
 
   if (sync) {
-    copyRecursiveSync(src, dest, copyOptions);
-    return undefined as any;
+    copyRecursiveSync(this.resolve(src), this.resolve(dest), copyOptions);
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
+    try {
+      src = this.resolve(src);
+      dest = this.resolve(dest);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     copyRecursive(src, dest, copyOptions, (err) => {
       if (err) {
         return reject(err);
@@ -36,5 +65,5 @@ export function copy<T extends boolean = false>(
 
       resolve();
     });
-  }) as any;
+  });
 }

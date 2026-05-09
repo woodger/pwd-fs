@@ -17,7 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pfs = void 0;
 const powered_file_system_1 = require("./powered-file-system");
 /**
- * Default file system instance rooted at the current working directory.
+ * Default file system instance using the current working directory as its base.
  */
 exports.pfs = new powered_file_system_1.PoweredFileSystem();
 exports.default = powered_file_system_1.PoweredFileSystem;

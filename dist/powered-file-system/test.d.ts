@@ -1,8 +1,13 @@
-import type { Mode, PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, Mode, PoweredFileSystem, SyncOption } from '../powered-file-system';
 /**
- * Thin wrapper around `fs.access` that resolves paths against the instance root.
+ * Thin wrapper around `fs.access` that resolves paths against the instance base path.
  */
-export declare function test<T extends boolean = false>(this: PoweredFileSystem, src: string, options?: {
-    sync?: T;
+export declare function test(this: PoweredFileSystem, src: string, options: SyncOption & {
     flag?: Mode;
-}): T extends true ? boolean : Promise<boolean>;
+}): boolean;
+export declare function test(this: PoweredFileSystem, src: string, options?: AsyncOption & {
+    flag?: Mode;
+}): Promise<boolean>;
+export declare function test(this: PoweredFileSystem, src: string, options?: MaybeSyncOption & {
+    flag?: Mode;
+}): boolean | Promise<boolean>;

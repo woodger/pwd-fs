@@ -1,26 +1,50 @@
-import path from 'node:path';
 import { chmod as chmodRecursive } from '../recurse-io';
 import { chmodSync as chmodRecursiveSync } from '../recurse-io-sync';
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
 /**
  * Resolves the target path and delegates recursive mode updates.
  */
-export function chmod<T extends boolean = false>(
+export function chmod(
   this: PoweredFileSystem,
   src: string,
   mode: number,
-  options?: { sync?: T }
-): T extends true ? void : Promise<void> {
-  const { sync = false as T } = options ?? {};
-  src = path.resolve(this.pwd, src);
+  options: SyncOption
+): void;
+export function chmod(
+  this: PoweredFileSystem,
+  src: string,
+  mode: number,
+  options?: AsyncOption
+): Promise<void>;
+export function chmod(
+  this: PoweredFileSystem,
+  src: string,
+  mode: number,
+  options?: MaybeSyncOption
+): void | Promise<void>;
+export function chmod(
+  this: PoweredFileSystem,
+  src: string,
+  mode: number,
+  options?: MaybeSyncOption
+): void | Promise<void> {
+  const { sync = false } = options ?? {};
 
   if (sync) {
-    chmodRecursiveSync(src, mode);
-    return undefined as any;
+    chmodRecursiveSync(this.resolve(src), mode);
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
+    try {
+      src = this.resolve(src);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     chmodRecursive(src, mode, (err) => {
       if (err) {
         return reject(err);
@@ -28,5 +52,5 @@ export function chmod<T extends boolean = false>(
 
       resolve();
     });
-  }) as any;
+  });
 }

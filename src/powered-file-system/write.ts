@@ -1,39 +1,65 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import type { Flag, PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, Flag, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+
+type WriteOptions = {
+  encoding?: BufferEncoding | null;
+  umask?: number;
+  flag?: Flag;
+};
 
 /**
  * Writes a file relative to `pwd` and then reapplies the computed permissions explicitly.
  */
-export function write<T extends boolean = false>(
+export function write(
   this: PoweredFileSystem,
   src: string,
   data: Buffer | string,
-  options?: {
-    sync?: T;
-    encoding?: BufferEncoding | null;
-    umask?: number;
-    flag?: Flag;
-  }
-): T extends true ? void : Promise<void> {
+  options: SyncOption & WriteOptions
+): void;
+export function write(
+  this: PoweredFileSystem,
+  src: string,
+  data: Buffer | string,
+  options?: AsyncOption & WriteOptions
+): Promise<void>;
+export function write(
+  this: PoweredFileSystem,
+  src: string,
+  data: Buffer | string,
+  options?: MaybeSyncOption & WriteOptions
+): void | Promise<void>;
+export function write(
+  this: PoweredFileSystem,
+  src: string,
+  data: Buffer | string,
+  options?: MaybeSyncOption & WriteOptions
+): void | Promise<void> {
   const {
-    sync = false as T,
+    sync = false,
     encoding = 'utf8',
     umask = 0o000,
     flag = 'w',
   } = options ?? {};
-  src = path.resolve(this.pwd, src);
 
   const mode = 0o666 & ~umask;
 
   if (sync) {
+    src = this.resolve(src);
     // Apply chmod explicitly so the final mode is deterministic across runtimes.
     fs.writeFileSync(src, data, { encoding, mode, flag });
     fs.chmodSync(src, mode);
-    return undefined as any;
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
+    try {
+      src = this.resolve(src);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     fs.writeFile(src, data, { encoding, mode, flag }, (err) => {
       if (err) {
         return reject(err);
@@ -48,5 +74,5 @@ export function write<T extends boolean = false>(
         resolve();
       });
     });
-  }) as any;
+  });
 }

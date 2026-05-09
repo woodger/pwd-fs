@@ -22,26 +22,21 @@ export function chmodSync(src: string, mode: number) {
 /**
  * Synchronous counterpart of the recursive chown implementation.
  */
-export function chownSync(src: string, uid: number, gid: number) {
+export function chownSync(src: string, uid: number | undefined, gid: number | undefined) {
   const stats = fs.statSync(src);
-
-  if (uid === 0) {
-    uid = stats.uid;
-  }
-
-  if (gid === 0) {
-    gid = stats.gid;
-  }
+  // `0` is a valid uid/gid, so only nullish values mean "preserve current owner".
+  const nextUid = uid ?? stats.uid;
+  const nextGid = gid ?? stats.gid;
 
   if (stats.isDirectory()) {
     const list = fs.readdirSync(src);
 
     for (const loc of list) {
-      chownSync(path.join(src, loc), uid, gid);
+      chownSync(path.join(src, loc), nextUid, nextGid);
     }
   }
 
-  fs.chownSync(src, uid, gid);
+  fs.chownSync(src, nextUid, nextGid);
 }
 
 /**
@@ -64,6 +59,7 @@ export function copySync(src: string, dir: string, options: ICopyOptions) {
     const list = fs.readdirSync(src);
     const mode = 0o777 & ~options.umask;
 
+    // Overwrite is implemented as replace-before-copy to support directory targets.
     if (options.overwrite && fs.existsSync(dest)) {
       removeSync(dest);
     }
@@ -75,11 +71,14 @@ export function copySync(src: string, dir: string, options: ICopyOptions) {
     }
   }
   else {
+    // Match directory behavior by replacing the existing target before writing.
     if (options.overwrite && fs.existsSync(dest)) {
       removeSync(dest);
     }
 
-    fs.copyFileSync(src, dest);
+    const flags = options.overwrite ? 0 : fs.constants.COPYFILE_EXCL;
+    
+    fs.copyFileSync(src, dest, flags);
     fs.chmodSync(dest, 0o666 & ~options.umask);
   }
 }
@@ -88,25 +87,7 @@ export function copySync(src: string, dir: string, options: ICopyOptions) {
  * Synchronously removes files, directories, and symlinks without following links.
  */
 export function removeSync(src: string) {
-  const stats = fs.lstatSync(src);
-
-  if (stats.isSymbolicLink()) {
-    fs.unlinkSync(src);
-    return;
-  }
-
-  if (stats.isDirectory()) {
-    const list = fs.readdirSync(src);
-
-    for (const loc of list) {
-      removeSync(path.join(src, loc));
-    }
-
-    fs.rmdirSync(src);
-  }
-  else {
-    fs.unlinkSync(src);
-  }
+  fs.rmSync(src, { recursive: true, force: false });
 }
 
 /**
@@ -116,7 +97,7 @@ export function emptyDirSync(src: string) {
   const list = fs.readdirSync(src);
 
   for (const loc of list) {
-    removeSync(path.join(src, loc));
+    fs.rmSync(path.join(src, loc), { recursive: true, force: false });
   }
 }
 

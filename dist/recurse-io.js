@@ -11,10 +11,22 @@ exports.emptyDir = emptyDir;
 exports.mkdir = mkdir;
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+function once(callback) {
+    let called = false;
+    return (err) => {
+        // Recursive branches can fail concurrently; report only the first terminal result.
+        if (called) {
+            return;
+        }
+        called = true;
+        callback(err);
+    };
+}
 /**
  * Applies chmod depth-first so directories are updated after their contents.
  */
 function chmod(src, mode, callback) {
+    callback = once(callback);
     let reduce = 0;
     node_fs_1.default.stat(src, (err, stats) => {
         if (err)
@@ -49,40 +61,38 @@ function chmod(src, mode, callback) {
  * Applies ownership recursively while preserving current values when uid/gid are omitted.
  */
 function chown(src, uid, gid, callback) {
+    callback = once(callback);
     let reduce = 0;
     node_fs_1.default.stat(src, (err, stats) => {
         if (err) {
             return callback(err);
         }
-        if (uid === 0) {
-            uid = stats.uid;
-        }
-        if (gid === 0) {
-            gid = stats.gid;
-        }
+        // `0` is a valid uid/gid, so only nullish values mean "preserve current owner".
+        const nextUid = uid ?? stats.uid;
+        const nextGid = gid ?? stats.gid;
         if (stats.isDirectory()) {
             node_fs_1.default.readdir(src, (err, list) => {
                 if (err) {
                     return callback(err);
                 }
                 if (list.length === 0) {
-                    return node_fs_1.default.chown(src, uid, gid, callback);
+                    return node_fs_1.default.chown(src, nextUid, nextGid, callback);
                 }
                 reduce = list.length;
                 for (const loc of list) {
-                    chown(node_path_1.default.join(src, loc), uid, gid, (err) => {
+                    chown(node_path_1.default.join(src, loc), nextUid, nextGid, (err) => {
                         if (err) {
                             return callback(err);
                         }
                         if (--reduce === 0) {
-                            node_fs_1.default.chown(src, uid, gid, callback);
+                            node_fs_1.default.chown(src, nextUid, nextGid, callback);
                         }
                     });
                 }
             });
         }
         else {
-            node_fs_1.default.chown(src, uid, gid, callback);
+            node_fs_1.default.chown(src, nextUid, nextGid, callback);
         }
     });
 }
@@ -90,6 +100,7 @@ function chown(src, uid, gid, callback) {
  * Copies a file system node into the target directory, creating directories as needed.
  */
 function copy(src, dir, options, callback) {
+    callback = once(callback);
     node_fs_1.default.stat(src, (err, stat) => {
         if (err) {
             return callback(err);
@@ -135,6 +146,7 @@ function copy(src, dir, options, callback) {
                 if (!options.overwrite) {
                     return create();
                 }
+                // Overwrite is implemented as replace-before-copy to support directory targets.
                 node_fs_1.default.lstat(dest, (err, destStat) => {
                     if (err) {
                         if (err.code === 'ENOENT') {
@@ -162,18 +174,18 @@ function copy(src, dir, options, callback) {
         else {
             const mode = 0o666 & ~options.umask;
             const write = () => {
-                const readStream = node_fs_1.default.createReadStream(src);
-                const writeStream = node_fs_1.default.createWriteStream(dest, { mode });
-                readStream.on('error', callback);
-                writeStream.on('error', callback);
-                writeStream.on('close', () => {
+                const flags = options.overwrite ? 0 : node_fs_1.default.constants.COPYFILE_EXCL;
+                node_fs_1.default.copyFile(src, dest, flags, (err) => {
+                    if (err) {
+                        return callback(err);
+                    }
                     node_fs_1.default.chmod(dest, mode, callback);
                 });
-                readStream.pipe(writeStream);
             };
             if (!options.overwrite) {
                 return write();
             }
+            // Match directory behavior by replacing the existing target before writing.
             node_fs_1.default.lstat(dest, (err, destStat) => {
                 if (err) {
                     if (err.code === 'ENOENT') {
@@ -203,43 +215,13 @@ function copy(src, dir, options, callback) {
  * Removes files, directories, and symlinks without following symbolic links.
  */
 function remove(src, callback) {
-    node_fs_1.default.lstat(src, (err, stat) => {
-        if (err) {
-            return callback(err);
-        }
-        if (stat.isSymbolicLink()) {
-            return node_fs_1.default.unlink(src, callback);
-        }
-        if (stat.isDirectory()) {
-            node_fs_1.default.readdir(src, (err, list) => {
-                if (err) {
-                    return callback(err);
-                }
-                if (list.length === 0) {
-                    return node_fs_1.default.rmdir(src, callback);
-                }
-                let reduce = list.length;
-                for (const loc of list) {
-                    remove(node_path_1.default.join(src, loc), (err) => {
-                        if (err) {
-                            return callback(err);
-                        }
-                        if (--reduce === 0) {
-                            node_fs_1.default.rmdir(src, callback);
-                        }
-                    });
-                }
-            });
-        }
-        else {
-            node_fs_1.default.unlink(src, callback);
-        }
-    });
+    node_fs_1.default.rm(src, { recursive: true, force: false }, once(callback));
 }
 /**
  * Removes all entries inside a directory while preserving the directory itself.
  */
 function emptyDir(src, callback) {
+    callback = once(callback);
     node_fs_1.default.readdir(src, (err, list) => {
         if (err) {
             return callback(err);
@@ -249,7 +231,7 @@ function emptyDir(src, callback) {
         }
         let reduce = list.length;
         for (const loc of list) {
-            remove(node_path_1.default.join(src, loc), (err) => {
+            node_fs_1.default.rm(node_path_1.default.join(src, loc), { recursive: true, force: false }, (err) => {
                 if (err) {
                     return callback(err);
                 }

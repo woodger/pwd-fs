@@ -31,7 +31,7 @@ const distDir = node_path_1.default.resolve(__dirname);
 // The runner skips itself and forwards the rest to Node's native test harness.
 const testFiles = collectTestFiles(distDir).filter((file) => file !== __filename);
 if (!testFiles.length) {
-    console.warn("⚠️  No test files found in dist/");
+    console.warn("No test files found in dist/");
     process.exit(0);
 }
 const { status } = (0, node_child_process_1.spawnSync)(process.execPath, ['--test', ...testFiles], {

@@ -11,7 +11,7 @@ export declare function chmod(src: string, mode: number, callback: NoParamCallba
 /**
  * Applies ownership recursively while preserving current values when uid/gid are omitted.
  */
-export declare function chown(src: string, uid: number, gid: number, callback: NoParamCallback): void;
+export declare function chown(src: string, uid: number | undefined, gid: number | undefined, callback: NoParamCallback): void;
 /**
  * Copies a file system node into the target directory, creating directories as needed.
  */

@@ -1,31 +1,62 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import type { Flag, PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, ReadOptions, SyncOption } from '../powered-file-system';
 
 /**
  * Reads a file relative to `pwd` and preserves Buffer mode when `encoding` is `null`.
  */
-export function read<T extends boolean = false>(
+export function read(
   this: PoweredFileSystem,
   src: string,
-  options?: {
-    sync?: T;
-    encoding?: BufferEncoding | null;
-    flag?: Flag;
-  }
-): T extends true ? string | Buffer : Promise<string | Buffer> {
-  const { sync = false as T, encoding = 'utf8', flag = 'r' } = options ?? {};
-  const resolved = path.resolve(this.pwd, src);
+  options: SyncOption & ReadOptions<true, null> & { encoding: null }
+): Buffer;
+export function read(
+  this: PoweredFileSystem,
+  src: string,
+  options: SyncOption & ReadOptions<true, BufferEncoding>
+): string;
+export function read(
+  this: PoweredFileSystem,
+  src: string,
+  options: AsyncOption & ReadOptions<false, null> & { encoding: null }
+): Promise<Buffer>;
+export function read(
+  this: PoweredFileSystem,
+  src: string,
+  options?: AsyncOption & ReadOptions<false, BufferEncoding>
+): Promise<string>;
+export function read(
+  this: PoweredFileSystem,
+  src: string,
+  options?: MaybeSyncOption & ReadOptions<boolean, BufferEncoding | null>
+): string | Buffer | Promise<string | Buffer>;
+export function read(
+  this: PoweredFileSystem,
+  src: string,
+  options?: MaybeSyncOption & ReadOptions<boolean, BufferEncoding | null>
+): string | Buffer | Promise<string | Buffer> {
+  const { sync = false, encoding = 'utf8', flag = 'r' } = options ?? {};
 
   if (sync) {
+    const resolved = this.resolve(src);
+
     if (encoding === null) {
-      return fs.readFileSync(resolved, { encoding: null, flag }) as any;
+      return fs.readFileSync(resolved, { encoding: null, flag });
     }
 
-    return fs.readFileSync(resolved, { encoding, flag }) as any;
+    return fs.readFileSync(resolved, { encoding, flag });
   }
 
   return new Promise((resolve, reject) => {
+    let resolved: string;
+
+    try {
+      resolved = this.resolve(src);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
     fs.readFile(resolved, { encoding, flag }, (err, raw) => {
       if (err) {
         return reject(err);
@@ -33,5 +64,5 @@ export function read<T extends boolean = false>(
 
       resolve(raw);
     });
-  }) as any;
+  });
 }

@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.symlink = symlink;
 const node_fs_1 = __importDefault(require("node:fs"));
-const node_path_1 = __importDefault(require("node:path"));
 /**
  * Windows requires an explicit link type. Non-Windows platforms infer it.
  */
@@ -17,15 +16,23 @@ function resolveSymlinkType(src) {
     return stats.isDirectory() ? 'junction' : 'file';
 }
 function symlink(src, dest, options) {
-    src = node_path_1.default.resolve(this.pwd, src);
-    dest = node_path_1.default.resolve(this.pwd, dest);
     const { sync = false } = options ?? {};
     if (sync) {
+        src = this.resolve(src);
+        dest = this.resolve(dest);
         const type = resolveSymlinkType(src);
         node_fs_1.default.symlinkSync(src, dest, type);
-        return undefined;
+        return;
     }
     return new Promise((resolve, reject) => {
+        try {
+            src = this.resolve(src);
+            dest = this.resolve(dest);
+        }
+        catch (err) {
+            reject(err);
+            return;
+        }
         if (process.platform === 'win32') {
             node_fs_1.default.lstat(src, (err, stats) => {
                 if (err) {

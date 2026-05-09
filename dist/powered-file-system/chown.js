@@ -5,26 +5,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chown = chown;
 const node_fs_1 = __importDefault(require("node:fs"));
-const node_path_1 = __importDefault(require("node:path"));
 const recurse_io_1 = require("../recurse-io");
 const recurse_io_sync_1 = require("../recurse-io-sync");
-/**
- * Resolves the target path and applies recursive ownership changes where supported.
- */
 function chown(src, options) {
-    const { sync = false, uid = 0, gid = 0 } = options ?? {};
-    src = node_path_1.default.resolve(this.pwd, src);
+    const { sync = false, uid, gid } = options ?? {};
     if (sync) {
+        src = this.resolve(src);
         if (process.platform === 'win32') {
             // Windows does not expose POSIX ownership changes; keep existence checks consistent.
             node_fs_1.default.lstatSync(src);
-            return undefined;
+            return;
         }
         (0, recurse_io_sync_1.chownSync)(src, uid, gid);
-        return undefined;
+        return;
     }
     if (process.platform === 'win32') {
         return new Promise((resolve, reject) => {
+            try {
+                src = this.resolve(src);
+            }
+            catch (err) {
+                reject(err);
+                return;
+            }
             // Match Unix behavior by validating the path even when ownership cannot be changed.
             node_fs_1.default.lstat(src, (err) => {
                 if (err) {
@@ -35,6 +38,13 @@ function chown(src, options) {
         });
     }
     return new Promise((resolve, reject) => {
+        try {
+            src = this.resolve(src);
+        }
+        catch (err) {
+            reject(err);
+            return;
+        }
         (0, recurse_io_1.chown)(src, uid, gid, (err) => {
             if (err) {
                 return reject(err);

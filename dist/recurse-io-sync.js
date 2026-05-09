@@ -29,19 +29,16 @@ function chmodSync(src, mode) {
  */
 function chownSync(src, uid, gid) {
     const stats = node_fs_1.default.statSync(src);
-    if (uid === 0) {
-        uid = stats.uid;
-    }
-    if (gid === 0) {
-        gid = stats.gid;
-    }
+    // `0` is a valid uid/gid, so only nullish values mean "preserve current owner".
+    const nextUid = uid ?? stats.uid;
+    const nextGid = gid ?? stats.gid;
     if (stats.isDirectory()) {
         const list = node_fs_1.default.readdirSync(src);
         for (const loc of list) {
-            chownSync(node_path_1.default.join(src, loc), uid, gid);
+            chownSync(node_path_1.default.join(src, loc), nextUid, nextGid);
         }
     }
-    node_fs_1.default.chownSync(src, uid, gid);
+    node_fs_1.default.chownSync(src, nextUid, nextGid);
 }
 /**
  * Synchronously copies a file system node into the target directory.
@@ -59,6 +56,7 @@ function copySync(src, dir, options) {
     if (stat.isDirectory()) {
         const list = node_fs_1.default.readdirSync(src);
         const mode = 0o777 & ~options.umask;
+        // Overwrite is implemented as replace-before-copy to support directory targets.
         if (options.overwrite && node_fs_1.default.existsSync(dest)) {
             removeSync(dest);
         }
@@ -68,10 +66,12 @@ function copySync(src, dir, options) {
         }
     }
     else {
+        // Match directory behavior by replacing the existing target before writing.
         if (options.overwrite && node_fs_1.default.existsSync(dest)) {
             removeSync(dest);
         }
-        node_fs_1.default.copyFileSync(src, dest);
+        const flags = options.overwrite ? 0 : node_fs_1.default.constants.COPYFILE_EXCL;
+        node_fs_1.default.copyFileSync(src, dest, flags);
         node_fs_1.default.chmodSync(dest, 0o666 & ~options.umask);
     }
 }
@@ -79,21 +79,7 @@ function copySync(src, dir, options) {
  * Synchronously removes files, directories, and symlinks without following links.
  */
 function removeSync(src) {
-    const stats = node_fs_1.default.lstatSync(src);
-    if (stats.isSymbolicLink()) {
-        node_fs_1.default.unlinkSync(src);
-        return;
-    }
-    if (stats.isDirectory()) {
-        const list = node_fs_1.default.readdirSync(src);
-        for (const loc of list) {
-            removeSync(node_path_1.default.join(src, loc));
-        }
-        node_fs_1.default.rmdirSync(src);
-    }
-    else {
-        node_fs_1.default.unlinkSync(src);
-    }
+    node_fs_1.default.rmSync(src, { recursive: true, force: false });
 }
 /**
  * Synchronously removes all entries inside a directory while preserving it.
@@ -101,7 +87,7 @@ function removeSync(src) {
 function emptyDirSync(src) {
     const list = node_fs_1.default.readdirSync(src);
     for (const loc of list) {
-        removeSync(node_path_1.default.join(src, loc));
+        node_fs_1.default.rmSync(node_path_1.default.join(src, loc), { recursive: true, force: false });
     }
 }
 /**

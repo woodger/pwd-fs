@@ -1,7 +1,7 @@
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 /**
  * Resolves the target path and delegates recursive mode updates.
  */
-export declare function chmod<T extends boolean = false>(this: PoweredFileSystem, src: string, mode: number, options?: {
-    sync?: T;
-}): T extends true ? void : Promise<void>;
+export declare function chmod(this: PoweredFileSystem, src: string, mode: number, options: SyncOption): void;
+export declare function chmod(this: PoweredFileSystem, src: string, mode: number, options?: AsyncOption): Promise<void>;
+export declare function chmod(this: PoweredFileSystem, src: string, mode: number, options?: MaybeSyncOption): void | Promise<void>;

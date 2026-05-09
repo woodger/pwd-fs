@@ -5,17 +5,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stat = stat;
 const node_fs_1 = __importDefault(require("node:fs"));
-const node_path_1 = __importDefault(require("node:path"));
-/**
- * Returns `lstat` data so symlinks are reported as links instead of followed targets.
- */
 function stat(src, options) {
     const { sync = false } = options ?? {};
-    src = node_path_1.default.resolve(this.pwd, src);
     if (sync) {
-        return node_fs_1.default.lstatSync(src);
+        return node_fs_1.default.lstatSync(this.resolve(src));
     }
     return new Promise((resolve, reject) => {
+        try {
+            src = this.resolve(src);
+        }
+        catch (err) {
+            reject(err);
+            return;
+        }
         node_fs_1.default.lstat(src, (err, stats) => {
             if (err) {
                 return reject(err);

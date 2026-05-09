@@ -41,8 +41,7 @@ __exportStar(require("./bitmask"), exports);
 /**
  * Path-aware wrapper around Node's file system APIs.
  *
- * All relative paths are resolved against `pwd`, which makes the instance
- * suitable for sandboxed or virtual working-directory workflows.
+ * Relative paths are resolved against `pwd`; absolute paths are preserved.
  */
 class PoweredFileSystem {
     pwd;
@@ -66,98 +65,56 @@ class PoweredFileSystem {
         this.pwd = pwd ? node_path_1.default.resolve(pwd) : process.cwd();
     }
     /**
-     * Checks whether the given path is accessible with the requested mode.
+     * Resolves relative paths against `pwd` while preserving absolute paths.
      */
+    resolve(src) {
+        return node_path_1.default.resolve(this.pwd, src);
+    }
     test(src, options) {
         return test_1.test.call(this, src, options);
     }
-    /**
-     * Returns `lstat` information for a path.
-     */
     stat(src, options) {
         return stat_1.stat.call(this, src, options);
     }
-    /**
-     * Applies a mode recursively to a file or directory tree.
-     */
     chmod(src, mode, options) {
         return chmod_1.chmod.call(this, src, mode, options);
     }
-    /**
-     * Applies ownership recursively to a file or directory tree.
-     */
     chown(src, options) {
         return chown_1.chown.call(this, src, options);
     }
-    /**
-     * Creates a symbolic link from `dest` to `src`.
-     */
     symlink(src, dest, options) {
         return symlink_1.symlink.call(this, src, dest, options);
     }
-    /**
-     * Copies `src` into the destination directory.
-     */
     copy(src, dest, options) {
         return copy_1.copy.call(this, src, dest, options);
     }
-    /**
-     * Renames or moves a file system node.
-     */
     rename(src, dest, options) {
         return rename_1.rename.call(this, src, dest, options);
     }
-    /**
-     * Removes a file system node recursively.
-     */
     remove(src, options) {
         return remove_1.remove.call(this, src, options);
     }
-    /**
-     * Removes all directory entries while preserving the directory itself.
-     */
     emptyDir(src, options) {
         return empty_dir_1.emptyDir.call(this, src, options);
     }
-    /**
-     * Reads a file relative to the current instance root.
-     */
     read(src, options) {
         return read_1.read.call(this, src, options);
     }
-    /**
-     * Writes a file and applies the resulting permissions explicitly.
-     */
     write(src, data, options) {
         return write_1.write.call(this, src, data, options);
     }
-    /**
-     * @deprecated Use `write(..., { flag: 'a' })` instead.
-     */
     append(src, data, options) {
         return append_1.append.call(this, src, data, options);
     }
-    /**
-     * Lists directory entries relative to the current instance root.
-     */
     readdir(dir, options) {
         return readdir_1.readdir.call(this, dir, options);
     }
-    /**
-     * Resolves the target of a symbolic link.
-     */
     readlink(src, options) {
         return readlink_1.readlink.call(this, src, options);
     }
-    /**
-     * Resolves a path to its canonical absolute location.
-     */
     realpath(src, options) {
         return realpath_1.realpath.call(this, src, options);
     }
-    /**
-     * Creates a directory tree relative to the current instance root.
-     */
     mkdir(dir, options) {
         return mkdir_1.mkdir.call(this, dir, options);
     }

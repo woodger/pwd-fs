@@ -7,10 +7,25 @@ export interface ICopyOptions {
   filter?: (src: string, dest: string) => boolean;
 }
 
+function once(callback: NoParamCallback): NoParamCallback {
+  let called = false;
+
+  return (err) => {
+    // Recursive branches can fail concurrently; report only the first terminal result.
+    if (called) {
+      return;
+    }
+
+    called = true;
+    callback(err);
+  };
+}
+
 /**
  * Applies chmod depth-first so directories are updated after their contents.
  */
 export function chmod(src: string, mode: number, callback: NoParamCallback) {
+  callback = once(callback);
   let reduce = 0;
 
   fs.stat(src, (err, stats) => {
@@ -50,7 +65,8 @@ export function chmod(src: string, mode: number, callback: NoParamCallback) {
 /**
  * Applies ownership recursively while preserving current values when uid/gid are omitted.
  */
-export function chown(src: string, uid: number, gid: number, callback: NoParamCallback) {
+export function chown(src: string, uid: number | undefined, gid: number | undefined, callback: NoParamCallback) {
+  callback = once(callback);
   let reduce = 0;
 
   fs.stat(src, (err, stats) => {
@@ -58,13 +74,9 @@ export function chown(src: string, uid: number, gid: number, callback: NoParamCa
       return callback(err);
     }
 
-    if (uid === 0) {
-      uid = stats.uid;
-    }
-
-    if (gid === 0) {
-      gid = stats.gid;
-    }
+    // `0` is a valid uid/gid, so only nullish values mean "preserve current owner".
+    const nextUid = uid ?? stats.uid;
+    const nextGid = gid ?? stats.gid;
 
     if (stats.isDirectory()) {
       fs.readdir(src, (err, list) => {
@@ -73,26 +85,26 @@ export function chown(src: string, uid: number, gid: number, callback: NoParamCa
         }
         
         if (list.length === 0) {
-          return fs.chown(src, uid, gid, callback);
+          return fs.chown(src, nextUid, nextGid, callback);
         }
 
         reduce = list.length;
 
         for (const loc of list) {
-          chown(path.join(src, loc), uid, gid, (err) => {
+          chown(path.join(src, loc), nextUid, nextGid, (err) => {
             if (err) {
               return callback(err);
             }
 
             if (--reduce === 0) {
-              fs.chown(src, uid, gid, callback);
+              fs.chown(src, nextUid, nextGid, callback);
             }
           });
         }
       });
     }
     else {
-      fs.chown(src, uid, gid, callback);
+      fs.chown(src, nextUid, nextGid, callback);
     }
   });
 }
@@ -101,6 +113,8 @@ export function chown(src: string, uid: number, gid: number, callback: NoParamCa
  * Copies a file system node into the target directory, creating directories as needed.
  */
 export function copy(src: string, dir: string, options: ICopyOptions, callback: NoParamCallback) {
+  callback = once(callback);
+
   fs.stat(src, (err, stat) => {
     if (err) {
       return callback(err);
@@ -159,6 +173,7 @@ export function copy(src: string, dir: string, options: ICopyOptions, callback: 
           return create();
         }
 
+        // Overwrite is implemented as replace-before-copy to support directory targets.
         fs.lstat(dest, (err, destStat) => {
           if (err) {
             if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -192,22 +207,22 @@ export function copy(src: string, dir: string, options: ICopyOptions, callback: 
       const mode = 0o666 & ~options.umask;
 
       const write = () => {
-        const readStream = fs.createReadStream(src);
-        const writeStream = fs.createWriteStream(dest, { mode });
+        const flags = options.overwrite ? 0 : fs.constants.COPYFILE_EXCL;
 
-        readStream.on('error', callback);
-        writeStream.on('error', callback);
-        writeStream.on('close', () => {
+        fs.copyFile(src, dest, flags, (err) => {
+          if (err) {
+            return callback(err);
+          }
+
           fs.chmod(dest, mode, callback);
         });
-
-        readStream.pipe(writeStream);
       };
 
       if (!options.overwrite) {
         return write();
       }
 
+      // Match directory behavior by replacing the existing target before writing.
       fs.lstat(dest, (err, destStat) => {
         if (err) {
           if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -243,50 +258,15 @@ export function copy(src: string, dir: string, options: ICopyOptions, callback: 
  * Removes files, directories, and symlinks without following symbolic links.
  */
 export function remove(src: string, callback: NoParamCallback) {
-  fs.lstat(src, (err, stat) => {
-    if (err) {
-      return callback(err);
-    }
-
-    if (stat.isSymbolicLink()) {
-      return fs.unlink(src, callback);
-    }
-
-    if (stat.isDirectory()) {
-      fs.readdir(src, (err, list) => {
-        if (err) {
-          return callback(err);
-        }
-
-        if (list.length === 0) {
-          return fs.rmdir(src, callback);
-        }
-
-        let reduce = list.length;
-
-        for (const loc of list) {
-          remove(path.join(src, loc), (err) => {
-            if (err) {
-              return callback(err);
-            }
-
-            if (--reduce === 0) {
-              fs.rmdir(src, callback);
-            }
-          });
-        }
-      });
-    }
-    else {
-      fs.unlink(src, callback);
-    }
-  });
+  fs.rm(src, { recursive: true, force: false }, once(callback));
 }
 
 /**
  * Removes all entries inside a directory while preserving the directory itself.
  */
 export function emptyDir(src: string, callback: NoParamCallback) {
+  callback = once(callback);
+
   fs.readdir(src, (err, list) => {
     if (err) {
       return callback(err);
@@ -299,7 +279,7 @@ export function emptyDir(src: string, callback: NoParamCallback) {
     let reduce = list.length;
 
     for (const loc of list) {
-      remove(path.join(src, loc), (err) => {
+      fs.rm(path.join(src, loc), { recursive: true, force: false }, (err) => {
         if (err) {
           return callback(err);
         }

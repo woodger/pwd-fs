@@ -1,40 +1,52 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { remove as removeRecursive } from '../recurse-io';
 import { removeSync as removeRecursiveSync } from '../recurse-io-sync';
-import type { PoweredFileSystem } from '../powered-file-system';
+import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
 /**
- * Removes a path relative to the instance root, preferring native recursive APIs when available.
+ * Removes a path relative to the instance base path.
  */
-export function remove<T extends boolean = false>(
+export function remove(
   this: PoweredFileSystem,
   src: string,
-  options?: { sync?: T }
-): T extends true ? void : Promise<void> {
-  src = path.resolve(this.pwd, src);
-  const { sync = false as T } = options ?? {};
+  options: SyncOption
+): void;
+export function remove(
+  this: PoweredFileSystem,
+  src: string,
+  options?: AsyncOption
+): Promise<void>;
+export function remove(
+  this: PoweredFileSystem,
+  src: string,
+  options?: MaybeSyncOption
+): void | Promise<void>;
+export function remove(
+  this: PoweredFileSystem,
+  src: string,
+  options?: MaybeSyncOption
+): void | Promise<void> {
+  const { sync = false } = options ?? {};
 
   if (sync) {
-    removeRecursiveSync(src);
-    return undefined as any;
+    removeRecursiveSync(this.resolve(src));
+    return;
   }
 
   return new Promise<void>((resolve, reject) => {
-    const callback: fs.NoParamCallback = (err) => {
+    try {
+      src = this.resolve(src);
+    }
+    catch (err) {
+      reject(err);
+      return;
+    }
+
+    removeRecursive(src, (err) => {
       if (err) {
         return reject(err);
       }
 
       resolve();
-    };
-
-    if ('rm' in fs) {
-      // Prefer the native recursive removal when the runtime supports it.
-      fs.rm(src, { recursive: true }, callback);
-    }
-    else {
-      removeRecursive(src, callback);
-    }
-  }) as any;
+    });
+  });
 }
