@@ -1,7 +1,6 @@
 # pwd-fs
 
-[![License](https://img.shields.io/npm/l/pwd-fs)](https://github.com/woodger/pwd-fs/blob/master/LICENSE)
-[![CI](https://github.com/woodger/pwd-fs/actions/workflows/ci.yml/badge.svg)](https://github.com/woodger/pwd-fs/actions/workflows/ci.yml)
+[![License](https://img.shields.io/npm/l/pwd-fs)](https://github.com/woodger/pwd-fs/blob/main/LICENSE)
 
 `pwd-fs` is a path-aware wrapper around Node.js file system APIs.
 
@@ -269,8 +268,8 @@ chown<T extends boolean = false>(
 ): T extends true ? void : Promise<void>
 ```
 
-- `uid` and `gid` default to `0`
-- when `uid` or `gid` is `0`, the current value from the source entry is preserved
+- omitted `uid` or `gid` values are taken from the source entry before recursive application
+- `0` is a valid `uid` or `gid` value and is applied when provided
 - on Windows, ownership changes are not performed, but path validation still happens
 
 ### `pfs.symlink(src, dest, options?)`
@@ -310,6 +309,7 @@ Behavior:
 
 - copying a file creates `dest/<basename(src)>`
 - copying a directory creates `dest/<basename(src)>` recursively
+- symbolic links are followed instead of recreated as links
 - the target must not already exist
 - `overwrite: true` replaces an existing target entry with the same basename
 - `filter()` can skip specific source entries during the copy
@@ -415,7 +415,7 @@ write<T extends boolean = false>(
 - default `umask`: `0o000`
 - default `flag`: `'w'`
 - use `flag: 'a'` to append
-- any valid Node.js string file flag is accepted, such as `'r'`, `'w'`, `'a'`, `'wx'`, or `'a+'`
+- `flag` is passed to Node.js `fs.writeFile`; write-incompatible flags such as `'r'` reject or throw
 
 ```ts
 await pfs.write('./report.txt', 'generated output');
@@ -452,10 +452,11 @@ Reads a directory and returns entry names.
 readdir<T extends boolean = false>(
   dir: string,
   options?: { sync?: T; encoding?: BufferEncoding | null }
-): T extends true ? string[] : Promise<string[]>
+): T extends true ? string[] | Buffer[] : Promise<string[] | Buffer[]>
 ```
 
 - default `encoding`: `'utf8'`
+- use `encoding: null` to get `Buffer[]`
 
 ### `pfs.readlink(src, options?)`
 
@@ -555,6 +556,7 @@ Effective permissions:
 - Relative paths are resolved against `pfs.pwd`
 - Absolute paths are not constrained by `pfs.pwd`
 - `stat()` returns `lstat()` data
+- `copy()` follows symbolic links instead of preserving them as links
 - `remove()` does not follow symbolic links
 - `append()` is kept for backward compatibility and is deprecated
 
