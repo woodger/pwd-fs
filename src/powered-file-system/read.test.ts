@@ -10,13 +10,12 @@ import { createTmpDir, fmock, restore } from '../test-utils';
  */
 describe('read(src [, options])', () => {
   const chance = new Chance();
-  let sentences = 0;
+  let tingsContent = '';
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    const tingsContent = chance.paragraph();
-    sentences = tingsContent.length;
+    tingsContent = chance.paragraph();
     
     fmock({
       [path.join(tmpDir, 'tings.txt')]: {
@@ -31,9 +30,9 @@ describe('read(src [, options])', () => {
   });
   
   it('Positive: Must read content of file; String type by default', async () => {
-    const { length } = await pfs.read(path.join(tmpDir, 'tings.txt'));
+    const content = await pfs.read(path.join(tmpDir, 'tings.txt'));
 
-    assert(length === sentences);
+    assert.strictEqual(content, tingsContent);
   });
 
   it('Positive: Must read Buffer content of file when encoding is null', async () => {
@@ -42,6 +41,7 @@ describe('read(src [, options])', () => {
     });
 
     assert(buffer instanceof Buffer);
+    assert.strictEqual(buffer.toString('utf8'), tingsContent);
   });
 
   it('Negative: Throw if resource is not file', async () => {
@@ -59,11 +59,11 @@ describe('read(src [, options])', () => {
   });
 
   it('[sync] Positive: Must read content of file; String type by default', () => {
-    const { length } = pfs.read(path.join(tmpDir, 'tings.txt'), {
+    const content = pfs.read(path.join(tmpDir, 'tings.txt'), {
       sync: true
     });
 
-    assert(length === sentences);
+    assert.strictEqual(content, tingsContent);
   });
 
   it('[sync] Positive: Must read Buffer content of file when encoding is null', () => {
@@ -73,6 +73,7 @@ describe('read(src [, options])', () => {
     });
 
     assert(buf instanceof Buffer);
+    assert.strictEqual(buf.toString('utf8'), tingsContent);
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {

@@ -36,18 +36,18 @@ describe('write(src, data[, options])', () => {
     const filePath = path.join(tmpDir, `${guid}.txt`);
 
     await pfs.write(filePath, payload);
-    const { size } = fs.lstatSync(filePath);
+    const content = fs.readFileSync(filePath, 'utf8');
 
-    assert(payload.length === size);
+    assert.strictEqual(content, payload);
   });
 
   it('Positive: Must rewrite content if file already exists', async () => {
     const payload = chance.paragraph();
 
     await pfs.write(path.join(tmpDir, 'tings.txt'), payload);
-    const { size } = fs.lstatSync(path.join(tmpDir, 'tings.txt'));
+    const content = fs.readFileSync(path.join(tmpDir, 'tings.txt'), 'utf8');
 
-    assert(payload.length === size);
+    assert.strictEqual(content, payload);
   });
 
   it('Negative: Throw if resource is directory', async () => {
@@ -79,7 +79,7 @@ describe('write(src, data[, options])', () => {
     
     const content = fs.readFileSync(filePath, 'utf8');
 
-    assert(payload === content);
+    assert.strictEqual(content, payload);
   });
 
   it('[sync] Negative: Throw if resource is directory', () => {

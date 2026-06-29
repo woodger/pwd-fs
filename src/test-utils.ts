@@ -2,12 +2,15 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+type FixtureNode =
+  | { type: 'directory' }
+  | { type: 'file'; data: string | Buffer }
+  | { type: 'symlink'; target: string };
+
 /**
  * Lightweight in-memory-like description of a temporary file system tree.
  */
-export interface Iframe {
-  [key: string]: any
-}
+export type Iframe = Record<string, FixtureNode>;
 
 /**
  * Creates an isolated temporary directory for a single test case.
@@ -20,29 +23,31 @@ export function createTmpDir() {
  * Materializes a test fixture tree on disk from a declarative frame description.
  */
 export function fmock(frame: Iframe) {
-  for (const src of Object.keys(frame)) {
+  for (const [src, value] of Object.entries(frame)) {
     const { dir } = path.parse(src);
-    const value = frame[src];
 
     fs.mkdirSync(dir, { recursive: true });
 
-    if (value.type === 'directory') {
-      fs.mkdirSync(src);
-    }
+    switch (value.type) {
+      case 'directory':
+        fs.mkdirSync(src);
+        break;
 
-    if (value.type === 'file') {
-      fs.writeFileSync(src, value.data);
-    }
+      case 'file':
+        fs.writeFileSync(src, value.data);
+        break;
 
-    if (value.type === 'symlink') {
-      let type: fs.symlink.Type | undefined;
+      case 'symlink': {
+        let type: fs.symlink.Type | undefined;
 
-      if (process.platform === 'win32') {
-        const stats = fs.lstatSync(value.target);
-        type = stats.isDirectory() ? 'junction' : 'file';
+        if (process.platform === 'win32') {
+          const stats = fs.lstatSync(value.target);
+          type = stats.isDirectory() ? 'junction' : 'file';
+        }
+
+        fs.symlinkSync(value.target, src, type);
+        break;
       }
-
-      fs.symlinkSync(value.target, src, type);
     }
   }
 }

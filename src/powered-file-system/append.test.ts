@@ -33,9 +33,9 @@ describe('append(src, data [, options])', () => {
 
     const filePath = path.join(tmpDir, 'tings.txt');
     await pfs.append(filePath, payload);
-    const { size } = fs.statSync(filePath);
+    const content = fs.readFileSync(filePath, 'utf8');
 
-    assert(payload.length + 6 === size);
+    assert.strictEqual(content, `hoodie${payload}`);
   });
 
   it('[sync] Positive: Must append content to file', () => {
@@ -46,8 +46,8 @@ describe('append(src, data [, options])', () => {
       sync: true
     });
 
-    const { size } = fs.statSync(filePath);
+    const content = fs.readFileSync(filePath, 'utf8');
 
-    assert(payload.length + 6 === size);
+    assert.strictEqual(content, `hoodie${payload}`);
   });
 });

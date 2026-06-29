@@ -86,6 +86,26 @@ describe('copy(src, dir [, options])', () => {
     }
   });
 
+  it('Positive: Copying a symlink to a file should copy target contents', async () => {
+    const linkPath = path.join(tmpDir, 'tings-link');
+    fmock({
+      [linkPath]: {
+        type: 'symlink',
+        target: path.join(tmpDir, 'tings.txt')
+      }
+    });
+
+    await pfs.copy(linkPath, path.join(tmpDir, 'digest'));
+
+    const copiedPath = path.join(tmpDir, 'digest', 'tings-link');
+
+    assert(fs.lstatSync(copiedPath).isFile());
+    assert.strictEqual(
+      fs.readFileSync(copiedPath, 'utf8'),
+      fs.readFileSync(path.join(tmpDir, 'tings.txt'), 'utf8')
+    );
+  });
+
   it('[sync] Positive: Copying a file', () => {
     pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
       sync: true
@@ -153,5 +173,27 @@ describe('copy(src, dir [, options])', () => {
     finally {
       restore(destRoot);
     }
+  });
+
+  it('[sync] Positive: Copying a symlink to a file should copy target contents', () => {
+    const linkPath = path.join(tmpDir, 'tings-link');
+    fmock({
+      [linkPath]: {
+        type: 'symlink',
+        target: path.join(tmpDir, 'tings.txt')
+      }
+    });
+
+    pfs.copy(linkPath, path.join(tmpDir, 'digest'), {
+      sync: true
+    });
+
+    const copiedPath = path.join(tmpDir, 'digest', 'tings-link');
+
+    assert(fs.lstatSync(copiedPath).isFile());
+    assert.strictEqual(
+      fs.readFileSync(copiedPath, 'utf8'),
+      fs.readFileSync(path.join(tmpDir, 'tings.txt'), 'utf8')
+    );
   });
 });
