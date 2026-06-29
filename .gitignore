@@ -1,4 +1,3 @@
-node_modules
-
-# AI
-AGENTS.md
+node_modules/
+yarn.lock
+dist/

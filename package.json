@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "3.5.4",
+  "version": "3.5.5",
   "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
@@ -26,21 +26,11 @@
     "type": "git",
     "url": "https://github.com/woodger/pwd-fs.git"
   },
-  "homepage": "https://github.com/woodger/pwd-fs#readme",
-  "bugs": {
-    "url": "https://github.com/woodger/pwd-fs/issues"
-  },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "yarn@1.22.22",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "readme.md",
-    "LICENSE"
-  ],
   "scripts": {
     "build": "tsc",
     "lint": "eslint src",
@@ -52,6 +42,7 @@
     "@types/node": "^25.6.2",
     "chance": "^1.1.13",
     "eslint": "9.35.0",
+    "fwa": "2.0.0-alpha",
     "globals": "^17.6.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "8.55.0"
