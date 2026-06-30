@@ -137,7 +137,7 @@ if (await pfs.test('./tmp')) {
 
 ## Compatibility
 
-- package `engines`: Node.js `>=18`
+- package `engines`: Node.js `>=14.18.0`
 - module format: CommonJS package output with TypeScript declarations
 - platform notes:
   - `chown()` is effectively a no-op on Windows apart from path validation
@@ -581,7 +581,7 @@ Prefer native `node:fs` APIs directly when you need:
 
 ## Development
 
-The published library supports Node.js `>=18`. The development test runner is a dev dependency and requires Node.js `>=20.19.0`.
+The published library supports Node.js `>=14.18.0`. The development test runner is a dev dependency and requires Node.js `>=20.19.0`.
 
 ```bash
 yarn install --frozen-lockfile

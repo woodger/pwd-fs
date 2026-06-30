@@ -27,7 +27,7 @@
     "url": "https://github.com/woodger/pwd-fs.git"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=14.18.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
