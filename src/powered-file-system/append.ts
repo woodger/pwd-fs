@@ -1,3 +1,14 @@
+/**
+ * Module deprecated append method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - preserving the legacy `append()` public method;
+ * - forwarding append behavior to `write()` with append flags;
+ * - keeping async and sync overloads aligned with the wrapper contract.
+ *
+ * This file must not contain independent file writing logic.
+ */
+
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
 type AppendOptions = {

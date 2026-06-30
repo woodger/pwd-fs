@@ -1,3 +1,14 @@
+/**
+ * Module readlink method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving link paths against the instance base path;
+ * - preserving Node readlink encoding behavior;
+ * - selecting async or sync symbolic-link target reads.
+ *
+ * This file must not contain canonical path resolution or symlink creation.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 

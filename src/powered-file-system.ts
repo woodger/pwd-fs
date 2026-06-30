@@ -1,3 +1,14 @@
+/**
+ * Module public path-aware filesystem wrapper contract.
+ *
+ * Allowed here:
+ * - defining public method overloads and shared option types;
+ * - binding method modules to a resolved instance base path;
+ * - exposing permission constants and public helpers.
+ *
+ * This file must not contain recursive filesystem algorithms or test fixture behavior.
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { bitmask } from './bitmask';

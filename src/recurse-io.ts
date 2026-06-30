@@ -1,3 +1,14 @@
+/**
+ * Module asynchronous recursive filesystem algorithms.
+ *
+ * Allowed here:
+ * - traversing filesystem trees with callback-based Node APIs;
+ * - preserving recursive chmod, chown, copy, remove, empty, and mkdir semantics;
+ * - normalizing callback completion for concurrent recursive branches.
+ *
+ * This file must not contain public path-aware wrapper overloads or synchronous variants.
+ */
+
 import fs, { NoParamCallback } from 'node:fs';
 import path from 'node:path';
 

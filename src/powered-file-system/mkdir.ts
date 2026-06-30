@@ -1,3 +1,14 @@
+/**
+ * Module mkdir method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving directory paths against the instance base path;
+ * - applying wrapper umask options to recursive directory creation;
+ * - selecting async or sync mkdir execution.
+ *
+ * This file must not contain unrelated file creation or cleanup behavior.
+ */
+
 import { mkdir as mkdirRecursive } from '../recurse-io';
 import { mkdirSync as mkdirRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';

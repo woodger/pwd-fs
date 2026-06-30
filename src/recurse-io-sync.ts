@@ -1,3 +1,14 @@
+/**
+ * Module synchronous recursive filesystem algorithms.
+ *
+ * Allowed here:
+ * - mirroring recursive filesystem behavior for `{ sync: true }` calls;
+ * - applying replace-before-copy and permission rules synchronously;
+ * - sharing only option shapes with the asynchronous recursive module.
+ *
+ * This file must not contain Promise or callback orchestration.
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import type { ICopyOptions } from './recurse-io';

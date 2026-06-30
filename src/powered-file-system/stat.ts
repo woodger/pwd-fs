@@ -1,3 +1,14 @@
+/**
+ * Module stat method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving paths against the instance base path;
+ * - returning `lstat` data so symbolic links remain observable;
+ * - selecting async or sync stat execution.
+ *
+ * This file must not contain permission normalization or existence fallback behavior.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, Stats, SyncOption } from '../powered-file-system';
 

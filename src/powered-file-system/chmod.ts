@@ -1,3 +1,14 @@
+/**
+ * Module chmod method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving instance-relative paths before permission changes;
+ * - selecting async or sync recursive chmod implementation;
+ * - preserving wrapper error propagation for missing targets.
+ *
+ * This file must not contain recursive traversal logic.
+ */
+
 import { chmod as chmodRecursive } from '../recurse-io';
 import { chmodSync as chmodRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';

@@ -1,3 +1,14 @@
+/**
+ * Module access-test method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving paths against the instance base path;
+ * - mapping wrapper access flags to Node access constants;
+ * - converting access errors into boolean results.
+ *
+ * This file must not contain stat metadata reads or mutation behavior.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, Mode, PoweredFileSystem, SyncOption } from '../powered-file-system';
 

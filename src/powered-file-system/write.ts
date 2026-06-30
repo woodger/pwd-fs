@@ -1,3 +1,14 @@
+/**
+ * Module write method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving file paths against the instance base path;
+ * - applying write options and explicit final permissions;
+ * - selecting async or sync file write execution.
+ *
+ * This file must not contain append compatibility routing or stream handling.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, Flag, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
