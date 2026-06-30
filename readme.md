@@ -581,6 +581,8 @@ Prefer native `node:fs` APIs directly when you need:
 
 ## Development
 
+The published library supports Node.js `>=18`. The development test runner is a dev dependency and requires Node.js `>=20.19.0`.
+
 ```bash
 yarn install --frozen-lockfile
 yarn lint

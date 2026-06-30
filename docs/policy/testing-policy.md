@@ -23,6 +23,8 @@ Tests are written in TypeScript in `src/**/*.test.ts` and use standard Node.js m
 - `node:test`;
 - `node:assert`.
 
+`yarn test` uses `fwa` to discover compiled tests in `dist/` and then delegates execution to Node's native test runner.
+
 Before running tests after changes in `src`, rebuild the project:
 
 ```bash

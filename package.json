@@ -34,7 +34,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src",
-    "test": "node ./dist/suite.test.js"
+    "test": "fwa"
   },
   "devDependencies": {
     "@eslint/js": "9.35.0",
