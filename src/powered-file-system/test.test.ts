@@ -4,7 +4,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies existence and access checks exposed by `test()`.
@@ -16,7 +16,7 @@ describe('test(src[, options])', () => {
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
@@ -26,7 +26,7 @@ describe('test(src[, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it(`Positive: Should return 'true' for current working directory`, async () => {

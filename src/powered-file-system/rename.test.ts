@@ -4,7 +4,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies move semantics for both files and directories.
@@ -16,7 +16,7 @@ describe('rename(src, use [, options])', () => {
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
@@ -26,7 +26,7 @@ describe('rename(src, use [, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Must be recursive rename file', async () => {

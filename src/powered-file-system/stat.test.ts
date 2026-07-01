@@ -3,7 +3,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Ensures `stat()` preserves file type reporting for files, directories, and symlinks.
@@ -15,7 +15,7 @@ describe('stat(src [, options])', () => {
   beforeEach(() => {
     tmpDir = createTmpDir();
     
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
@@ -29,7 +29,7 @@ describe('stat(src [, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Must return information a file', async () => {

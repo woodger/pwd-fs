@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { PoweredFileSystem } from './index';
-import { createTmpDir, restore } from './test-utils';
+import { createTmpDir, removeFixtureTree } from './test-utils';
 
 /**
  * Verifies constructor path resolution semantics for the main API surface.
@@ -28,7 +28,7 @@ describe('#constructor: new PoweredFileSystem(pwd?)', () => {
       assert(resolved === path.join(tmpDir, 'nested', 'file.txt'));
     }
     finally {
-      restore(tmpDir);
+      removeFixtureTree(tmpDir);
     }
   });
 
@@ -43,7 +43,7 @@ describe('#constructor: new PoweredFileSystem(pwd?)', () => {
       assert(resolved === outsidePath);
     }
     finally {
-      restore(tmpDir);
+      removeFixtureTree(tmpDir);
     }
   });
 });

@@ -3,7 +3,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
+import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies directory listing behavior and invalid-target failures.
@@ -15,7 +15,7 @@ describe('readdir(src[, options])', () => {
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    const frame: Iframe = {
+    const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
@@ -28,11 +28,11 @@ describe('readdir(src[, options])', () => {
       frame[path.join(tmpDir, String(i))] = { type: 'directory' };
     }
 
-    fmock(frame);
+    createFixtureTree(frame);
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Must return a directory listing', async () => {

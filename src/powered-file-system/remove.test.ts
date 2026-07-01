@@ -4,7 +4,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
+import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Covers recursive removal, including the symlink edge case.
@@ -16,7 +16,7 @@ describe('remove(src [, options])', () => {
   beforeEach(() => {
     tmpDir = createTmpDir();
     
-    const frame: Iframe = {
+    const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
@@ -38,11 +38,11 @@ describe('remove(src [, options])', () => {
       frame[path.join(tmpDir, String(i))] = { type: 'directory' };
     }
 
-    fmock(frame);
+    createFixtureTree(frame);
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Removal a directory with a file', async () => {

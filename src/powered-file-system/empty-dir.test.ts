@@ -4,7 +4,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { Iframe, createTmpDir, fmock, restore } from '../test-utils';
+import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies directory cleanup while preserving the directory itself.
@@ -16,7 +16,7 @@ describe('emptyDir(src [, options])', () => {
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    const frame: Iframe = {
+    const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: chance.string()
@@ -28,11 +28,11 @@ describe('emptyDir(src [, options])', () => {
       }
     };
 
-    fmock(frame);
+    createFixtureTree(frame);
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Removes all directory contents but preserves the directory', async () => {

@@ -3,7 +3,7 @@ import path from 'node:path';
 import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Covers text and binary reads together with failure cases.
@@ -17,7 +17,7 @@ describe('read(src [, options])', () => {
     tmpDir = createTmpDir();
     tingsContent = chance.paragraph();
     
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: tingsContent
@@ -26,7 +26,7 @@ describe('read(src [, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
   
   it('Positive: Must read content of file; String type by default', async () => {
