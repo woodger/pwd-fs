@@ -1,32 +1,30 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Covers file and directory copy behavior, including collision handling.
  */
 describe('copy(src, dir [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Copying a item file', async () => {
@@ -44,10 +42,10 @@ describe('copy(src, dir [, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
     
     await assert.rejects(async () => {
-      await pfs.copy(path.join(tmpDir, guid), tmpDir);
+      await pfs.copy(path.join(tmpDir, resourceName), tmpDir);
     });
   });
 
@@ -82,13 +80,13 @@ describe('copy(src, dir [, options])', () => {
       assert(fs.existsSync(path.join(destRoot, path.basename(tmpDir), 'tings.txt')) === false);
     }
     finally {
-      restore(destRoot);
+      removeFixtureTree(destRoot);
     }
   });
 
   it('Positive: Copying a symlink to a file should copy target contents', async () => {
     const linkPath = path.join(tmpDir, 'tings-link');
-    fmock({
+    createFixtureTree({
       [linkPath]: {
         type: 'symlink',
         target: path.join(tmpDir, 'tings.txt')
@@ -127,10 +125,10 @@ describe('copy(src, dir [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.copy(path.join(tmpDir, guid), tmpDir, {
+      pfs.copy(path.join(tmpDir, resourceName), tmpDir, {
         sync: true
       });
     });
@@ -171,13 +169,13 @@ describe('copy(src, dir [, options])', () => {
       assert(fs.existsSync(path.join(destRoot, path.basename(tmpDir), 'tings.txt')) === false);
     }
     finally {
-      restore(destRoot);
+      removeFixtureTree(destRoot);
     }
   });
 
   it('[sync] Positive: Copying a symlink to a file should copy target contents', () => {
     const linkPath = path.join(tmpDir, 'tings-link');
-    fmock({
+    createFixtureTree({
       [linkPath]: {
         type: 'symlink',
         target: path.join(tmpDir, 'tings.txt')

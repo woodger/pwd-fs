@@ -1,30 +1,28 @@
 import assert from 'node:assert';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Ensures recursive permission updates affect both directories and nested files.
  */
 describe('chmod(src, mode [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       }
     });
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Changes directory and file permissions', async () => {
@@ -71,10 +69,10 @@ describe('chmod(src, mode [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.chmod(`./${guid}`, 0o744, {
+      pfs.chmod(`./${resourceName}`, 0o744, {
         sync: true
       });
     });

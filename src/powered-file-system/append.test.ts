@@ -1,22 +1,20 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Covers the deprecated append helper in both async and sync modes.
  */
 describe('append(src, data [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
         data: 'hoodie'
@@ -25,11 +23,11 @@ describe('append(src, data [, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Must append content to file', async () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     const filePath = path.join(tmpDir, 'tings.txt');
     await pfs.append(filePath, payload);
@@ -39,7 +37,7 @@ describe('append(src, data [, options])', () => {
   });
 
   it('[sync] Positive: Must append content to file', () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     const filePath = path.join(tmpDir, 'tings.txt');
     pfs.append(filePath, payload, {

@@ -1,3 +1,14 @@
+/**
+ * Module rename method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving source and destination paths against the instance base path;
+ * - delegating rename operations to Node filesystem APIs;
+ * - selecting async or sync rename execution.
+ *
+ * This file must not contain recursive copy or overwrite replacement behavior.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 

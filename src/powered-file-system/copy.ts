@@ -1,3 +1,14 @@
+/**
+ * Module copy method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving source and destination paths against the instance base path;
+ * - shaping copy options for recursive copy implementations;
+ * - selecting async or sync copy execution.
+ *
+ * This file must not contain recursive copy traversal or collision replacement algorithms.
+ */
+
 import { copy as copyRecursive } from '../recurse-io';
 import { copySync as copyRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, CopyFilter, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';

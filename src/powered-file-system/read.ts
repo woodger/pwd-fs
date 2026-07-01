@@ -1,3 +1,14 @@
+/**
+ * Module read method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving file paths against the instance base path;
+ * - preserving string and Buffer return modes from read options;
+ * - selecting async or sync file read execution.
+ *
+ * This file must not contain parsing, transformation, or stream handling.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, ReadOptions, SyncOption } from '../powered-file-system';
 

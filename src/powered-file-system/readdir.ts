@@ -1,3 +1,14 @@
+/**
+ * Module readdir method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving directory paths against the instance base path;
+ * - preserving string and Buffer entry modes from readdir options;
+ * - selecting async or sync directory listing execution.
+ *
+ * This file must not contain recursive traversal or filtering policy.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, ReaddirOptions, SyncOption } from '../powered-file-system';
 

@@ -1,3 +1,14 @@
+/**
+ * Module remove method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving removal targets against the instance base path;
+ * - delegating recursive removal while preserving symlink behavior;
+ * - selecting async or sync remove execution.
+ *
+ * This file must not contain directory-emptying or copy replacement policy.
+ */
+
 import { remove as removeRecursive } from '../recurse-io';
 import { removeSync as removeRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';

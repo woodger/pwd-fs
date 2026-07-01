@@ -1,24 +1,22 @@
 import assert from 'node:assert';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Ensures `stat()` preserves file type reporting for files, directories, and symlinks.
  */
 describe('stat(src [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
     
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' },
       [path.join(tmpDir, 'flexapp')]: {
@@ -29,7 +27,7 @@ describe('stat(src [, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Must return information a file', async () => {
@@ -51,10 +49,10 @@ describe('stat(src [, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
-      await pfs.stat(path.join(tmpDir, guid));
+      await pfs.stat(path.join(tmpDir, resourceName));
     });
   });
 
@@ -83,10 +81,10 @@ describe('stat(src [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.stat(path.join(tmpDir, guid), {
+      pfs.stat(path.join(tmpDir, resourceName), {
         sync: true
       });
     });

@@ -1,3 +1,14 @@
+/**
+ * Module chown method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving instance-relative paths before ownership changes;
+ * - preserving Windows path validation without POSIX ownership mutation;
+ * - selecting async or sync recursive chown implementation.
+ *
+ * This file must not contain generic permission or copy behavior.
+ */
+
 import fs from 'node:fs';
 import { chown as chownRecursive } from '../recurse-io';
 import { chownSync as chownRecursiveSync } from '../recurse-io-sync';

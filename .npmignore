@@ -3,5 +3,7 @@ yarn.lock
 eslint.config.mjs
 docs/
 src/
-tsconfig.json
+tsconfig*.json
 **/*.test.*
+dist/test-utils.*
+dist/**/*.map

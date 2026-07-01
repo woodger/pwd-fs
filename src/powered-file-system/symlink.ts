@@ -1,3 +1,14 @@
+/**
+ * Module symlink method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving source and destination paths against the instance base path;
+ * - handling Windows symlink type requirements;
+ * - selecting async or sync symbolic-link creation.
+ *
+ * This file must not contain link target reading or canonical path resolution.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 

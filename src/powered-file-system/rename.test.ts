@@ -1,32 +1,30 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies move semantics for both files and directories.
  */
 describe('rename(src, use [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Must be recursive rename file', async () => {
@@ -44,10 +42,10 @@ describe('rename(src, use [, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
-      await pfs.rename(path.join(tmpDir, guid), path.join(tmpDir, 'newxbase'));
+      await pfs.rename(path.join(tmpDir, resourceName), path.join(tmpDir, 'newxbase'));
     });
   });
 
@@ -72,10 +70,10 @@ describe('rename(src, use [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.rename(path.join(tmpDir, guid), path.join(tmpDir, 'newxbase'), {
+      pfs.rename(path.join(tmpDir, resourceName), path.join(tmpDir, 'newxbase'), {
         sync: true
       });
     });

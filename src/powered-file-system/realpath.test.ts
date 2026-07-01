@@ -1,24 +1,22 @@
 import assert from 'node:assert';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { createTmpDir, fmock, restore } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies canonical path resolution through symbolic links.
  */
 describe('realpath(src [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
 
-    fmock({
+    createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'flexapp')]: {
         type: 'symlink',
@@ -28,7 +26,7 @@ describe('realpath(src [, options])', () => {
   });
 
   afterEach(() => {
-    restore(tmpDir);
+    removeFixtureTree(tmpDir);
   });
 
   it('Positive: Resolves the canonical target path', async () => {

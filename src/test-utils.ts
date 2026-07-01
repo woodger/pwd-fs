@@ -8,9 +8,9 @@ type FixtureNode =
   | { type: 'symlink'; target: string };
 
 /**
- * Lightweight in-memory-like description of a temporary file system tree.
+ * Declarative description of a temporary file system tree.
  */
-export type Iframe = Record<string, FixtureNode>;
+export type FixtureTree = Record<string, FixtureNode>;
 
 /**
  * Creates an isolated temporary directory for a single test case.
@@ -22,7 +22,7 @@ export function createTmpDir() {
 /**
  * Materializes a test fixture tree on disk from a declarative frame description.
  */
-export function fmock(frame: Iframe) {
+export function createFixtureTree(frame: FixtureTree) {
   for (const [src, value] of Object.entries(frame)) {
     const { dir } = path.parse(src);
 
@@ -30,7 +30,7 @@ export function fmock(frame: Iframe) {
 
     switch (value.type) {
       case 'directory':
-        fs.mkdirSync(src);
+        fs.mkdirSync(src, { recursive: true });
         break;
 
       case 'file':
@@ -55,7 +55,7 @@ export function fmock(frame: Iframe) {
 /**
  * Removes the temporary fixture tree while resetting restrictive permissions first.
  */
-export function restore(tmpDir: string) {
+export function removeFixtureTree(tmpDir: string) {
   const removeRecursive = (src: string) => {
     if (fs.existsSync(src)) {
       const stats = fs.lstatSync(src);
@@ -68,18 +68,18 @@ export function restore(tmpDir: string) {
       fs.chmodSync(src, 0o755);
 
       fs.readdirSync(src).forEach((item) => {
-        const curl = path.join(src, item);
-        const stats = fs.lstatSync(curl);
+        const entryPath = path.join(src, item);
+        const stats = fs.lstatSync(entryPath);
 
         if (stats.isSymbolicLink()) {
-          fs.unlinkSync(curl);
+          fs.unlinkSync(entryPath);
         }
         else if (stats.isDirectory()) {
-          removeRecursive(curl);
+          removeRecursive(entryPath);
         }
         else {
-          fs.chmodSync(curl, 0o666);
-          fs.unlinkSync(curl);
+          fs.chmodSync(entryPath, 0o666);
+          fs.unlinkSync(entryPath);
         }
       });
 

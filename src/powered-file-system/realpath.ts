@@ -1,3 +1,14 @@
+/**
+ * Module realpath method adapter for the path-aware filesystem wrapper.
+ *
+ * Allowed here:
+ * - resolving input paths against the instance base path;
+ * - delegating canonical path resolution to Node filesystem APIs;
+ * - selecting async or sync realpath execution.
+ *
+ * This file must not contain symlink creation or raw link-target reads.
+ */
+
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
 
