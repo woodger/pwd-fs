@@ -5,13 +5,7 @@
 [![types](https://img.shields.io/npm/types/pwd-fs.svg)](https://www.npmjs.com/package/pwd-fs)
 [![license](https://img.shields.io/npm/l/pwd-fs.svg)](LICENSE)
 
-[![npm](https://nodei.co/npm/pwd-fs.png)](https://www.npmjs.com/package/pwd-fs)
-
-This module expands the [Node.js®](https://nodejs.org) module with the capabilities of declaring the `pwd` (working directory) and `recursive` execution. By default all file system operations have asynchronous forms. API provides an alternative set of asynchronous file system methods that return `Promise` objects.
-
-To improve reliability and maintainability the code is migrated to [TypeScript](https://www.typescriptlang.org).
-
-The package supports Node.js `>=14.18.0`.
+This module extends the [Node.js®](https://nodejs.org) file system API with a declared `pwd` (working directory) and recursive execution helpers. By default, all file system operations have asynchronous forms. The API provides an alternative set of asynchronous file system methods that return `Promise` objects.
 
 ## Getting Started
 
@@ -47,9 +41,9 @@ npm install pwd-fs
 * [pfs.pwd](#pfspwd)
 * [static: bitmask(mode)](#static-bitmaskmode)
 
-The scope `URI` of the class methods are divided into groups.
+The class methods are divided into resource groups.
 
-| URI                         | Methods                                                          |
+| Resource                    | Methods                                                          |
 |-----------------------------|------------------------------------------------------------------|
 | Common (file and directory) | `chmod` `chown` `copy` `realpath` `remove` `rename` `stat` `test` |
 | File only                   | `append` `read` `write`                                           |
@@ -59,13 +53,13 @@ The scope `URI` of the class methods are divided into groups.
 
 #### class PoweredFileSystem
 
-This class is implemented in TypeScript and follows Node.js file system semantics.
+This class is implemented in TypeScript and follows [Node.js](https://nodejs.org) file system semantics.
 
 #### constructor: new PoweredFileSystem([path])
 
-- `path` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> absolute or relative dirname. `path` sets `pfs.pwd` value, by default [process.cwd()](https://nodejs.org/api/process.html#process_process_cwd).
+- `path` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative directory name. `path` sets the `pfs.pwd` value. By default, it is [process.cwd()](https://nodejs.org/api/process.html#process_process_cwd).
 
-String form paths are interpreted as UTF-8 character sequences identifying the absolute or relative filename.
+String paths are interpreted as UTF-8 character sequences identifying absolute or relative file names.
 
 ```ts
 import { pfs } from 'pwd-fs';
@@ -95,11 +89,11 @@ const pfs = new PoweredFileSystem(__dirname);
 
 #### pfs.test(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is an optional string that specifies the accessibility checks to be performed. **Default:** `'e'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `boolean`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with a `boolean`.
 
 Tests a user's permissions for the file or directory specified by path.
 
@@ -109,31 +103,31 @@ console.log(access); // true
 ```
 > Function `pfs.test()` resolves with `false` for access errors instead of rejecting.
 
-The following `flag` are meant for use with `pfs.test()`.
+The following `flag` values are meant for use with `pfs.test()`.
 
 Flag | Description
 -----|-------------
-`'e'` | Source is visible
-`'r'` | Permitted can be read
-`'w'` | Permitted can be written
-`'x'` | Permitted can be executed. This has no effect on Windows system (will behave like `e`).
+`'e'` | Source exists
+`'r'` | Source can be read
+`'w'` | Source can be written
+`'x'` | Source can be executed. This has no effect on Windows system (will behave like `e`).
 
 #### pfs.stat(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `fs.Stats`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `fs.Stats`.
 
 These functions return `lstat` information about a resource in the file system. Symbolic links are reported as links instead of followed targets.
 
 #### pfs.chmod(src, mode[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `mode` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Is a numeric `bitmask` created using a logical `OR`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful change, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
 Asynchronously changes the permissions of a file or directory tree.
 
@@ -152,12 +146,12 @@ See manuals [chmod(2)](http://man7.org/linux/man-pages/man2/chmod.2.html)
 
 #### pfs.chown(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
   - `uid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> The file's new owner's user id.
   - `gid` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> The file's new group's group id.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful change, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
 Asynchronously changes owner and group of a file or directory tree.
 If `uid` or `gid` is omitted, the current value is preserved. On Windows, `chown()` validates the path but does not change POSIX ownership.
@@ -165,11 +159,11 @@ See manuals [chown(2)](http://man7.org/linux/man-pages/man2/chown.2.html).
 
 #### pfs.symlink(src, dest[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `dest` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the symbolic link to create. If `dest` exists, it will not be overwritten.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful created link, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
 Asynchronously creates a new symbolic link (also known as a soft link).
 
@@ -184,16 +178,16 @@ See manuals [symlink(2)](http://man7.org/linux/man-pages/man2/symlink.2.html).
 
 #### pfs.copy(src, dir[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `dir` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the directory to which the resource is to be copied.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `overwrite` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Replace an existing target before copying. **Default:** `false`.
   - `filter` <[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)> Optional `(src, dest) => boolean` predicate. Return `false` to skip a resource.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful copied, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
-Asynchronously recursively copy a file or directory into `dir`. The destination directory must exist. The created target is `path.join(dir, path.basename(src))`.
+Asynchronously copies a file or directory recursively into `dir`. The destination directory must exist. The created target is `path.join(dir, path.basename(src))`.
 
 ```ts
 import { pfs } from 'pwd-fs';
@@ -204,11 +198,11 @@ await pfs.copy('./path/file.txt', './dist');
 
 #### pfs.rename(src, dest[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `dest` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative destination path in the file system.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful renamed, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
 Rename file or directory. See manuals [rename(2)](http://man7.org/linux/man-pages/man2/rename.2.html).
 
@@ -218,19 +212,19 @@ await pfs.rename('./path/old_name.txt', './path/new_name.txt');
 
 #### pfs.remove(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful removed, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
-Asynchronously recursively remove a file or directory. Missing paths reject or throw, matching `fs.rm(..., { force: false })`.
+Asynchronously removes a file or directory recursively. Missing paths reject or throw, matching `fs.rm(..., { force: false })`.
 
 #### pfs.emptyDir(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the directory in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the directory in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful cleanup, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
 Asynchronously removes all entries inside a directory while preserving the directory itself.
 
@@ -240,12 +234,12 @@ await pfs.emptyDir('./cache');
 
 #### pfs.read(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> | <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> See support of [file system flags](#file-system-flags). **Default:** `'r'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `string`. If `encoding` is <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)>, the data is returned as a <[Buffer](https://nodejs.org/api/buffer.html)> object.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with a `string`. If `encoding` is <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)>, the data is returned as a <[Buffer](https://nodejs.org/api/buffer.html)> object.
 
 Asynchronously reads the entire contents of a file.
 
@@ -256,16 +250,16 @@ console.log(content); // 'Lorem Ipsum...'
 
 #### pfs.write(src, data[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `data` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> | <[Buffer](https://nodejs.org/api/buffer.html)>
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `flag` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> See support of [file system flags](#file-system-flags). **Default:** `'w'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
-Asynchronously writes `data` to a file, replacing the file if it already exists. if the file does not exist, it will create a new one.
+Asynchronously writes `data` to a file, replacing the file if it already exists. If the file does not exist, a new file is created.
 The encoding option is ignored if data is a buffer.
 
 ```ts
@@ -277,15 +271,15 @@ await pfs.write('./file.txt', '... some text');
 #### pfs.append(src, data[, options])
 
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `data` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> | <[Buffer](https://nodejs.org/api/buffer.html)>
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful write, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
-Asynchronously append data to a file, creating the file if it does not yet exist.
+Asynchronously appends data to a file, creating the file if it does not yet exist.
 
 > NOTE Method is deprecated. May be removed in the next major version
 
@@ -303,9 +297,9 @@ await pfs.write('./file', 'some content', {
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> | <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `Array` of the names of the files in the directory excluding `'.'` and `'..'`. If `encoding` is <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)>, the data is returned as a <[Buffer](https://nodejs.org/api/buffer.html)> object. Otherwise, the data will be a string.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with an `Array` of file names in the directory excluding `'.'` and `'..'`. If `encoding` is <[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)>, entries are returned as <[Buffer](https://nodejs.org/api/buffer.html)> objects. Otherwise, entries are strings.
 
-Asynchronous reads the contents of a directory. The Gets an <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> of the names of the files in the directory excluding `'.'` and `'..'`. Returns an empty `Array` if the directory is empty. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
+Asynchronously reads the contents of a directory. Returns an empty `Array` if the directory is empty. See manuals [readdir(3)](http://man7.org/linux/man-pages/man3/readdir.3.html).
 
 ```ts
 const list = await pfs.readdir('./files');
@@ -314,11 +308,11 @@ console.log(list); // ["icons", "logo.svg"]
 
 #### pfs.readlink(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the symbolic link in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the symbolic link in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful read, the `Promise` is resolved with an value with a `string`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with a `string`.
 
 Asynchronously reads the path stored in a symbolic link.
 
@@ -329,11 +323,11 @@ console.log(target); // "./releases/current"
 
 #### pfs.realpath(src[, options])
 
-- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths will be resolved relative to the present working directory as specified by `pfs.pwd`.
+- `src` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Absolute or relative path to the resource in the file system. Relative paths are resolved against `pfs.pwd`.
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `encoding` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Is the expected [string encoding](#string-encoding). **Default:** `'utf8'`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful resolution, the `Promise` is resolved with an value with a `string`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with a `string`.
 
 Asynchronously resolves a path to its canonical absolute location.
 
@@ -348,9 +342,9 @@ console.log(realpath); // "/absolute/path/to/releases/current"
 - `options` <[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
   - `umask` <[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)> Umask or file [mode creation mask](#mode-creation-mask) is a grouping of bits, each of which restricts how its corresponding permission is set for newly created files or directories. See manuals [umask(2)](http://man7.org/linux/man-pages/man2/umask.2.html). Not supported on Windows system. **Default:** `0o000`.
   - `sync` <[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)> Synchronous execution. **Default:** `false`.
-- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Following successful execution, the `Promise` is resolved with an value with a `undefined`.
+- returns: <[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)> Resolves with `undefined`.
 
-Recursive directory creation. Will be `resolve` if the directory already exists.
+Recursively creates directories. Resolves successfully if the directory already exists.
 
 ```ts
 await pfs.mkdir('./static/images');
@@ -399,7 +393,7 @@ The following table shows some examples of how to set the extension `mode` or `u
 
 #### String encoding
 
-The following encoding are available wherever the encoding option takes a <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>.
+The following encodings are available wherever the encoding option takes a <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)>.
 
 Encoding | Description
 ---------|------------
@@ -424,12 +418,21 @@ Flag | Description
 `'ax+'` | Like `'a+'` but fails if the path exists.
 `'as'` | Open file for appending in synchronous mode. The file is created if it does not exist.
 `'as+'` | Open file for reading and appending in synchronous mode. The file is created if it does not exist.
-`'r'` | Open file for reading. An exception occurs if the file does not exist.
-`'r+'` | Open file for reading and writing. An exception occurs if the file does not exist.
+`'r'` | Open file for reading. Fails if the file does not exist.
+`'r+'` | Open file for reading and writing. Fails if the file does not exist.
 `'rs+'` | Open file for reading and writing in synchronous mode. Instructs the operating system to bypass the local file system cache. Using this flag is not recommended unless it is needed.
 `'w'`| Open file for writing. The file is created (if it does not exist) or truncated (if it exists).
 `'wx'` | Like `'w'` but fails if the path exists.
 `'w+'` | Open file for reading and writing. The file is created (if it does not exist) or truncated (if it exists).
 `'wx+'` | Like `'w+'` but fails if the path exists.
 
-The behavior of some flags are platform-specific.
+The behavior of some flags is platform-specific.
+
+#### When To Use Native `fs`
+
+Prefer native `node:fs` APIs directly when you need:
+
+- streams such as `createReadStream()` or `createWriteStream()`
+- advanced flags and options not exposed by this wrapper
+- very low-level control over file descriptors
+- exact parity with Node's callback-based APIs
