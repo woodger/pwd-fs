@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -10,7 +9,6 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  * Verifies existence and access checks exposed by `test()`.
  */
 describe('test(src[, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
@@ -19,7 +17,7 @@ describe('test(src[, options])', () => {
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
@@ -48,8 +46,8 @@ describe('test(src[, options])', () => {
   });
 
   it(`Positive: A non-existent file must return 'false'`, async () => {
-    const guid = chance.guid();
-    const exist = await pfs.test(path.join(tmpDir, guid));
+    const resourceName = 'fixture-path';
+    const exist = await pfs.test(path.join(tmpDir, resourceName));
 
     assert(exist === false);
   });
@@ -71,9 +69,9 @@ describe('test(src[, options])', () => {
   });
 
   it(`[sync] Positive: A non-existent file must return 'false'`, () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
-    const exist = pfs.test(path.join(tmpDir, guid), {
+    const exist = pfs.test(path.join(tmpDir, resourceName), {
       sync: true
     });
 

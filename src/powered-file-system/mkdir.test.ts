@@ -1,8 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { PoweredFileSystem } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -11,7 +9,6 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  * Verifies recursive directory creation for absolute and instance-relative roots.
  */
 describe('mkdir(src [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
   let pfs = new PoweredFileSystem();
 
@@ -22,7 +19,7 @@ describe('mkdir(src [, options])', () => {
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       }
     });
   });
@@ -32,8 +29,8 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('Positive: Create directories in the working directory', async () => {
-    const guid = chance.guid();
-    const target = path.join(tmpDir, guid);
+    const resourceName = 'fixture-path';
+    const target = path.join(tmpDir, resourceName);
     
     await pfs.mkdir(target);
     const exist = fs.existsSync(target);
@@ -42,8 +39,8 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('Positive: Make current directory', async () => {
-    const guid = chance.guid();
-    const target = path.join(tmpDir, guid);
+    const resourceName = 'fixture-path';
+    const target = path.join(tmpDir, resourceName);
     const nextPfs = new PoweredFileSystem(target);
 
     await nextPfs.mkdir('.');
@@ -53,8 +50,8 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('Positive: Should work fine with the existing directory', async () => {
-    const guid = chance.guid();
-    const target = path.join(tmpDir, guid);
+    const resourceName = 'fixture-path';
+    const target = path.join(tmpDir, resourceName);
 
     for (let i = 2; i; i--) {
       await pfs.mkdir(target);
@@ -66,16 +63,16 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('Negative: Throw an exception if trying to create a directory in file', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
     
     await assert.rejects(async () => {
-      await pfs.mkdir(path.join(tmpDir, 'tings.txt', guid));
+      await pfs.mkdir(path.join(tmpDir, 'tings.txt', resourceName));
     });
   });
 
   it('[sync] Positive: Create directories in the working directory', () => {
-    const guid = chance.guid();
-    const target = path.join(tmpDir, guid);
+    const resourceName = 'fixture-path';
+    const target = path.join(tmpDir, resourceName);
 
     pfs.mkdir(target, {
       sync: true
@@ -87,8 +84,8 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('[sync] Positive: Make current directory', () => {
-    const guid = chance.guid();
-    const target = path.join(tmpDir, guid);
+    const resourceName = 'fixture-path';
+    const target = path.join(tmpDir, resourceName);
     const nextPfs = new PoweredFileSystem(target);
 
     nextPfs.mkdir('.', {
@@ -101,8 +98,8 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('[sync] Positive: Should work fine with the existing directory', () => {
-    const guid = chance.guid();
-    const target = path.join(tmpDir, guid);
+    const resourceName = 'fixture-path';
+    const target = path.join(tmpDir, resourceName);
 
     for (let i = 2; i; i--) {
       pfs.mkdir(target, {
@@ -116,18 +113,18 @@ describe('mkdir(src [, options])', () => {
   });
 
   it('[sync] Negative: Throw an exception if trying to create a directory in file', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
     
     assert.throws(() => {
-      pfs.mkdir(path.join(tmpDir, 'tings.txt', guid), {
+      pfs.mkdir(path.join(tmpDir, 'tings.txt', resourceName), {
         sync: true
       });
     });
   });
 
   it('[sync] Positive: Absolute pwd should create the target directory itself', () => {
-    const guid = chance.guid();
-    const target = path.join(os.tmpdir(), guid);
+    const parentDir = createTmpDir();
+    const target = path.join(parentDir, 'fixture-path');
     const nextPfs = new PoweredFileSystem(target);
 
     try {
@@ -138,7 +135,7 @@ describe('mkdir(src [, options])', () => {
       assert(fs.existsSync(target));
     }
     finally {
-      fs.rmSync(target, { recursive: true, force: true });
+      removeFixtureTree(parentDir);
     }
   });
 });

@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -10,7 +9,6 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  * Covers file and directory copy behavior, including collision handling.
  */
 describe('copy(src, dir [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
@@ -19,7 +17,7 @@ describe('copy(src, dir [, options])', () => {
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
@@ -44,10 +42,10 @@ describe('copy(src, dir [, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
     
     await assert.rejects(async () => {
-      await pfs.copy(path.join(tmpDir, guid), tmpDir);
+      await pfs.copy(path.join(tmpDir, resourceName), tmpDir);
     });
   });
 
@@ -127,10 +125,10 @@ describe('copy(src, dir [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.copy(path.join(tmpDir, guid), tmpDir, {
+      pfs.copy(path.join(tmpDir, resourceName), tmpDir, {
         sync: true
       });
     });

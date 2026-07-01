@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -10,7 +9,6 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  * Validates ownership changes while preserving path validation semantics.
  */
 describe('chown(src, [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
@@ -19,7 +17,7 @@ describe('chown(src, [, options])', () => {
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' }
     });
@@ -46,11 +44,11 @@ describe('chown(src, [, options])', () => {
   });
 
   it('Negative: To a non-existent resource to return an Error', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
     const { uid, gid } = fs.statSync(path.join(tmpDir, 'tings.txt'));
 
     await assert.rejects(async () => {
-      await pfs.chown(path.join(tmpDir, guid), { uid, gid });
+      await pfs.chown(path.join(tmpDir, resourceName), { uid, gid });
     });
   });
 
@@ -81,11 +79,11 @@ describe('chown(src, [, options])', () => {
   });
 
   it('[sync] Negative: To a non-existent resource to return an Error', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
     const { uid, gid } = fs.statSync(path.join(tmpDir, 'tings.txt'));
 
     assert.throws(() => {
-      pfs.chown(path.join(tmpDir, guid), {
+      pfs.chown(path.join(tmpDir, resourceName), {
         sync: true,
         uid,
         gid

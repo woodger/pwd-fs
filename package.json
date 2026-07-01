@@ -38,9 +38,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.35.0",
-    "@types/chance": "^1.1.8",
     "@types/node": "20.19.25",
-    "chance": "^1.1.13",
     "eslint": "9.35.0",
     "fwa": "^2.0.2",
     "globals": "^17.6.0",

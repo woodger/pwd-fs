@@ -1,6 +1,5 @@
 import assert from 'node:assert';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -9,7 +8,6 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  * Verifies canonical path resolution through symbolic links.
  */
 describe('realpath(src [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
@@ -18,7 +16,7 @@ describe('realpath(src [, options])', () => {
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'flexapp')]: {
         type: 'symlink',

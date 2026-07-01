@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -10,7 +9,6 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
  * Covers symlink creation for file and directory targets.
  */
 describe('symlink(src, use [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
   
   beforeEach(() => {
@@ -19,7 +17,7 @@ describe('symlink(src, use [, options])', () => {
     const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' },
       [path.join(tmpDir, 'flexapp')]: {
@@ -28,7 +26,7 @@ describe('symlink(src, use [, options])', () => {
       }
     };
 
-    const counter = chance.natural({ max: 7 });
+    const counter = 3;
     
     for (let i = 0; i < counter; i++) {
       frame[path.join(tmpDir, String(i))] = { type: 'directory' };

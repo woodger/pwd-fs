@@ -1,6 +1,5 @@
 import assert from 'node:assert';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -9,13 +8,12 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  * Covers text and binary reads together with failure cases.
  */
 describe('read(src [, options])', () => {
-  const chance = new Chance();
   let tingsContent = '';
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    tingsContent = chance.paragraph();
+    tingsContent = 'fixture payload';
     
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
@@ -51,10 +49,10 @@ describe('read(src [, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
-      await pfs.read(path.join(tmpDir, guid));
+      await pfs.read(path.join(tmpDir, resourceName));
     });
   });
 
@@ -77,10 +75,10 @@ describe('read(src [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.read(path.join(tmpDir, guid), {
+      pfs.read(path.join(tmpDir, resourceName), {
         sync: true
       });
     });

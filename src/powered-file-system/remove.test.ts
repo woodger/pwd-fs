@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -10,7 +9,6 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
  * Covers recursive removal, including the symlink edge case.
  */
 describe('remove(src [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
   
   beforeEach(() => {
@@ -19,7 +17,7 @@ describe('remove(src [, options])', () => {
     const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' },
       [path.join(tmpDir, 'flexapp')]: {
@@ -32,7 +30,7 @@ describe('remove(src [, options])', () => {
       }
     };
 
-    const counter = chance.natural({ max: 7 });
+    const counter = 3;
     
     for (let i = 0; i < counter; i++) {
       frame[path.join(tmpDir, String(i))] = { type: 'directory' };
@@ -53,10 +51,10 @@ describe('remove(src [, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
-      await pfs.remove(path.join(tmpDir, guid));
+      await pfs.remove(path.join(tmpDir, resourceName));
     });
   }); 
 
@@ -71,10 +69,10 @@ describe('remove(src [, options])', () => {
   });
 
   it('[sync] Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.remove(path.join(tmpDir, guid), {
+      pfs.remove(path.join(tmpDir, resourceName), {
         sync: true
       });
     });

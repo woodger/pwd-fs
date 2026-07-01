@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -10,7 +9,6 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
  * Verifies directory cleanup while preserving the directory itself.
  */
 describe('emptyDir(src [, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
@@ -19,12 +17,12 @@ describe('emptyDir(src [, options])', () => {
     const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       },
       [path.join(tmpDir, 'digest')]: { type: 'directory' },
       [path.join(tmpDir, 'digest', 'nested.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       }
     };
 

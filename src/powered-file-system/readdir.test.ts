@@ -1,6 +1,5 @@
 import assert from 'node:assert';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -9,7 +8,6 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
  * Verifies directory listing behavior and invalid-target failures.
  */
 describe('readdir(src[, options])', () => {
-  const chance = new Chance();
   let counter = 0;
   let tmpDir = '';
 
@@ -18,11 +16,11 @@ describe('readdir(src[, options])', () => {
     const frame: FixtureTree = {
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       }
     };
 
-    counter = chance.natural({ max: 7 });
+    counter = 3;
     
     for (let i = 0; i < counter; i++) {
       frame[path.join(tmpDir, String(i))] = { type: 'directory' };
@@ -48,10 +46,10 @@ describe('readdir(src[, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', async () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
-      await pfs.readdir(path.join(tmpDir, guid));
+      await pfs.readdir(path.join(tmpDir, resourceName));
     });
   });
 
@@ -72,10 +70,10 @@ describe('readdir(src[, options])', () => {
   });
 
   it('Negative: Throw if not exists resource', () => {
-    const guid = chance.guid();
+    const resourceName = 'fixture-path';
 
     assert.throws(() => {
-      pfs.readdir(path.join(tmpDir, guid), {
+      pfs.readdir(path.join(tmpDir, resourceName), {
         sync: true
       });
     });

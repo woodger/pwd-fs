@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import Chance from 'chance';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
@@ -12,7 +11,6 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 const itUnix = process.platform === 'win32' ? it.skip : it;
 
 describe('write(src, data[, options])', () => {
-  const chance = new Chance();
   let tmpDir = '';
 
   beforeEach(() => {
@@ -21,7 +19,7 @@ describe('write(src, data[, options])', () => {
     createFixtureTree({
       [path.join(tmpDir, 'tings.txt')]: {
         type: 'file',
-        data: chance.string()
+        data: 'fixture content'
       }
     });
   });
@@ -31,9 +29,9 @@ describe('write(src, data[, options])', () => {
   });
 
   it('Positive: Must write content to file', async () => {
-    const payload = chance.paragraph();
-    const guid = chance.guid();
-    const filePath = path.join(tmpDir, `${guid}.txt`);
+    const payload = 'fixture payload';
+    const resourceName = 'fixture-path';
+    const filePath = path.join(tmpDir, `${resourceName}.txt`);
 
     await pfs.write(filePath, payload);
     const content = fs.readFileSync(filePath, 'utf8');
@@ -42,7 +40,7 @@ describe('write(src, data[, options])', () => {
   });
 
   it('Positive: Must rewrite content if file already exists', async () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     await pfs.write(path.join(tmpDir, 'tings.txt'), payload);
     const content = fs.readFileSync(path.join(tmpDir, 'tings.txt'), 'utf8');
@@ -51,7 +49,7 @@ describe('write(src, data[, options])', () => {
   });
 
   it('Negative: Throw if resource is directory', async () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     await assert.rejects(async () => {
       await pfs.write(tmpDir, payload);
@@ -59,7 +57,7 @@ describe('write(src, data[, options])', () => {
   });
 
   it(`Negative: Unexpected option 'flag' returns Error`, async () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     await assert.rejects(async () => {
       await pfs.write(path.join(tmpDir, 'tings.txt'), payload, {
@@ -69,9 +67,9 @@ describe('write(src, data[, options])', () => {
   });
 
   it('[sync] Positive: Write contents even to a non-existent file', () => {
-    const payload = chance.paragraph();
-    const guid = chance.guid();
-    const filePath = path.join(tmpDir, `${guid}.txt`);
+    const payload = 'fixture payload';
+    const resourceName = 'fixture-path';
+    const filePath = path.join(tmpDir, `${resourceName}.txt`);
 
     pfs.write(filePath, payload, {
       sync: true
@@ -83,7 +81,7 @@ describe('write(src, data[, options])', () => {
   });
 
   it('[sync] Negative: Throw if resource is directory', () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     assert.throws(() => {
       pfs.write(tmpDir, payload, {
@@ -93,7 +91,7 @@ describe('write(src, data[, options])', () => {
   });
 
   it(`[sync] Negative: Unexpected option 'flag' returns Error`, () => {
-    const payload = chance.paragraph();
+    const payload = 'fixture payload';
 
     assert.throws(() => {
       pfs.write(path.join(tmpDir, 'tings.txt'), payload, {
@@ -104,8 +102,8 @@ describe('write(src, data[, options])', () => {
   });
 
   itUnix('[sync] Positive: Umask should be applied with bit masking', () => {
-    const guid = chance.guid();
-    const filePath = path.join(tmpDir, `${guid}.txt`);
+    const resourceName = 'fixture-path';
+    const filePath = path.join(tmpDir, `${resourceName}.txt`);
 
     pfs.write(filePath, 'x', {
       sync: true,
