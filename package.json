@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "3.5.5",
+  "version": "3.5.6",
   "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:woodger/pwd-fs.git"
+    "url": "git+ssh://git@github.com/woodger/pwd-fs.git"
   },
   "engines": {
     "node": ">=14.18.0"

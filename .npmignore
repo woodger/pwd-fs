@@ -5,5 +5,5 @@ docs/
 src/
 tsconfig*.json
 **/*.test.*
+**/*.map
 dist/test-utils.*
-dist/**/*.map
