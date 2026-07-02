@@ -7,18 +7,18 @@ import { createTmpDir, removeFixtureTree } from './test-utils';
 /**
  * Verifies constructor path resolution semantics for the main API surface.
  */
-describe('#constructor: new PoweredFileSystem(pwd?)', () => {
-  it('Positive: An empty path must match the context of the cwd', () => {
+describe('PoweredFileSystem', () => {
+  it('uses process.cwd() as the default pwd', () => {
     const { pwd } = new PoweredFileSystem();
     assert(pwd === process.cwd());
   });
 
-  it('Positive: Absolute path must match the context of the pwd', () => {
+  it('uses an absolute path as pwd', () => {
     const { pwd } = new PoweredFileSystem(__dirname);
     assert(pwd === __dirname);
   });
 
-  it('Positive: Resolve should accept paths inside the working directory', () => {
+  it('resolves relative paths against pwd', () => {
     const tmpDir = createTmpDir();
 
     try {
@@ -32,7 +32,7 @@ describe('#constructor: new PoweredFileSystem(pwd?)', () => {
     }
   });
 
-  it('Positive: Resolve should preserve absolute paths outside the working directory', () => {
+  it('preserves absolute paths outside pwd', () => {
     const tmpDir = createTmpDir();
     const outsidePath = path.resolve(path.dirname(tmpDir), 'outside.txt');
 

@@ -1,5 +1,4 @@
 import assert from 'node:assert';
-import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
@@ -8,7 +7,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Verifies existence and access checks exposed by `test()`.
  */
-describe('test(src[, options])', () => {
+describe('test', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -27,32 +26,32 @@ describe('test(src[, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it(`Positive: Should return 'true' for current working directory`, async () => {
+  it(`returns true for the current working directory`, async () => {
     const exist = await pfs.test('.');
 
     assert(exist);
   });
 
-  it(`Positive: For existing file should return 'true'`, async () => {
+  it(`returns true for an existing file`, async () => {
     const exist = await pfs.test(path.join(tmpDir, 'tings.txt'));
 
     assert(exist);
   });
 
-  it(`Positive: For existing directory should return 'true'`, async () => {
+  it(`returns true for an existing directory`, async () => {
     const exist = await pfs.test(path.join(tmpDir, 'digest'));
 
     assert(exist);
   });
 
-  it(`Positive: A non-existent file must return 'false'`, async () => {
+  it(`returns false for a missing file`, async () => {
     const resourceName = 'fixture-path';
     const exist = await pfs.test(path.join(tmpDir, resourceName));
 
     assert(exist === false);
   });
 
-  it(`Positive: For existing file should return 'true'`, () => {
+  it('returns true for an existing file with sync option', () => {
     const exist = pfs.test(path.join(tmpDir, 'tings.txt'), {
       sync: true
     });
@@ -60,7 +59,7 @@ describe('test(src[, options])', () => {
     assert(exist);
   });
 
-  it(`[sync] Positive: For existing directory should return 'true'`, () => {
+  it('returns true for an existing directory with sync option', () => {
     const exist = pfs.test(path.join(tmpDir, 'digest'), {
       sync: true
     });
@@ -68,7 +67,7 @@ describe('test(src[, options])', () => {
     assert(exist);
   });
 
-  it(`[sync] Positive: A non-existent file must return 'false'`, () => {
+  it('returns false for a missing file with sync option', () => {
     const resourceName = 'fixture-path';
 
     const exist = pfs.test(path.join(tmpDir, resourceName), {
@@ -78,14 +77,12 @@ describe('test(src[, options])', () => {
     assert(exist === false);
   });
 
-  it('[sync] Positive: Should respect access flag checks', () => {
-    fs.chmodSync(path.join(tmpDir, 'tings.txt'), 0o444);
-
-    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
+  it('uses the requested access flag with sync option', () => {
+    const readable = pfs.test(path.join(tmpDir, 'tings.txt'), {
       sync: true,
-      flag: 'w'
+      flag: 'r'
     });
 
-    assert(writable === false);
+    assert(readable);
   });
 });

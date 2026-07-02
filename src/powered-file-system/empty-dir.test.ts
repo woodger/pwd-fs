@@ -8,7 +8,7 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
 /**
  * Verifies directory cleanup while preserving the directory itself.
  */
-describe('emptyDir(src [, options])', () => {
+describe('emptyDir', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -33,20 +33,20 @@ describe('emptyDir(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Removes all directory contents but preserves the directory', async () => {
+  it('removes all directory contents but preserves the directory', async () => {
     await pfs.emptyDir(tmpDir);
 
     assert(fs.existsSync(tmpDir));
     assert.deepStrictEqual(fs.readdirSync(tmpDir), []);
   });
 
-  it('Negative: Throw if resource is not directory', async () => {
+  it('rejects when resource is not a directory', async () => {
     await assert.rejects(async () => {
       await pfs.emptyDir(path.join(tmpDir, 'tings.txt'));
     });
   });
 
-  it('[sync] Positive: Removes all directory contents but preserves the directory', () => {
+  it('removes all directory contents but preserves the directory with sync option', () => {
     pfs.emptyDir(tmpDir, {
       sync: true
     });
@@ -55,7 +55,7 @@ describe('emptyDir(src [, options])', () => {
     assert.deepStrictEqual(fs.readdirSync(tmpDir), []);
   });
 
-  it('[sync] Negative: Throw if resource is not directory', () => {
+  it('throws when resource is not a directory with sync option', () => {
     assert.throws(() => {
       pfs.emptyDir(path.join(tmpDir, 'tings.txt'), {
         sync: true

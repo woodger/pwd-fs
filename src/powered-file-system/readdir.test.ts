@@ -7,7 +7,7 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
 /**
  * Verifies directory listing behavior and invalid-target failures.
  */
-describe('readdir(src[, options])', () => {
+describe('readdir', () => {
   let counter = 0;
   let tmpDir = '';
 
@@ -33,19 +33,19 @@ describe('readdir(src[, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Must return a directory listing', async () => {
+  it('returns a directory listing', async () => {
     const { length } = await pfs.readdir(tmpDir);
 
     assert(counter + 1 === length);
   });
 
-  it('Negative: Throw if resource is not directory', async () => {
+  it('rejects when resource is not a directory', async () => {
     await assert.rejects(async () => {
       await pfs.readdir(path.join(tmpDir, 'tings.txt'));
     });
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing resource', async () => {
     const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
@@ -53,7 +53,7 @@ describe('readdir(src[, options])', () => {
     });
   });
 
-  it('[sync] Positive: Must return a directory listing', () => {
+  it('returns a directory listing with sync option', () => {
     const { length } = pfs.readdir(tmpDir, {
       sync: true
     });
@@ -61,7 +61,7 @@ describe('readdir(src[, options])', () => {
     assert(counter + 1 === length);
   });
 
-  it('Negative: Throw if resource is not directory', () => {
+  it('throws when resource is not a directory with sync option', () => {
     assert.throws(() => {
       pfs.readdir(path.join(tmpDir, 'tings.txt'), {
         sync: true
@@ -69,7 +69,7 @@ describe('readdir(src[, options])', () => {
     });
   });
 
-  it('Negative: Throw if not exists resource', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {

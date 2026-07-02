@@ -8,7 +8,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Covers file and directory copy behavior, including collision handling.
  */
-describe('copy(src, dir [, options])', () => {
+describe('copy', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -27,35 +27,46 @@ describe('copy(src, dir [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Copying a item file', async () => {
+  it('copies a file into the target directory', async () => {
     await pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'));
     const exist = fs.existsSync(path.join(tmpDir, 'digest', 'tings.txt'));
 
     assert(exist);
   });
 
-  it('Positive: Recursive copying a directory', async () => {
-    await pfs.copy(path.resolve('./src'), tmpDir);
-    const exist = fs.existsSync(path.join(tmpDir, 'src'));
+  it('copies a directory recursively', async () => {
+    const sourceDir = path.join(tmpDir, 'source-tree');
+    const targetDir = path.join(tmpDir, 'target');
 
-    assert(exist);
+    createFixtureTree({
+      [path.join(sourceDir, 'nested', 'entry.txt')]: {
+        type: 'file',
+        data: 'nested content'
+      },
+      [targetDir]: { type: 'directory' }
+    });
+
+    await pfs.copy(sourceDir, targetDir);
+    const content = fs.readFileSync(path.join(targetDir, 'source-tree', 'nested', 'entry.txt'), 'utf8');
+
+    assert.strictEqual(content, 'nested content');
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing source', async () => {
     const resourceName = 'fixture-path';
-    
+
     await assert.rejects(async () => {
       await pfs.copy(path.join(tmpDir, resourceName), tmpDir);
     });
   });
 
-  it('Negative: An attempt to copy to an existing resource should return an Error', async () => {
+  it('rejects when the target already exists', async () => {
     await assert.rejects(async () => {
       await pfs.copy(tmpDir, path.dirname(tmpDir));
     });
   });
 
-  it('Positive: Overwrite should replace an existing target file', async () => {
+  it('replaces an existing target file when overwrite is enabled', async () => {
     fs.writeFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'old');
 
     await pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
@@ -64,10 +75,10 @@ describe('copy(src, dir [, options])', () => {
 
     const content = fs.readFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'utf8');
 
-    assert(content !== 'old');
+    assert.strictEqual(content, 'fixture content');
   });
 
-  it('Positive: Filter should skip matching entries', async () => {
+  it('skips matching entries when filter returns false', async () => {
     const destRoot = createTmpDir();
 
     try {
@@ -84,7 +95,7 @@ describe('copy(src, dir [, options])', () => {
     }
   });
 
-  it('Positive: Copying a symlink to a file should copy target contents', async () => {
+  it('copies target contents for a symbolic link to a file', async () => {
     const linkPath = path.join(tmpDir, 'tings-link');
     createFixtureTree({
       [linkPath]: {
@@ -104,7 +115,7 @@ describe('copy(src, dir [, options])', () => {
     );
   });
 
-  it('[sync] Positive: Copying a file', () => {
+  it('copies a file into the target directory with sync option', () => {
     pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
       sync: true
     });
@@ -114,17 +125,28 @@ describe('copy(src, dir [, options])', () => {
     assert(exist);
   });
 
-  it('[sync] Positive: Recursive copying a directory', () => {
-    pfs.copy(path.resolve('./src'), tmpDir, {
+  it('copies a directory recursively with sync option', () => {
+    const sourceDir = path.join(tmpDir, 'source-tree');
+    const targetDir = path.join(tmpDir, 'target');
+
+    createFixtureTree({
+      [path.join(sourceDir, 'nested', 'entry.txt')]: {
+        type: 'file',
+        data: 'nested content'
+      },
+      [targetDir]: { type: 'directory' }
+    });
+
+    pfs.copy(sourceDir, targetDir, {
       sync: true
     });
 
-    const exist = fs.existsSync(path.join(tmpDir, 'src'));
+    const content = fs.readFileSync(path.join(targetDir, 'source-tree', 'nested', 'entry.txt'), 'utf8');
 
-    assert(exist);
+    assert.strictEqual(content, 'nested content');
   });
 
-  it('[sync] Negative: Throw if not exists resource', () => {
+  it('throws for a missing source with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {
@@ -134,7 +156,7 @@ describe('copy(src, dir [, options])', () => {
     });
   });
 
-  it('[sync] Negative: An attempt to copy to an existing resource should return an Error', () => {
+  it('throws when the target already exists with sync option', () => {
     assert.throws(() => {
       pfs.copy(tmpDir, path.dirname(tmpDir), {
         sync: true
@@ -142,7 +164,7 @@ describe('copy(src, dir [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Overwrite should replace an existing target file', () => {
+  it('replaces an existing target file when overwrite is enabled with sync option', () => {
     fs.writeFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'old');
 
     pfs.copy(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'digest'), {
@@ -152,10 +174,10 @@ describe('copy(src, dir [, options])', () => {
 
     const content = fs.readFileSync(path.join(tmpDir, 'digest', 'tings.txt'), 'utf8');
 
-    assert(content !== 'old');
+    assert.strictEqual(content, 'fixture content');
   });
 
-  it('[sync] Positive: Filter should skip matching entries', () => {
+  it('skips matching entries when filter returns false with sync option', () => {
     const destRoot = createTmpDir();
 
     try {
@@ -173,7 +195,7 @@ describe('copy(src, dir [, options])', () => {
     }
   });
 
-  it('[sync] Positive: Copying a symlink to a file should copy target contents', () => {
+  it('copies target contents for a symbolic link to a file with sync option', () => {
     const linkPath = path.join(tmpDir, 'tings-link');
     createFixtureTree({
       [linkPath]: {

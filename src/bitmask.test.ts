@@ -5,8 +5,8 @@ import { bitmask } from './index';
 /**
  * Covers normalization of permission masks exposed through the public entrypoint.
  */
-describe('static bitmask(mode: number)', () => {
-  it('Positive: Calculate bitmask', () => {
+describe('bitmask', () => {
+  it('computes permission bits from mode values', () => {
     assert(bitmask(33024) === 0o400);
     assert(bitmask(33152) === 0o600);
     assert(bitmask(33216) === 0o700);
@@ -18,7 +18,7 @@ describe('static bitmask(mode: number)', () => {
     assert(bitmask(32775) === 0o007);
   });
 
-  it(`Negative: Throw an exception if the argument is 'null' type`, () => {
+  it('throws when mode is null', () => {
     assert.throws(() => {
       bitmask(null as unknown as number);
     });

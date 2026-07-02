@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
@@ -7,7 +8,9 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Ensures recursive permission updates affect both directories and nested files.
  */
-describe('chmod(src, mode [, options])', () => {
+const itUnix = process.platform === 'win32' ? it.skip : it;
+
+describe('chmod', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -25,50 +28,45 @@ describe('chmod(src, mode [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Changes directory and file permissions', async () => {
-    await pfs.chmod(tmpDir, 0o444);
+  itUnix('updates directory and nested file modes recursively', async () => {
+    await pfs.chmod(tmpDir, 0o555);
 
-    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
-      sync: true,
-      flag: 'w'
-    });
+    const dirMode = fs.statSync(tmpDir).mode & 0o777;
+    const fileMode = fs.statSync(path.join(tmpDir, 'tings.txt')).mode & 0o777;
 
-    assert(writable === false);
+    assert.strictEqual(dirMode, 0o555);
+    assert.strictEqual(fileMode, 0o555);
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing resource', async () => {
     await assert.rejects(async () => {
       await pfs.chmod('./non-existent-source', 0o744);
     });
   });
 
-  it('[sync] Positive: Changes permissions of directory', () => {
-    pfs.chmod(tmpDir, 0o444, {
+  itUnix('updates directory and nested file modes recursively with sync option', () => {
+    pfs.chmod(tmpDir, 0o555, {
       sync: true
     });
 
-    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
-      sync: true,
-      flag: 'w'
-    });
+    const dirMode = fs.statSync(tmpDir).mode & 0o777;
+    const fileMode = fs.statSync(path.join(tmpDir, 'tings.txt')).mode & 0o777;
 
-    assert(writable === false);
+    assert.strictEqual(dirMode, 0o555);
+    assert.strictEqual(fileMode, 0o555);
   });
 
-  it('[sync] Positive: Changes file permissions', () => {
+  itUnix('updates file mode with sync option', () => {
     pfs.chmod(path.join(tmpDir, 'tings.txt'), 0o444, {
       sync: true
     });
 
-    const writable = pfs.test(path.join(tmpDir, 'tings.txt'), {
-      sync: true,
-      flag: 'w'
-    });
+    const fileMode = fs.statSync(path.join(tmpDir, 'tings.txt')).mode & 0o777;
 
-    assert(writable === false);
+    assert.strictEqual(fileMode, 0o444);
   });
 
-  it('[sync] Negative: Throw if not exists resource', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {

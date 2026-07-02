@@ -8,7 +8,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Verifies recursive directory creation for absolute and instance-relative roots.
  */
-describe('mkdir(src [, options])', () => {
+describe('mkdir', () => {
   let tmpDir = '';
   let pfs = new PoweredFileSystem();
 
@@ -28,7 +28,7 @@ describe('mkdir(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Create directories in the working directory', async () => {
+  it('creates directories in the working directory', async () => {
     const resourceName = 'fixture-path';
     const target = path.join(tmpDir, resourceName);
     
@@ -38,7 +38,7 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
-  it('Positive: Make current directory', async () => {
+  it('creates the current directory', async () => {
     const resourceName = 'fixture-path';
     const target = path.join(tmpDir, resourceName);
     const nextPfs = new PoweredFileSystem(target);
@@ -49,7 +49,7 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
-  it('Positive: Should work fine with the existing directory', async () => {
+  it('succeeds when the directory already exists', async () => {
     const resourceName = 'fixture-path';
     const target = path.join(tmpDir, resourceName);
 
@@ -62,7 +62,7 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
-  it('Negative: Throw an exception if trying to create a directory in file', async () => {
+  it('rejects when creating a directory below a file', async () => {
     const resourceName = 'fixture-path';
     
     await assert.rejects(async () => {
@@ -70,7 +70,7 @@ describe('mkdir(src [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Create directories in the working directory', () => {
+  it('creates directories in the working directory with sync option', () => {
     const resourceName = 'fixture-path';
     const target = path.join(tmpDir, resourceName);
 
@@ -83,7 +83,7 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
-  it('[sync] Positive: Make current directory', () => {
+  it('creates the current directory with sync option', () => {
     const resourceName = 'fixture-path';
     const target = path.join(tmpDir, resourceName);
     const nextPfs = new PoweredFileSystem(target);
@@ -97,7 +97,7 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
-  it('[sync] Positive: Should work fine with the existing directory', () => {
+  it('succeeds when the directory already exists with sync option', () => {
     const resourceName = 'fixture-path';
     const target = path.join(tmpDir, resourceName);
 
@@ -112,7 +112,7 @@ describe('mkdir(src [, options])', () => {
     assert(exist);
   });
 
-  it('[sync] Negative: Throw an exception if trying to create a directory in file', () => {
+  it('throws when creating a directory below a file with sync option', () => {
     const resourceName = 'fixture-path';
     
     assert.throws(() => {
@@ -122,7 +122,7 @@ describe('mkdir(src [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Absolute pwd should create the target directory itself', () => {
+  it('creates the target directory for an absolute pwd with sync option', () => {
     const parentDir = createTmpDir();
     const target = path.join(parentDir, 'fixture-path');
     const nextPfs = new PoweredFileSystem(target);

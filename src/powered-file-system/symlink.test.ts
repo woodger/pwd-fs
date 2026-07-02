@@ -8,7 +8,7 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
 /**
  * Covers symlink creation for file and directory targets.
  */
-describe('symlink(src, use [, options])', () => {
+describe('symlink', () => {
   let tmpDir = '';
   
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe('symlink(src, use [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Must be created a symbolic link', async () => {
+  it('creates a symbolic link to a file', async () => {
     await pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'linkapp'));
     
     const stat = fs.lstatSync(path.join(tmpDir, 'linkapp'));
@@ -47,7 +47,7 @@ describe('symlink(src, use [, options])', () => {
     assert(stat.isSymbolicLink());
   });
 
-  it('Positive: Must be created a symbolic link for directory', async () => {
+  it('creates a symbolic link to a directory', async () => {
     await pfs.symlink(path.join(tmpDir, 'digest'), path.join(tmpDir, 'linkapp'));
     
     const stat = fs.lstatSync(path.join(tmpDir, 'linkapp'));
@@ -55,13 +55,13 @@ describe('symlink(src, use [, options])', () => {
     assert(stat.isSymbolicLink());
   });
 
-  it('Negative: Throw if destination already exists', async () => {
+  it('rejects when destination already exists', async () => {
     await assert.rejects(async () => {
       await pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'flexapp'));
     });
   });
 
-  it('[sync] Positive: Must be created a symbolic link', () => {
+  it('creates a symbolic link to a file with sync option', () => {
     pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'linkapp'), {
       sync: true
     });
@@ -71,7 +71,7 @@ describe('symlink(src, use [, options])', () => {
     assert(stat.isSymbolicLink());
   });
 
-  it('[sync] Positive: Must be created a symbolic link for directory', () => {
+  it('creates a symbolic link to a directory with sync option', () => {
     pfs.symlink(path.join(tmpDir, 'digest'), path.join(tmpDir, 'linkapp'), {
       sync: true
     });
@@ -81,7 +81,7 @@ describe('symlink(src, use [, options])', () => {
     assert(stat.isSymbolicLink());
   });
 
-  it('[sync] Negative: Throw if destination already exists', () => {
+  it('throws when destination already exists with sync option', () => {
     assert.throws(() => {
       pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'flexapp'), {
         sync: true

@@ -8,7 +8,7 @@ import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from 
 /**
  * Covers recursive removal, including the symlink edge case.
  */
-describe('remove(src [, options])', () => {
+describe('remove', () => {
   let tmpDir = '';
   
   beforeEach(() => {
@@ -43,14 +43,14 @@ describe('remove(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Removal a directory with a file', async () => {
+  it('removes a directory with its contents', async () => {
     await pfs.remove(tmpDir);
     const exist = fs.existsSync(tmpDir);
 
     assert(exist === false);
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing resource', async () => {
     const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
@@ -58,7 +58,7 @@ describe('remove(src [, options])', () => {
     });
   }); 
 
-  it('[sync] Positive: Removal a directory with a file', () => {
+  it('removes a directory with its contents with sync option', () => {
     pfs.remove(tmpDir, {
       sync: true
     });
@@ -68,7 +68,7 @@ describe('remove(src [, options])', () => {
     assert(exist === false);
   });
 
-  it('[sync] Negative: Throw if not exists resource', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {
@@ -78,7 +78,7 @@ describe('remove(src [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Removing a symlink to a directory should remove only the link', () => {
+  it('removes only the link for a symlink to a directory with sync option', () => {
     pfs.remove(path.join(tmpDir, 'digest-link'), {
       sync: true
     });
