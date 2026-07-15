@@ -7,7 +7,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Verifies symbolic link target resolution without dereferencing it.
  */
-describe('readlink(src [, options])', () => {
+describe('readlink', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -29,13 +29,13 @@ describe('readlink(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Reads the stored symlink target', async () => {
+  it('reads the stored symlink target', async () => {
     const target = await pfs.readlink(path.join(tmpDir, 'flexapp'));
 
     assert(target === path.join(tmpDir, 'tings.txt'));
   });
 
-  it('[sync] Positive: Reads the stored symlink target', () => {
+  it('reads the stored symlink target with sync option', () => {
     const target = pfs.readlink(path.join(tmpDir, 'flexapp'), {
       sync: true
     });

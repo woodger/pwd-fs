@@ -6,9 +6,9 @@ import { pfs } from '../index';
 import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
- * Validates ownership changes while preserving path validation semantics.
+ * Validates ownership preservation while keeping path validation semantics.
  */
-describe('chown(src, [, options])', () => {
+describe('chown', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -27,66 +27,68 @@ describe('chown(src, [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Changes the permissions of a file', async () => {
+  it('preserves file owner and group when options are omitted', async () => {
     const filePath = path.join(tmpDir, 'tings.txt');
-    const { uid, gid } = fs.statSync(filePath);
-    await pfs.chown(filePath, { uid, gid });
+    const before = fs.statSync(filePath);
 
-    assert(fs.existsSync(filePath));
+    await pfs.chown(filePath);
+
+    const after = fs.statSync(filePath);
+    assert.strictEqual(after.uid, before.uid);
+    assert.strictEqual(after.gid, before.gid);
   });
 
-  it('Positive: Changes the permissions of a directory', async () => {
+  it('preserves directory owner and group when options are omitted', async () => {
     const dirPath = path.join(tmpDir, 'digest');
-    const { uid, gid } = fs.statSync(dirPath);
-    await pfs.chown(dirPath, { uid, gid });
+    const before = fs.statSync(dirPath);
 
-    assert(fs.existsSync(dirPath));
+    await pfs.chown(dirPath);
+
+    const after = fs.statSync(dirPath);
+    assert.strictEqual(after.uid, before.uid);
+    assert.strictEqual(after.gid, before.gid);
   });
 
-  it('Negative: To a non-existent resource to return an Error', async () => {
+  it('rejects for a missing resource', async () => {
     const resourceName = 'fixture-path';
-    const { uid, gid } = fs.statSync(path.join(tmpDir, 'tings.txt'));
 
     await assert.rejects(async () => {
-      await pfs.chown(path.join(tmpDir, resourceName), { uid, gid });
+      await pfs.chown(path.join(tmpDir, resourceName));
     });
   });
 
-  it('[sync] Positive: Changes the permissions of a file', () => {
+  it('preserves file owner and group when uid and gid are omitted with sync option', () => {
     const filePath = path.join(tmpDir, 'tings.txt');
-    const { uid, gid } = fs.statSync(filePath);
+    const before = fs.statSync(filePath);
 
     pfs.chown(filePath, {
-      sync: true,
-      uid,
-      gid
+      sync: true
     });
 
-    assert(fs.existsSync(filePath));
+    const after = fs.statSync(filePath);
+    assert.strictEqual(after.uid, before.uid);
+    assert.strictEqual(after.gid, before.gid);
   });
 
-  it('[sync] Positive: Changes the permissions of a directory', () => {
+  it('preserves directory owner and group when uid and gid are omitted with sync option', () => {
     const dirPath = path.join(tmpDir, 'digest');
-    const { uid, gid } = fs.statSync(dirPath);
+    const before = fs.statSync(dirPath);
 
     pfs.chown(dirPath, {
-      sync: true,
-      uid,
-      gid
+      sync: true
     });
 
-    assert(fs.existsSync(dirPath));
+    const after = fs.statSync(dirPath);
+    assert.strictEqual(after.uid, before.uid);
+    assert.strictEqual(after.gid, before.gid);
   });
 
-  it('[sync] Negative: To a non-existent resource to return an Error', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
-    const { uid, gid } = fs.statSync(path.join(tmpDir, 'tings.txt'));
 
     assert.throws(() => {
       pfs.chown(path.join(tmpDir, resourceName), {
-        sync: true,
-        uid,
-        gid
+        sync: true
       });
     });
   });

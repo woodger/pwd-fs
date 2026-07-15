@@ -8,7 +8,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Verifies move semantics for both files and directories.
  */
-describe('rename(src, use [, options])', () => {
+describe('rename', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -27,21 +27,21 @@ describe('rename(src, use [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Must be recursive rename file', async () => {
+  it('renames a file', async () => {
     await pfs.rename(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'newapp.txt'));
     const exist = fs.existsSync(path.join(tmpDir, 'newapp.txt'));
 
     assert(exist);
   });
 
-  it('Positive: Must be recursive rename directory', async () => {
+  it('renames a directory', async () => {
     await pfs.rename(path.join(tmpDir, 'digest'), path.join(tmpDir, 'newxbase'));
     const exist = fs.existsSync(path.join(tmpDir, 'newxbase'));
 
     assert(exist);
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing resource', async () => {
     const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
@@ -49,7 +49,7 @@ describe('rename(src, use [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Must be recursive rename file', () => {
+  it('renames a file with sync option', () => {
     pfs.rename(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'newapp.txt'), {
       sync: true
     });
@@ -59,7 +59,7 @@ describe('rename(src, use [, options])', () => {
     assert(exist);
   });
 
-  it('[sync] Positive: Must be recursive rename directory', () => {
+  it('renames a directory with sync option', () => {
     pfs.rename(path.join(tmpDir, 'digest'), path.join(tmpDir, 'newxbase'), {
       sync: true
     });
@@ -69,7 +69,7 @@ describe('rename(src, use [, options])', () => {
     assert(exist);
   });
 
-  it('[sync] Negative: Throw if not exists resource', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {

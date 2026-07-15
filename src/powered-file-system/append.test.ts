@@ -8,7 +8,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Covers the deprecated append helper in both async and sync modes.
  */
-describe('append(src, data [, options])', () => {
+describe('append', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('append(src, data [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Must append content to file', async () => {
+  it('appends content to a file', async () => {
     const payload = 'fixture payload';
 
     const filePath = path.join(tmpDir, 'tings.txt');
@@ -36,7 +36,7 @@ describe('append(src, data [, options])', () => {
     assert.strictEqual(content, `hoodie${payload}`);
   });
 
-  it('[sync] Positive: Must append content to file', () => {
+  it('appends content to a file with sync option', () => {
     const payload = 'fixture payload';
 
     const filePath = path.join(tmpDir, 'tings.txt');

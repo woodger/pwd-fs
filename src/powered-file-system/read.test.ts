@@ -7,7 +7,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Covers text and binary reads together with failure cases.
  */
-describe('read(src [, options])', () => {
+describe('read', () => {
   let tingsContent = '';
   let tmpDir = '';
 
@@ -27,13 +27,13 @@ describe('read(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
   
-  it('Positive: Must read content of file; String type by default', async () => {
+  it('reads file content as a string by default', async () => {
     const content = await pfs.read(path.join(tmpDir, 'tings.txt'));
 
     assert.strictEqual(content, tingsContent);
   });
 
-  it('Positive: Must read Buffer content of file when encoding is null', async () => {
+  it('reads file content as a buffer when encoding is null', async () => {
     const buffer = await pfs.read(path.join(tmpDir, 'tings.txt'), {
       encoding: null
     });
@@ -42,13 +42,13 @@ describe('read(src [, options])', () => {
     assert.strictEqual(buffer.toString('utf8'), tingsContent);
   });
 
-  it('Negative: Throw if resource is not file', async () => {
+  it('rejects when resource is not a file', async () => {
     await assert.rejects(async () => {
       await pfs.read(tmpDir);
     });
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing resource', async () => {
     const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
@@ -56,7 +56,7 @@ describe('read(src [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Must read content of file; String type by default', () => {
+  it('reads file content as a string by default with sync option', () => {
     const content = pfs.read(path.join(tmpDir, 'tings.txt'), {
       sync: true
     });
@@ -64,7 +64,7 @@ describe('read(src [, options])', () => {
     assert.strictEqual(content, tingsContent);
   });
 
-  it('[sync] Positive: Must read Buffer content of file when encoding is null', () => {
+  it('reads file content as a buffer when encoding is null with sync option', () => {
     const buf = pfs.read(path.join(tmpDir, 'tings.txt'), {
       sync: true,
       encoding: null
@@ -74,7 +74,7 @@ describe('read(src [, options])', () => {
     assert.strictEqual(buf.toString('utf8'), tingsContent);
   });
 
-  it('[sync] Negative: Throw if not exists resource', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {

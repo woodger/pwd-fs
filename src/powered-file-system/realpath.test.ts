@@ -7,7 +7,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Verifies canonical path resolution through symbolic links.
  */
-describe('realpath(src [, options])', () => {
+describe('realpath', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -29,13 +29,13 @@ describe('realpath(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Resolves the canonical target path', async () => {
+  it('resolves the canonical target path', async () => {
     const target = await pfs.realpath(path.join(tmpDir, 'flexapp'));
 
     assert(target === path.join(tmpDir, 'tings.txt'));
   });
 
-  it('[sync] Positive: Resolves the canonical target path', () => {
+  it('resolves the canonical target path with sync option', () => {
     const target = pfs.realpath(path.join(tmpDir, 'flexapp'), {
       sync: true
     });

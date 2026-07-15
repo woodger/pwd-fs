@@ -7,7 +7,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
 /**
  * Ensures `stat()` preserves file type reporting for files, directories, and symlinks.
  */
-describe('stat(src [, options])', () => {
+describe('stat', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -30,25 +30,25 @@ describe('stat(src [, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Must return information a file', async () => {
+  it('returns information for a file', async () => {
     const stats = await pfs.stat(path.join(tmpDir, 'tings.txt'));
 
     assert(stats.isFile());
   });
 
-  it('Positive: Must return information a directory', async () => {
+  it('returns information for a directory', async () => {
     const stats = await pfs.stat(path.join(tmpDir, 'digest'));
 
     assert(stats.isDirectory());
   });
 
-  it('Positive: Must return information a symlink', async () => {
+  it('returns information for a symlink', async () => {
     const stats = await pfs.stat(path.join(tmpDir, 'flexapp'));
 
     assert(stats.isSymbolicLink());
   });
 
-  it('Negative: Throw if not exists resource', async () => {
+  it('rejects for a missing resource', async () => {
     const resourceName = 'fixture-path';
 
     await assert.rejects(async () => {
@@ -56,7 +56,7 @@ describe('stat(src [, options])', () => {
     });
   });
 
-  it('[sync] Positive: Must return information a file', () => {
+  it('returns information for a file with sync option', () => {
     const stats = pfs.stat(path.join(tmpDir, 'tings.txt'), {
       sync: true
     });
@@ -64,7 +64,7 @@ describe('stat(src [, options])', () => {
     assert(stats.isFile());
   });
 
-  it('[sync] Positive: Must return information a directory in ', () => {
+  it('returns information for a directory with sync option', () => {
     const stats = pfs.stat(path.join(tmpDir, 'digest'), {
       sync: true
     });
@@ -72,7 +72,7 @@ describe('stat(src [, options])', () => {
     assert(stats.isDirectory());
   });
 
-  it('[sync] Positive: Must return information a symlink', () => {
+  it('returns information for a symlink with sync option', () => {
     const stats = pfs.stat(path.join(tmpDir, 'flexapp'), {
       sync: true
     });
@@ -80,7 +80,7 @@ describe('stat(src [, options])', () => {
     assert(stats.isSymbolicLink());
   });
 
-  it('[sync] Negative: Throw if not exists resource', () => {
+  it('throws for a missing resource with sync option', () => {
     const resourceName = 'fixture-path';
 
     assert.throws(() => {

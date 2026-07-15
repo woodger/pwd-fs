@@ -10,7 +10,7 @@ import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-util
  */
 const itUnix = process.platform === 'win32' ? it.skip : it;
 
-describe('write(src, data[, options])', () => {
+describe('write', () => {
   let tmpDir = '';
 
   beforeEach(() => {
@@ -28,7 +28,7 @@ describe('write(src, data[, options])', () => {
     removeFixtureTree(tmpDir);
   });
 
-  it('Positive: Must write content to file', async () => {
+  it('writes content to a new file', async () => {
     const payload = 'fixture payload';
     const resourceName = 'fixture-path';
     const filePath = path.join(tmpDir, `${resourceName}.txt`);
@@ -39,7 +39,7 @@ describe('write(src, data[, options])', () => {
     assert.strictEqual(content, payload);
   });
 
-  it('Positive: Must rewrite content if file already exists', async () => {
+  it('replaces content when the file already exists', async () => {
     const payload = 'fixture payload';
 
     await pfs.write(path.join(tmpDir, 'tings.txt'), payload);
@@ -48,7 +48,7 @@ describe('write(src, data[, options])', () => {
     assert.strictEqual(content, payload);
   });
 
-  it('Negative: Throw if resource is directory', async () => {
+  it('rejects when the target is a directory', async () => {
     const payload = 'fixture payload';
 
     await assert.rejects(async () => {
@@ -56,7 +56,7 @@ describe('write(src, data[, options])', () => {
     });
   });
 
-  it(`Negative: Unexpected option 'flag' returns Error`, async () => {
+  it(`rejects an unsupported 'flag' option`, async () => {
     const payload = 'fixture payload';
 
     await assert.rejects(async () => {
@@ -66,7 +66,7 @@ describe('write(src, data[, options])', () => {
     });
   });
 
-  it('[sync] Positive: Write contents even to a non-existent file', () => {
+  it('writes content to a new file with sync option', () => {
     const payload = 'fixture payload';
     const resourceName = 'fixture-path';
     const filePath = path.join(tmpDir, `${resourceName}.txt`);
@@ -80,7 +80,7 @@ describe('write(src, data[, options])', () => {
     assert.strictEqual(content, payload);
   });
 
-  it('[sync] Negative: Throw if resource is directory', () => {
+  it('throws when the target is a directory with sync option', () => {
     const payload = 'fixture payload';
 
     assert.throws(() => {
@@ -90,7 +90,7 @@ describe('write(src, data[, options])', () => {
     });
   });
 
-  it(`[sync] Negative: Unexpected option 'flag' returns Error`, () => {
+  it(`throws for an unsupported 'flag' option with sync option`, () => {
     const payload = 'fixture payload';
 
     assert.throws(() => {
@@ -101,17 +101,17 @@ describe('write(src, data[, options])', () => {
     });
   });
 
-  itUnix('[sync] Positive: Umask should be applied with bit masking', () => {
+  itUnix('applies umask to the created file mode with sync option', () => {
     const resourceName = 'fixture-path';
     const filePath = path.join(tmpDir, `${resourceName}.txt`);
 
     pfs.write(filePath, 'x', {
       sync: true,
-      umask: 0o111
+      umask: 0o022
     });
 
     const mode = fs.statSync(filePath).mode & 0o777;
 
-    assert(mode === 0o666);
+    assert.strictEqual(mode, 0o644);
   });
 });
