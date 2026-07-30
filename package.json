@@ -24,15 +24,19 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/woodger/pwd-fs.git"
+    "url": "git+https://github.com/woodger/pwd-fs.git"
   },
   "engines": {
     "node": ">=14.18.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
+    "prepare": "tsc",
     "test": "fwa --prune",
     "lint": "biome lint src"
   },
