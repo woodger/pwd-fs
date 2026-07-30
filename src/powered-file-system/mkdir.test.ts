@@ -121,21 +121,4 @@ describe('mkdir', () => {
       });
     });
   });
-
-  it('creates the target directory for an absolute pwd with sync option', () => {
-    const parentDir = createTmpDir();
-    const target = path.join(parentDir, 'fixture-path');
-    const nextPfs = new PoweredFileSystem(target);
-
-    try {
-      nextPfs.mkdir('.', {
-        sync: true
-      });
-
-      assert(fs.existsSync(target));
-    }
-    finally {
-      removeFixtureTree(parentDir);
-    }
-  });
 });

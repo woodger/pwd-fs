@@ -28,17 +28,23 @@ describe('rename', () => {
   });
 
   it('renames a file', async () => {
-    await pfs.rename(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'newapp.txt'));
-    const exist = fs.existsSync(path.join(tmpDir, 'newapp.txt'));
+    const sourcePath = path.join(tmpDir, 'tings.txt');
+    const destinationPath = path.join(tmpDir, 'newapp.txt');
 
-    assert(exist);
+    await pfs.rename(sourcePath, destinationPath);
+
+    assert.strictEqual(fs.readFileSync(destinationPath, 'utf8'), 'fixture content');
+    assert.strictEqual(fs.existsSync(sourcePath), false);
   });
 
   it('renames a directory', async () => {
-    await pfs.rename(path.join(tmpDir, 'digest'), path.join(tmpDir, 'newxbase'));
-    const exist = fs.existsSync(path.join(tmpDir, 'newxbase'));
+    const sourcePath = path.join(tmpDir, 'digest');
+    const destinationPath = path.join(tmpDir, 'newxbase');
 
-    assert(exist);
+    await pfs.rename(sourcePath, destinationPath);
+
+    assert(fs.statSync(destinationPath).isDirectory());
+    assert.strictEqual(fs.existsSync(sourcePath), false);
   });
 
   it('rejects for a missing resource', async () => {
@@ -50,23 +56,27 @@ describe('rename', () => {
   });
 
   it('renames a file with sync option', () => {
-    pfs.rename(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'newapp.txt'), {
+    const sourcePath = path.join(tmpDir, 'tings.txt');
+    const destinationPath = path.join(tmpDir, 'newapp.txt');
+
+    pfs.rename(sourcePath, destinationPath, {
       sync: true
     });
 
-    const exist = fs.existsSync(path.join(tmpDir, 'newapp.txt'));
-
-    assert(exist);
+    assert.strictEqual(fs.readFileSync(destinationPath, 'utf8'), 'fixture content');
+    assert.strictEqual(fs.existsSync(sourcePath), false);
   });
 
   it('renames a directory with sync option', () => {
-    pfs.rename(path.join(tmpDir, 'digest'), path.join(tmpDir, 'newxbase'), {
+    const sourcePath = path.join(tmpDir, 'digest');
+    const destinationPath = path.join(tmpDir, 'newxbase');
+
+    pfs.rename(sourcePath, destinationPath, {
       sync: true
     });
 
-    const exist = fs.existsSync(path.join(tmpDir, 'newxbase'));
-
-    assert(exist);
+    assert(fs.statSync(destinationPath).isDirectory());
+    assert.strictEqual(fs.existsSync(sourcePath), false);
   });
 
   it('throws for a missing resource with sync option', () => {

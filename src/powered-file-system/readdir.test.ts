@@ -2,46 +2,67 @@ import assert from 'node:assert';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Verifies directory listing behavior and invalid-target failures.
  */
 describe('readdir', () => {
-  let counter = 0;
   let tmpDir = '';
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    const frame: FixtureTree = {
-      [path.join(tmpDir, 'tings.txt')]: {
-        type: 'file',
-        data: 'fixture content'
-      }
-    };
-
-    counter = 3;
-    
-    for (let i = 0; i < counter; i++) {
-      frame[path.join(tmpDir, String(i))] = { type: 'directory' };
-    }
-
-    createFixtureTree(frame);
   });
 
   afterEach(() => {
     removeFixtureTree(tmpDir);
   });
 
-  it('returns a directory listing', async () => {
-    const { length } = await pfs.readdir(tmpDir);
+  it('returns directory entry names', async () => {
+    createFixtureTree({
+      [path.join(tmpDir, 'entry.txt')]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
 
-    assert(counter + 1 === length);
+    const entries = await pfs.readdir(tmpDir);
+
+    assert.deepStrictEqual(entries, ['entry.txt']);
+  });
+
+  it('returns buffer entry names when encoding is null', async () => {
+    createFixtureTree({
+      [path.join(tmpDir, 'entry.txt')]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
+
+    const entries = await pfs.readdir(tmpDir, {
+      encoding: null
+    });
+
+    assert.deepStrictEqual(entries, [Buffer.from('entry.txt')]);
+  });
+
+  it('returns an empty listing for an empty directory', async () => {
+    const entries = await pfs.readdir(tmpDir);
+
+    assert.deepStrictEqual(entries, []);
   });
 
   it('rejects when resource is not a directory', async () => {
+    const filePath = path.join(tmpDir, 'entry.txt');
+    createFixtureTree({
+      [filePath]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
+
     await assert.rejects(async () => {
-      await pfs.readdir(path.join(tmpDir, 'tings.txt'));
+      await pfs.readdir(filePath);
     });
   });
 
@@ -53,17 +74,56 @@ describe('readdir', () => {
     });
   });
 
-  it('returns a directory listing with sync option', () => {
-    const { length } = pfs.readdir(tmpDir, {
+  it('returns directory entry names with sync option', () => {
+    createFixtureTree({
+      [path.join(tmpDir, 'entry.txt')]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
+
+    const entries = pfs.readdir(tmpDir, {
       sync: true
     });
 
-    assert(counter + 1 === length);
+    assert.deepStrictEqual(entries, ['entry.txt']);
+  });
+
+  it('returns buffer entry names when encoding is null with sync option', () => {
+    createFixtureTree({
+      [path.join(tmpDir, 'entry.txt')]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
+
+    const entries = pfs.readdir(tmpDir, {
+      sync: true,
+      encoding: null
+    });
+
+    assert.deepStrictEqual(entries, [Buffer.from('entry.txt')]);
+  });
+
+  it('returns an empty listing for an empty directory with sync option', () => {
+    const entries = pfs.readdir(tmpDir, {
+      sync: true
+    });
+
+    assert.deepStrictEqual(entries, []);
   });
 
   it('throws when resource is not a directory with sync option', () => {
+    const filePath = path.join(tmpDir, 'entry.txt');
+    createFixtureTree({
+      [filePath]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
+
     assert.throws(() => {
-      pfs.readdir(path.join(tmpDir, 'tings.txt'), {
+      pfs.readdir(filePath, {
         sync: true
       });
     });

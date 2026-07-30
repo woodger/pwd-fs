@@ -48,7 +48,15 @@ export function readdir(
   const { sync = false, encoding = 'utf8' } = options ?? {};
 
   if (sync) {
-    return fs.readdirSync(this.resolve(dir), { encoding });
+    const resolvedDir = this.resolve(dir);
+
+    // The public API uses `null` for Buffer results, while Node's readdir API
+    // uses the special `buffer` encoding.
+    if (encoding === null) {
+      return fs.readdirSync(resolvedDir, { encoding: 'buffer' });
+    }
+
+    return fs.readdirSync(resolvedDir, { encoding });
   }
 
   return new Promise<string[] | Buffer[]>((resolve, reject) => {
@@ -60,12 +68,19 @@ export function readdir(
       return;
     }
 
-    fs.readdir(dir, { encoding }, (err, list) => {
+    const complete = (err: NodeJS.ErrnoException | null, list: string[] | Buffer[]) => {
       if (err) {
         return reject(err);
       }
 
       resolve(list);
-    });
+    };
+
+    if (encoding === null) {
+      fs.readdir(dir, { encoding: 'buffer' }, complete);
+      return;
+    }
+
+    fs.readdir(dir, { encoding }, complete);
   });
 }

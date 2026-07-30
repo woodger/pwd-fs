@@ -39,8 +39,10 @@ describe('chmod', () => {
   });
 
   it('rejects for a missing resource', async () => {
+    const missingPath = path.join(tmpDir, 'missing');
+
     await assert.rejects(async () => {
-      await pfs.chmod('./non-existent-source', 0o744);
+      await pfs.chmod(missingPath, 0o744);
     });
   });
 
@@ -67,10 +69,10 @@ describe('chmod', () => {
   });
 
   it('throws for a missing resource with sync option', () => {
-    const resourceName = 'fixture-path';
+    const missingPath = path.join(tmpDir, 'missing');
 
     assert.throws(() => {
-      pfs.chmod(`./${resourceName}`, 0o744, {
+      pfs.chmod(missingPath, 0o744, {
         sync: true
       });
     });
