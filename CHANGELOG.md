@@ -30,6 +30,11 @@ dates correspond to the commits referenced by those tags.
 - Completed npm metadata for documentation, CommonJS module type, issue
   reporting, homepage, and repository links.
 
+### Fixed
+
+- Made `readdir(..., { encoding: null })` return `Buffer[]` in asynchronous and
+  synchronous modes as documented.
+
 ### Removed
 
 - Removed the ESLint configuration and the `eslint`, `@eslint/js`,

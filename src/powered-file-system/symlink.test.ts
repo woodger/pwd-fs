@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { pfs } from '../index';
-import { FixtureTree, createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
+import { createTmpDir, createFixtureTree, removeFixtureTree } from '../test-utils';
 
 /**
  * Covers symlink creation for file and directory targets.
@@ -13,26 +13,6 @@ describe('symlink', () => {
   
   beforeEach(() => {
     tmpDir = createTmpDir();
-    
-    const frame: FixtureTree = {
-      [path.join(tmpDir, 'tings.txt')]: {
-        type: 'file',
-        data: 'fixture content'
-      },
-      [path.join(tmpDir, 'digest')]: { type: 'directory' },
-      [path.join(tmpDir, 'flexapp')]: {
-        type: 'symlink',
-        target: path.join(tmpDir, 'tings.txt')
-      }
-    };
-
-    const counter = 3;
-    
-    for (let i = 0; i < counter; i++) {
-      frame[path.join(tmpDir, String(i))] = { type: 'directory' };
-    }
-
-    createFixtureTree(frame);
   });
 
   afterEach(() => {
@@ -40,52 +20,118 @@ describe('symlink', () => {
   });
 
   it('creates a symbolic link to a file', async () => {
-    await pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'linkapp'));
-    
-    const stat = fs.lstatSync(path.join(tmpDir, 'linkapp'));
+    const targetPath = path.join(tmpDir, 'target.txt');
+    const linkPath = path.join(tmpDir, 'linkapp');
+    createFixtureTree({
+      [targetPath]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
 
-    assert(stat.isSymbolicLink());
+    await pfs.symlink(targetPath, linkPath);
+
+    assert(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.strictEqual(fs.realpathSync(linkPath), fs.realpathSync(targetPath));
   });
 
   it('creates a symbolic link to a directory', async () => {
-    await pfs.symlink(path.join(tmpDir, 'digest'), path.join(tmpDir, 'linkapp'));
-    
-    const stat = fs.lstatSync(path.join(tmpDir, 'linkapp'));
+    const targetPath = path.join(tmpDir, 'target');
+    const linkPath = path.join(tmpDir, 'linkapp');
+    createFixtureTree({
+      [targetPath]: { type: 'directory' }
+    });
 
-    assert(stat.isSymbolicLink());
+    await pfs.symlink(targetPath, linkPath);
+
+    assert(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.strictEqual(fs.realpathSync(linkPath), fs.realpathSync(targetPath));
   });
 
-  it('rejects when destination already exists', async () => {
-    await assert.rejects(async () => {
-      await pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'flexapp'));
+  it('rejects and preserves the link when destination already exists', async () => {
+    const requestedTargetPath = path.join(tmpDir, 'requested.txt');
+    const existingTargetPath = path.join(tmpDir, 'existing.txt');
+    const linkPath = path.join(tmpDir, 'linkapp');
+    createFixtureTree({
+      [requestedTargetPath]: {
+        type: 'file',
+        data: 'requested'
+      },
+      [existingTargetPath]: {
+        type: 'file',
+        data: 'existing'
+      },
+      [linkPath]: {
+        type: 'symlink',
+        target: existingTargetPath
+      }
     });
+
+    await assert.rejects(async () => {
+      await pfs.symlink(requestedTargetPath, linkPath);
+    });
+
+    assert.strictEqual(fs.realpathSync(linkPath), fs.realpathSync(existingTargetPath));
   });
 
   it('creates a symbolic link to a file with sync option', () => {
-    pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'linkapp'), {
+    const targetPath = path.join(tmpDir, 'target.txt');
+    const linkPath = path.join(tmpDir, 'linkapp');
+    createFixtureTree({
+      [targetPath]: {
+        type: 'file',
+        data: 'fixture content'
+      }
+    });
+
+    pfs.symlink(targetPath, linkPath, {
       sync: true
     });
 
-    const stat = fs.lstatSync(path.join(tmpDir, 'linkapp'));
-
-    assert(stat.isSymbolicLink());
+    assert(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.strictEqual(fs.realpathSync(linkPath), fs.realpathSync(targetPath));
   });
 
   it('creates a symbolic link to a directory with sync option', () => {
-    pfs.symlink(path.join(tmpDir, 'digest'), path.join(tmpDir, 'linkapp'), {
+    const targetPath = path.join(tmpDir, 'target');
+    const linkPath = path.join(tmpDir, 'linkapp');
+    createFixtureTree({
+      [targetPath]: { type: 'directory' }
+    });
+
+    pfs.symlink(targetPath, linkPath, {
       sync: true
     });
 
-    const stat = fs.lstatSync(path.join(tmpDir, 'linkapp'));
-
-    assert(stat.isSymbolicLink());
+    assert(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.strictEqual(fs.realpathSync(linkPath), fs.realpathSync(targetPath));
   });
 
-  it('throws when destination already exists with sync option', () => {
+  it('throws and preserves the link when destination already exists with sync option', () => {
+    const requestedTargetPath = path.join(tmpDir, 'requested.txt');
+    const existingTargetPath = path.join(tmpDir, 'existing.txt');
+    const linkPath = path.join(tmpDir, 'linkapp');
+    createFixtureTree({
+      [requestedTargetPath]: {
+        type: 'file',
+        data: 'requested'
+      },
+      [existingTargetPath]: {
+        type: 'file',
+        data: 'existing'
+      },
+      [linkPath]: {
+        type: 'symlink',
+        target: existingTargetPath
+      }
+    });
+
     assert.throws(() => {
-      pfs.symlink(path.join(tmpDir, 'tings.txt'), path.join(tmpDir, 'flexapp'), {
+      pfs.symlink(requestedTargetPath, linkPath, {
         sync: true
       });
     });
+
+    assert.strictEqual(fs.realpathSync(linkPath), fs.realpathSync(existingTargetPath));
   });
 });
