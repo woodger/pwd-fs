@@ -3,23 +3,21 @@
     "lib": [
       "ES2022"
     ],
-    "target": "es2022",
+    "target": "ES2022",
     "module": "Node16",
-    "moduleResolution": "node16",
     "rootDir": "./src",
+    "outDir": "./dist",
     "types": [
       "node"
     ],
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
+    "declaration": true,
+    "noEmitOnError": true,
     "strict": true,
     "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
-    "declaration": true,
-    "outDir": "./dist"
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true
   },
   "include": [
     "src/**/*.ts"

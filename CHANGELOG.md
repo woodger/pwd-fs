@@ -11,6 +11,8 @@ dates correspond to the commits referenced by those tags.
 
 ## [Unreleased]
 
+## [3.5.8] - 2026-07-30
+
 ### Added
 
 - Added consumer guides for setup, file workflows, synchronous execution, and
@@ -29,6 +31,8 @@ dates correspond to the commits referenced by those tags.
   policies, source files, tests, local configuration, and lockfiles excluded.
 - Completed npm metadata for documentation, CommonJS module type, issue
   reporting, homepage, and repository links.
+- Simplified the TypeScript 7 compiler configuration around its defaults and
+  enabled stricter index-signature access and no-emit-on-error checks.
 
 ### Fixed
 
@@ -462,7 +466,8 @@ dates correspond to the commits referenced by those tags.
 - Added promise-based file operations and recursive helpers for permissions,
   copying, removal, and directory creation.
 
-[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.7...HEAD
+[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.8...HEAD
+[3.5.8]: https://github.com/woodger/pwd-fs/compare/v3.5.7...v3.5.8
 [3.5.7]: https://github.com/woodger/pwd-fs/compare/v3.5.6...v3.5.7
 [3.5.6]: https://github.com/woodger/pwd-fs/compare/v3.5.5...v3.5.6
 [3.5.5]: https://github.com/woodger/pwd-fs/compare/v3.5.4...v3.5.5
