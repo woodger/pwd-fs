@@ -17,6 +17,12 @@ To use `Powered File System` in your project, run:
 npm install pwd-fs
 ```
 
+### Consumer Guides
+
+See the [consumer guides](https://github.com/woodger/pwd-fs/blob/main/docs/guides/index.md)
+for task-oriented examples covering scoped paths, common file workflows, and
+synchronous execution.
+
 #### Table of Contents
 
 [class PoweredFileSystem](#class-poweredfilesystem)
