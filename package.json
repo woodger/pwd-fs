@@ -26,6 +26,14 @@
     "type": "git",
     "url": "git+https://github.com/woodger/pwd-fs.git"
   },
+  "directories": {
+    "doc": "docs"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/woodger/pwd-fs/issues"
+  },
+  "homepage": "https://github.com/woodger/pwd-fs#readme",
   "engines": {
     "node": ">=14.18.0"
   },

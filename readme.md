@@ -19,9 +19,8 @@ npm install pwd-fs
 
 ### Consumer Guides
 
-See the [consumer guides](https://github.com/woodger/pwd-fs/blob/main/docs/guides/index.md)
-for task-oriented examples covering scoped paths, common file workflows, and
-synchronous execution.
+See the [consumer guides](docs/guides/index.md) for task-oriented examples
+covering scoped paths, common file workflows, and synchronous execution.
 
 #### Table of Contents
 

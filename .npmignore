@@ -1,7 +1,7 @@
 node_modules/
 yarn.lock
 biome.json
-docs/
+docs/policy/
 src/
 tsconfig*.json
 **/*.test.*

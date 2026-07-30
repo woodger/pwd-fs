@@ -71,6 +71,6 @@ sandbox. Validate untrusted paths before passing them to filesystem methods.
 
 ## Contract References
 
-- [Public class and overloads](../../src/powered-file-system.ts)
-- [Path-resolution behavior](../../src/powered-file-system.test.ts)
+- [Public class and overloads](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system.ts)
+- [Path-resolution behavior](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system.test.ts)
 - [Constructor API reference](../../readme.md#constructor-new-poweredfilesystempath)

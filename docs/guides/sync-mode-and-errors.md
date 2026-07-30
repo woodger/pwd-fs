@@ -86,7 +86,7 @@ filesystem failures rather than converting them to booleans.
 
 ## Contract References
 
-- [Public overloads](../../src/powered-file-system.ts)
-- [`test()` behavior](../../src/powered-file-system/test.test.ts)
-- [`read()` behavior](../../src/powered-file-system/read.test.ts)
+- [Public overloads](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system.ts)
+- [`test()` behavior](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system/test.test.ts)
+- [`read()` behavior](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system/read.test.ts)
 - [API reference](../../readme.md#class-poweredfilesystem)

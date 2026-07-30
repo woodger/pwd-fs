@@ -69,5 +69,5 @@ await files.write('events.log', 'processed\n', {
 
 - [Copy API reference](../../readme.md#pfscopysrc-dir-options)
 - [Write API reference](../../readme.md#pfswritesrc-data-options)
-- [Copy behavior tests](../../src/powered-file-system/copy.test.ts)
-- [Recursive remove behavior tests](../../src/powered-file-system/remove.test.ts)
+- [Copy behavior tests](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system/copy.test.ts)
+- [Recursive remove behavior tests](https://github.com/woodger/pwd-fs/blob/main/src/powered-file-system/remove.test.ts)
