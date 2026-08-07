@@ -2,6 +2,19 @@
 
 > Type: Policy. This document defines criteria for choosing new libraries and signs of undesirable dependencies.
 
+## Package Manager
+
+npm is the only supported package manager for this project. Yarn, pnpm, Bun,
+and other alternative package managers must not be used.
+
+- commit `package-lock.json` to keep development and CI installs reproducible;
+- use `npm ci` for installs from the committed lockfile;
+- use npm commands when adding, removing, or updating dependencies;
+- do not add lockfiles or configuration for alternative package managers.
+
+The npm lockfile is development metadata and must not be included in the
+published package.
+
 Only high-quality libraries are allowed.
 
 A library must:

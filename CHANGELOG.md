@@ -15,10 +15,13 @@ dates correspond to the commits referenced by those tags.
 
 - Replaced Biome with Oxlint 1.77.0 as the sole linter, using 60 explicit
   lint rules without type-aware linting.
+- Made npm the only supported package manager and committed `package-lock.json`
+  for reproducible development and CI installs.
 
 ### Removed
 
 - Removed the Biome dependency and configuration.
+- Removed the Yarn Classic lockfile and active Yarn workflow documentation.
 
 ## [3.5.8] - 2026-07-30
 
