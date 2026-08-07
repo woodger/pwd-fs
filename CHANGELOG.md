@@ -21,8 +21,6 @@ dates correspond to the commits referenced by those tags.
   for reproducible development and CI installs.
 - Updated `@types/node` from 20.19.25 to 20.19.43 within the Node.js 20 release
   line and updated `fwa` from 2.1.0 to 2.1.2.
-- Declared Node.js `>=20.19.0` as the development runtime required by the
-  toolchain while retaining Node.js `>=14.18.0` runtime support for consumers.
 
 ### Removed
 
