@@ -11,12 +11,18 @@ dates correspond to the commits referenced by those tags.
 
 ## [Unreleased]
 
+## [3.5.9] - 2026-08-07
+
 ### Changed
 
 - Replaced Biome with Oxlint 1.77.0 as the sole linter, using 60 explicit
   lint rules without type-aware linting.
 - Made npm the only supported package manager and committed `package-lock.json`
   for reproducible development and CI installs.
+- Updated `@types/node` from 20.19.25 to 20.19.43 within the Node.js 20 release
+  line and updated `fwa` from 2.1.0 to 2.1.2.
+- Declared Node.js `>=20.19.0` as the development runtime required by the
+  toolchain while retaining Node.js `>=14.18.0` runtime support for consumers.
 
 ### Removed
 
@@ -478,7 +484,8 @@ dates correspond to the commits referenced by those tags.
 - Added promise-based file operations and recursive helpers for permissions,
   copying, removal, and directory creation.
 
-[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.8...HEAD
+[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.9...HEAD
+[3.5.9]: https://github.com/woodger/pwd-fs/compare/v3.5.8...v3.5.9
 [3.5.8]: https://github.com/woodger/pwd-fs/compare/v3.5.7...v3.5.8
 [3.5.7]: https://github.com/woodger/pwd-fs/compare/v3.5.6...v3.5.7
 [3.5.6]: https://github.com/woodger/pwd-fs/compare/v3.5.5...v3.5.6

@@ -1,6 +1,6 @@
 {
   "name": "pwd-fs",
-  "version": "3.5.8",
+  "version": "3.5.9",
   "description": "Path-aware file system utilities with scoped working directories and recursive operations",
   "keywords": [
     "umask",
@@ -38,6 +38,11 @@
     "node": ">=14.18.0"
   },
   "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=20.19.0",
+      "onFail": "error"
+    },
     "packageManager": {
       "name": "npm",
       "onFail": "error"
@@ -55,8 +60,8 @@
     "lint": "oxlint src"
   },
   "devDependencies": {
-    "@types/node": "20.19.25",
-    "fwa": "^2.1.0",
+    "@types/node": "20.19.43",
+    "fwa": "^2.1.2",
     "oxlint": "1.77.0",
     "typescript": "7.0.2"
   }
