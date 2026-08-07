@@ -11,6 +11,15 @@ dates correspond to the commits referenced by those tags.
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced Biome with Oxlint 1.77.0 as the sole linter, using 60 explicit
+  lint rules without type-aware linting.
+
+### Removed
+
+- Removed the Biome dependency and configuration.
+
 ## [3.5.8] - 2026-07-30
 
 ### Added
