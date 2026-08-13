@@ -11,6 +11,8 @@ dates correspond to the commits referenced by those tags.
 
 ## [Unreleased]
 
+## [3.5.10] - 2026-08-13
+
 ### Changed
 
 - Updated Oxlint from 1.77.0 to 1.78.0 and `fwa` from 2.1.2 to 2.1.4.
@@ -496,7 +498,8 @@ dates correspond to the commits referenced by those tags.
 - Added promise-based file operations and recursive helpers for permissions,
   copying, removal, and directory creation.
 
-[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.9...HEAD
+[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.10...HEAD
+[3.5.10]: https://github.com/woodger/pwd-fs/compare/v3.5.9...v3.5.10
 [3.5.9]: https://github.com/woodger/pwd-fs/compare/v3.5.8...v3.5.9
 [3.5.8]: https://github.com/woodger/pwd-fs/compare/v3.5.7...v3.5.8
 [3.5.7]: https://github.com/woodger/pwd-fs/compare/v3.5.6...v3.5.7
