@@ -50,8 +50,8 @@
   },
   "devDependencies": {
     "@types/node": "20.19.43",
-    "fwa": "^2.1.2",
-    "oxlint": "1.77.0",
+    "fwa": "^2.1.4",
+    "oxlint": "1.78.0",
     "typescript": "7.0.2"
   }
 }

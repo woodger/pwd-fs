@@ -11,6 +11,13 @@ dates correspond to the commits referenced by those tags.
 
 ## [Unreleased]
 
+### Changed
+
+- Updated Oxlint from 1.77.0 to 1.78.0 and `fwa` from 2.1.2 to 2.1.4.
+- Adopted the applicable native portion of the Oxlint reference baseline,
+  replacing `ban-types` with focused object and function type rules while
+  keeping type-aware linting disabled.
+
 ## [3.5.9] - 2026-08-07
 
 ### Changed

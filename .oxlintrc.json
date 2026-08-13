@@ -17,7 +17,9 @@
   "rules": {
     "eslint/no-regex-spaces": "error",
     "eslint/prefer-rest-params": "error",
-    "typescript/ban-types": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "typescript/no-wrapper-object-types": "error",
     "eslint/no-extra-boolean-cast": "error",
     "eslint/no-useless-catch": "error",
     "eslint/no-useless-escape": "error",
@@ -34,19 +36,37 @@
     "eslint/no-unsafe-optional-chaining": "error",
     "eslint/no-unused-labels": "error",
     "eslint/no-unused-private-class-members": "error",
-    "eslint/no-unused-vars": "error",
+    "eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
     "eslint/use-isnan": "error",
     "eslint/for-direction": "error",
     "eslint/valid-typeof": "error",
     "eslint/require-yield": "error",
-    "import/no-commonjs": "error",
+    "import/no-commonjs": [
+      "error",
+      {
+        "allowConditionalRequire": false
+      }
+    ],
     "typescript/no-namespace": "error",
     "eslint/no-array-constructor": "error",
     "typescript/prefer-as-const": "error",
     "eslint/prefer-const": "error",
     "eslint/prefer-spread": "error",
-    "eslint/no-cond-assign": "error",
-    "eslint/no-return-assign": "error",
+    "eslint/no-cond-assign": [
+      "error",
+      "always"
+    ],
+    "eslint/no-return-assign": [
+      "error",
+      "always"
+    ],
     "eslint/no-multi-assign": "error",
     "eslint/no-async-promise-executor": "error",
     "eslint/no-ex-assign": "error",
