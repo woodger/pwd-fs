@@ -12,6 +12,7 @@
 import { chmod as chmodRecursive } from '../recurse-io';
 import { chmodSync as chmodRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Resolves the target path and delegates recursive mode updates.
@@ -51,8 +52,8 @@ export function chmod(
     try {
       src = this.resolve(src);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

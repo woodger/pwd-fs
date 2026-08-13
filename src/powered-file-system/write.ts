@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import type { AsyncOption, Flag, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 type WriteOptions = {
   encoding?: BufferEncoding | null;
@@ -66,8 +67,8 @@ export function write(
     try {
       src = this.resolve(src);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

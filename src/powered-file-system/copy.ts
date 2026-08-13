@@ -12,6 +12,7 @@
 import { copy as copyRecursive } from '../recurse-io';
 import { copySync as copyRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, CopyFilter, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 type CopyOptions = {
   umask?: number;
@@ -64,8 +65,8 @@ export function copy(
       src = this.resolve(src);
       dest = this.resolve(dest);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

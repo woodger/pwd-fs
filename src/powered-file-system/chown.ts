@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import { chown as chownRecursive } from '../recurse-io';
 import { chownSync as chownRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Resolves the target path and applies recursive ownership changes where supported.
@@ -62,8 +63,8 @@ export function chown(
       try {
         src = this.resolve(src);
       }
-      catch (err) {
-        reject(err);
+      catch (reason) {
+        reject(normalizeError(reason));
         return;
       }
 
@@ -82,8 +83,8 @@ export function chown(
     try {
       src = this.resolve(src);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

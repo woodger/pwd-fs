@@ -40,6 +40,7 @@ describe('append', () => {
     const payload = 'fixture payload';
 
     const filePath = path.join(tmpDir, 'tings.txt');
+    // oxlint-disable-next-line typescript/no-deprecated
     pfs.append(filePath, payload, {
       sync: true
     });

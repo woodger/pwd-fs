@@ -11,6 +11,38 @@ dates correspond to the commits referenced by those tags.
 
 ## [Unreleased]
 
+## [3.5.10] - 2026-08-13
+
+### Changed
+
+- Updated Oxlint from 1.77.0 to 1.78.0 and `fwa` from 2.1.2 to 2.1.4.
+- Added `oxlint-tsgolint` 7.0.2001 and enabled 21 project-selected type-aware
+  rules with narrow exceptions for `node:test`, the local `itUnix` wrapper,
+  and the deprecated API contract test.
+- Adopted the applicable native portion of the Oxlint reference baseline and
+  replaced `ban-types` with focused object and function type rules.
+
+### Fixed
+
+- Normalized non-Error exceptions caught during asynchronous path resolution
+  before passing them to Promise rejection handlers.
+
+## [3.5.9] - 2026-08-07
+
+### Changed
+
+- Replaced Biome with Oxlint 1.77.0 as the sole linter, using 60 explicit
+  lint rules without type-aware linting.
+- Made npm the only supported package manager and committed `package-lock.json`
+  for reproducible development and CI installs.
+- Updated `@types/node` from 20.19.25 to 20.19.43 within the Node.js 20 release
+  line and updated `fwa` from 2.1.0 to 2.1.2.
+
+### Removed
+
+- Removed the Biome dependency and configuration.
+- Removed the Yarn Classic lockfile and active Yarn workflow documentation.
+
 ## [3.5.8] - 2026-07-30
 
 ### Added
@@ -466,7 +498,9 @@ dates correspond to the commits referenced by those tags.
 - Added promise-based file operations and recursive helpers for permissions,
   copying, removal, and directory creation.
 
-[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.8...HEAD
+[Unreleased]: https://github.com/woodger/pwd-fs/compare/v3.5.10...HEAD
+[3.5.10]: https://github.com/woodger/pwd-fs/compare/v3.5.9...v3.5.10
+[3.5.9]: https://github.com/woodger/pwd-fs/compare/v3.5.8...v3.5.9
 [3.5.8]: https://github.com/woodger/pwd-fs/compare/v3.5.7...v3.5.8
 [3.5.7]: https://github.com/woodger/pwd-fs/compare/v3.5.6...v3.5.7
 [3.5.6]: https://github.com/woodger/pwd-fs/compare/v3.5.5...v3.5.6

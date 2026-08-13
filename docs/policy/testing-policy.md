@@ -23,18 +23,18 @@ Tests are written in TypeScript in `src/**/*.test.ts` and use standard Node.js m
 - `node:test`;
 - `node:assert`.
 
-`yarn test` uses `fwa` to discover already compiled tests in `dist/` and then
+`npm test` uses `fwa` to discover already compiled tests in `dist/` and then
 delegates execution to Node's native test runner. It does not compile
 TypeScript.
 
 After changes in `src`, a successful build must precede the test run:
 
 ```bash
-yarn build
-yarn test
+npm run build
+npm test
 ```
 
-Running `yarn test` without a preceding successful build is not valid source
+Running `npm test` without a preceding successful build is not valid source
 validation because it may execute older production output from `dist/`.
 
 ## Test Requirements

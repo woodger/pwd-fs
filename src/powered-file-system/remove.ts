@@ -12,6 +12,7 @@
 import { remove as removeRecursive } from '../recurse-io';
 import { removeSync as removeRecursiveSync } from '../recurse-io-sync';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Removes a path relative to the instance base path.
@@ -47,8 +48,8 @@ export function remove(
     try {
       src = this.resolve(src);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 
