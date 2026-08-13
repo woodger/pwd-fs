@@ -14,9 +14,11 @@ dates correspond to the commits referenced by those tags.
 ### Changed
 
 - Updated Oxlint from 1.77.0 to 1.78.0 and `fwa` from 2.1.2 to 2.1.4.
-- Adopted the applicable native portion of the Oxlint reference baseline,
-  replacing `ban-types` with focused object and function type rules while
-  keeping type-aware linting disabled.
+- Added `oxlint-tsgolint` 7.0.2001 and enabled 20 project-selected type-aware
+  rules with narrow exceptions for `node:test`, the local `itUnix` wrapper,
+  and the deprecated API contract test.
+- Adopted the applicable native portion of the Oxlint reference baseline and
+  replaced `ban-types` with focused object and function type rules.
 
 ## [3.5.9] - 2026-08-07
 
