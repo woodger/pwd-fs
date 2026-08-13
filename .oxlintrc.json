@@ -139,6 +139,7 @@
     "typescript/no-unsafe-return": "error",
     "typescript/no-unsafe-unary-minus": "error",
     "typescript/only-throw-error": "error",
+    "typescript/prefer-promise-reject-errors": "error",
     "typescript/require-array-sort-compare": "error",
     "typescript/restrict-template-expressions": [
       "error",

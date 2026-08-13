@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Windows requires an explicit link type. Non-Windows platforms infer it.
@@ -63,8 +64,8 @@ export function symlink(
       src = this.resolve(src);
       dest = this.resolve(dest);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

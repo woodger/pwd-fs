@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, ReadOptions, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Reads a file relative to `pwd` and preserves Buffer mode when `encoding` is `null`.
@@ -63,8 +64,8 @@ export function read(
     try {
       resolved = this.resolve(src);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

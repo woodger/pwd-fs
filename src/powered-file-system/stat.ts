@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, Stats, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Returns `lstat` data so symlinks are reported as links instead of followed targets.
@@ -45,8 +46,8 @@ export function stat(
     try {
       src = this.resolve(src);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 

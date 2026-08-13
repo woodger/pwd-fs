@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import type { AsyncOption, MaybeSyncOption, PoweredFileSystem, SyncOption } from '../powered-file-system';
+import { normalizeError } from './normalize-error';
 
 /**
  * Resolves both paths against the instance base path before delegating to Node's rename API.
@@ -53,8 +54,8 @@ export function rename(
       src = this.resolve(src);
       dest = this.resolve(dest);
     }
-    catch (err) {
-      reject(err);
+    catch (reason) {
+      reject(normalizeError(reason));
       return;
     }
 
